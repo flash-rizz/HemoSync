@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HemoSync - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container dashboard-container">
+        
+        <div class="dashboard-header">
+            <div class="user-info">
+                <h2 id="welcomeName">Hello, Donor</h2> 
+                <p>Let's save some lives today.</p>
+            </div>
+            <div class="profile-pic">
+                <i class="fa-solid fa-circle-user"></i>
+            </div>
+        </div>
+
+        <div class="status-card">
+            <div class="card-text">
+                <h3>Ready to Donate?</h3>
+                <p>Toggle this to show you are available.</p>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="availabilityToggle">
+                <span class="slider round"></span>
+            </label>
+        </div>
+
+        <div class="menu-grid">
+            
+            <div class="menu-item" onclick="alert('Coming Soon: List of Blood Drives near Cyberjaya')">
+                <div class="icon-box bg-red">
+                    <i class="fa-solid fa-magnifying-glass-location"></i>
+                </div>
+                <span>Find Drive</span>
+            </div>
+
+            <div class="menu-item" onclick="alert('Coming Soon: Your past donation records')">
+                <div class="icon-box bg-blue">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <span>History</span>
+            </div>
+
+            <div class="menu-item" onclick="alert('Coming Soon: Edit Profile and Health Info')">
+                <div class="icon-box bg-green">
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
+                <span>Profile</span>
+            </div>
+        </div>
+
+        <button id="logoutBtn" class="btn-logout">Logout</button>
+
+    </div>
+
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>

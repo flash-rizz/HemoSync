@@ -1,12 +1,13 @@
-
-// Import necessary Firebase functions
+// Import the functions we need from Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
+// YOUR CONFIG
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
     authDomain: "hemosync-765c9.firebaseapp.com",
+    databaseURL: "https://hemosync-765c9-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "hemosync-765c9",
     storageBucket: "hemosync-765c9.firebasestorage.app",
     messagingSenderId: "749126382362",
@@ -14,58 +15,67 @@ const firebaseConfig = {
     measurementId: "G-JP1Y2S1LN5"
   };
 
-// Initialize Firebase services
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Get HTML elements
-const signupForm = document.getElementById('signupForm');
+const loginForm = document.getElementById('loginForm');
 const errorMsg = document.getElementById('errorMessage');
 
-// Handle Sign Up Event
-signupForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Prevent page refresh
+// Handle Login
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault(); // Stop page reload
 
-    // Get values from the form
-    const fullname = document.getElementById('fullname').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const role = document.getElementById('role').value;
 
-    errorMsg.textContent = "";
+    errorMsg.textContent = "Logging in...";
 
     try {
-        // Step 1: Create user in Firebase Authentication
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // 1. Check Credentials (Authentication)
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        console.log("Account created for:", user.email);
+        // 2. Get User Info from Database (Firestore)
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
 
-        // Step 2: Save the user's Name and Role to Firestore Database
-        // We use the User ID (uid) as the document name so it's easy to find later
-        await setDoc(doc(db, "users", user.uid), {
-            fullname: fullname,
-            email: email,
-            role: role,
-            createdAt: new Date()
-        });
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            const name = userData.fullname;
+            const role = userData.role;
 
-        // Step 3: Success! Redirect to login
-        alert("Account created successfully! Please log in.");
-        window.location.href = "index.html";
+            // Success Message
+            alert("Welcome back, " + name + "!\nLogging in as: " + role);
+
+            // 3. Redirect based on Role
+            if (role === 'donor') {
+                window.location.href = "donor_home.html";
+            } else if (role === 'admin') {
+                console.log("Redirecting to Admin Dashboard...");
+                alert("Admin Dashboard not created yet!"); 
+            } else {
+                console.log("Redirecting to General Home...");
+                alert("Home page not created yet!");
+            }
+
+        } else {
+            console.log("No such document!");
+            errorMsg.textContent = "Error: User profile not found in database.";
+        }
 
     } catch (error) {
-        console.error("Error code:", error.code);
+        console.error("Login Error:", error.code);
         
-        // specific error messages for better user experience
-        if (error.code === 'auth/email-already-in-use') {
-            errorMsg.textContent = "This email is already registered.";
-        } else if (error.code === 'auth/weak-password') {
-            errorMsg.textContent = "Password should be at least 6 characters.";
+        // Simple error handling
+        if(error.code === 'auth/user-not-found') {
+            errorMsg.textContent = "Account not found. Please Sign Up.";
+        } else if (error.code === 'auth/wrong-password') {
+            errorMsg.textContent = "Incorrect password.";
         } else {
-            errorMsg.textContent = "Error: " + error.message;
+            errorMsg.textContent = "Login failed: " + error.message;
         }
     }
-});    
 });
