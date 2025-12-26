@@ -57,3 +57,33 @@ logoutBtn.addEventListener('click', () => {
         console.error("Logout Error:", error);
     });
 });
+
+// 3. Handle donor eligibility
+
+
+function checkDonationEligibility() {
+    // Retrieve user data
+    const userData = JSON.parse(localStorage.getItem('hemoSyncUser'));
+
+    // Check profile completion
+    if (!userData || !userData.isProfileComplete) {
+        const confirmProfile = confirm("You must complete your health profile before donating. Go to Profile now?");
+        if (confirmProfile) {
+            window.location.href = "profile.html";
+        }
+        return;
+    }
+
+    // Check eligibility
+    if (userData.isEligible === false) {
+        alert("You are currently not eligible to donate based on your profile.\nReason: " + userData.rejectionReason);
+        return;
+    }
+
+    // This is complete both
+    alert("Eligibility Confirmed. Proceeding to Blood Drive Map...");
+    // window.location.href = "donate_flow.html"; // Next step in your app
+}
+
+// Attach this to your Donate button in the HTML
+// Example: <div class="menu-item" onclick="checkDonationEligibility()"> ... </div>
