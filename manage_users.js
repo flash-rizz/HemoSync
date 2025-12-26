@@ -1,4 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+// Added getAuth and sendPasswordResetEmail for Use Case 4.1.1.4
+import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, collection, getDocs, query, where, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -13,6 +15,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app); // Initialize Auth
 
 const tableBody = document.getElementById('userTableBody');
 const detailPanel = document.getElementById('userDetailsPanel');
@@ -68,7 +71,6 @@ async function loadUsers(emailSearch = null) {
             return;
         }
         
-        // Updated loop to pass index for animation delay
         let index = 0;
         querySnapshot.forEach((docSnap) => { 
             tableBody.innerHTML += renderUserRow(docSnap, index); 
@@ -77,8 +79,6 @@ async function loadUsers(emailSearch = null) {
         
     } catch (error) { console.error("Load Error:", error); }
 }
-
-// manage_users.js
 
 // Function to toggle the suspension dropdown
 window.toggleSuspensionDrop = () => {
@@ -105,9 +105,18 @@ window.viewUser = async (userId) => {
                 <div><strong style="color:#888; font-size:12px;">EMAIL ADDRESS</strong><br>${u.email}</div>
                 <div><strong style="color:#888; font-size:12px;">ACCOUNT ROLE</strong><br><span class="role-badge">${u.role}</span></div>
                 <div><strong style="color:#888; font-size:12px;">STATUS</strong><br>${status}</div>
+                
+                <div style="grid-column: 1 / -1; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <button onclick="initiatePasswordReset('${u.email}', '${userId}')" class="btn-reset">
+                        <i class="fa-solid fa-key"></i> Send Password Reset Email
+                    </button>
+                    <p style="font-size: 11px; color: #999; margin-top: 5px;">
+                        *This will email a secure link to the user to set a new password.
+                    </p>
+                </div>
             `;
 
-            // If suspended, create the "droppable" section
+            // If suspended, add suspension details
             if (status === "Suspended") {
                 detailsHTML += `
                     <div style="grid-column: 1 / -1; margin-top: 10px; border: 1px solid #ffa39e; border-radius: 8px; overflow: hidden;">
@@ -132,6 +141,36 @@ window.viewUser = async (userId) => {
 
 window.closeDetails = () => { detailPanel.style.display = "none"; };
 
+// --- Use Case 4.1.1.4: Password Reset Logic ---
+window.initiatePasswordReset = async (email, userId) => {
+    // 1. Admin Confirms User (Step 11-12 in Diagram)
+    const confirmed = confirm(`Are you sure you want to send a password reset link to ${email}?`);
+    if (!confirmed) return;
+
+    try {
+        // 2. Request Password Reset (Step 13-18 handled by Firebase)
+        await sendPasswordResetEmail(auth, email);
+
+        // 3. NFR: Log Password Reset Action (Step 19 in Diagram)
+        // We update the user document to record that an admin initiated a reset
+        await updateDoc(doc(db, "users", userId), {
+            lastAdminResetDate: new Date().toISOString(),
+            lastAdminResetAction: "Password Reset Link Sent"
+        });
+
+        // 4. Display Confirmation (Step 21 in Diagram)
+        alert(`Success! Password reset instructions sent to ${email}.`);
+
+    } catch (error) {
+        console.error("Reset Error:", error);
+        if (error.code === 'auth/user-not-found') {
+            alert("Error: This email is not registered in the authentication system.");
+        } else {
+            alert("Error sending reset email: " + error.message);
+        }
+    }
+};
+
 // --- Use Case 4.1.1.2: Integrated Pop-up Logic ---
 
 window.confirmSuspension = (userId, userEmail) => {
@@ -154,7 +193,6 @@ document.getElementById('confirmModalBtn').addEventListener('click', async () =>
 
     try {
         const userRef = doc(db, "users", targetUserIdForSuspension);
-        // Step: Update Status in Database & Record activity log
         await updateDoc(userRef, {
             status: "Suspended",
             suspensionReason: reason,
