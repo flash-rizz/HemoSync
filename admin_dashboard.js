@@ -73,7 +73,7 @@ if (searchBtn) {
                 return;
             }
 
-            // Flow: System retrieves and displays user's full profile details
+            // Flow: System retrieves and displays user's full profile detailsss
             querySnapshot.forEach((docSnap) => {
                 const user = docSnap.data();
                 const row = `
