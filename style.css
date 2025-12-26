@@ -305,3 +305,59 @@ input:checked + .slider:before {
     overflow-y: auto;
     margin-bottom: 20px;
 }
+
+/* manage_users.html Back Button Styles */
+.btn-back:hover {
+    background: rgba(255,255,255,0.3) !important;
+    transform: translateX(-3px);
+    transition: all 0.2s ease;
+}
+
+@media (max-width: 480px) {
+    .btn-back span {
+        display: none; /* Only show the arrow icon on small phones */
+    }
+    .btn-back {
+        padding: 8px 12px !important;
+    }
+}
+
+.btn-logout {
+    background-color: #6c757d !important; /* Professional Gray */
+    color: white !important;              /* High contrast text */
+    border: none;
+    transition: background 0.3s ease;
+}
+
+.btn-logout:hover {
+    background-color: #5a6268 !important; /* Darker gray on hover */
+}
+
+
+#userDetailsContent div {
+    word-wrap: break-word; /* Prevents long emails from breaking mobile layout */
+}
+
+.suspension-box {
+    animation: fadeIn 0.4s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* style.css */
+#dropIcon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+#suspensionDropContent {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
