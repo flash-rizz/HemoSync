@@ -2,48 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>HemoSync - Reports</title>
+    <title>HemoSync - Event Reports</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-</head>
+    </head>
 <body>
     <div class="app-container">
         <div class="login-header">
             <h1>Event Reports</h1>
-            <p>Performance metrics for your drives.</p>
+            <p>Attendance & Blood Collection Metrics.</p>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <div class="status-card" style="flex: 1; text-align: center; padding: 15px;">
-                <h3 id="totalEvents" style="font-size: 30px; color: #D32F2F;">0</h3>
-                <p style="font-size: 12px;">Total Events</p>
-            </div>
-            <div class="status-card" style="flex: 1; text-align: center; padding: 15px;">
-                <h3 id="totalSlots" style="font-size: 30px; color: #1976D2;">0</h3>
-                <p style="font-size: 12px;">Total Slots</p>
+        <div class="input-group">
+            <label>Select Report Scope:</label>
+            <select id="reportSelect">
+                <option value="loading">Loading events...</option>
+            </select>
+        </div>
+
+        <div class="status-card" style="display:block;">
+            <h3>Attendance Status</h3>
+            <div style="display: flex; justify-content: space-around; margin-top: 15px; text-align: center;">
+                <div>
+                    <h2 id="countPresent" style="color: #2e7d32; font-size: 28px;">0</h2>
+                    <p style="font-size: 12px; color: #666;">Present</p>
+                </div>
+                <div>
+                    <h2 id="countAbsent" style="color: #c62828; font-size: 28px;">0</h2>
+                    <p style="font-size: 12px; color: #666;">Absent / No-Show</p>
+                </div>
             </div>
         </div>
 
         <div class="status-card" style="display:block;">
-            <h3>Donation Yield</h3>
-            <p style="margin-bottom: 15px; font-size:12px; color:#666;">Expected vs Actual</p>
+            <h3>Collection by Blood Type</h3>
+            <p style="font-size: 11px; color:#888; margin-bottom:15px;">*Verified by Hospital/Clinic</p>
             
-            <div style="margin-bottom: 10px;">
-                <span style="font-size:12px;">Expected (100%)</span>
-                <div style="background:#eee; height:10px; border-radius:5px; width:100%;">
-                    <div style="background:#D32F2F; height:100%; border-radius:5px; width: 100%;"></div>
+            <div class="menu-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0;">
+                <div style="background: #fce4ec; padding: 10px; border-radius: 10px; text-align: center;">
+                    <span style="font-weight: bold; color: #880e4f;">Type A</span>
+                    <h3 id="typeA" style="margin-top: 5px;">0</h3>
                 </div>
-            </div>
-
-            <div>
-                <span style="font-size:12px;">Confirmed (Fake Data 60%)</span>
-                <div style="background:#eee; height:10px; border-radius:5px; width:100%;">
-                    <div style="background:#1976D2; height:100%; border-radius:5px; width: 60%;"></div>
+                <div style="background: #e3f2fd; padding: 10px; border-radius: 10px; text-align: center;">
+                    <span style="font-weight: bold; color: #0d47a1;">Type B</span>
+                    <h3 id="typeB" style="margin-top: 5px;">0</h3>
+                </div>
+                <div style="background: #fff3e0; padding: 10px; border-radius: 10px; text-align: center;">
+                    <span style="font-weight: bold; color: #e65100;">Type O</span>
+                    <h3 id="typeO" style="margin-top: 5px;">0</h3>
+                </div>
+                <div style="background: #f3e5f5; padding: 10px; border-radius: 10px; text-align: center;">
+                    <span style="font-weight: bold; color: #4a148c;">Type AB</span>
+                    <h3 id="typeAB" style="margin-top: 5px;">0</h3>
                 </div>
             </div>
         </div>
 
-        <button class="btn-logout" onclick="window.location.href='organiser_dashboard.html'">Back</button>
+        <button class="btn-logout" onclick="window.location.href='organiser_dashboard.html'">Back to Dashboard</button>
     </div>
 
     <script type="module" src="reports.js"></script>
