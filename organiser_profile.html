@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HemoSync - Profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="login-header">
+            <h1>My Profile</h1>
+            <p>Manage your account details.</p>
+        </div>
+
+        <div class="login-form-container">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="pName">
+            </div>
+
+            <div class="input-group">
+                <label>Email (Cannot change)</label>
+                <input type="text" id="pEmail" disabled style="background:#eee; color:#888;">
+            </div>
+
+            <div class="input-group">
+                <label>Role</label>
+                <input type="text" id="pRole" disabled style="background:#eee; color:#888;">
+            </div>
+
+            <button class="btn-login" id="saveProfileBtn">Save Changes</button>
+            <button class="btn-logout" style="margin-top:10px;" onclick="window.location.href='organiser_dashboard.html'">Back</button>
+        </div>
+    </div>
+
+    <script type="module" src="organiser_profile.js"></script>
+</body>
+</html>

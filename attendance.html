@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HemoSync - Attendance</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="login-header">
+            <h1>Mark Attendance</h1>
+            <p>Select an event to verify donors.</p>
+        </div>
+
+        <div class="input-group">
+            <label>Choose Event:</label>
+            <select id="eventSelect">
+                <option value="">Loading your events...</option>
+            </select>
+        </div>
+
+        <div id="attendanceSection" style="display:none; margin-top:20px;">
+            <h3>Donor List</h3>
+            <p style="font-size:12px; color:#666;">Mark users as Present or Absent.</p>
+            
+            <div id="donorList">
+                </div>
+
+            <button class="btn-login" id="saveBtn">Save Attendance</button>
+        </div>
+
+        <button class="btn-logout" style="margin-top: 20px;" onclick="window.location.href='organiser_dashboard.html'">Back</button>
+    </div>
+
+    <script type="module" src="attendance.js"></script>
+</body>
+</html>

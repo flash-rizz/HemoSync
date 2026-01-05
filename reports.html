@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HemoSync - Reports</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="login-header">
+            <h1>Event Reports</h1>
+            <p>Performance metrics for your drives.</p>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div class="status-card" style="flex: 1; text-align: center; padding: 15px;">
+                <h3 id="totalEvents" style="font-size: 30px; color: #D32F2F;">0</h3>
+                <p style="font-size: 12px;">Total Events</p>
+            </div>
+            <div class="status-card" style="flex: 1; text-align: center; padding: 15px;">
+                <h3 id="totalSlots" style="font-size: 30px; color: #1976D2;">0</h3>
+                <p style="font-size: 12px;">Total Slots</p>
+            </div>
+        </div>
+
+        <div class="status-card" style="display:block;">
+            <h3>Donation Yield</h3>
+            <p style="margin-bottom: 15px; font-size:12px; color:#666;">Expected vs Actual</p>
+            
+            <div style="margin-bottom: 10px;">
+                <span style="font-size:12px;">Expected (100%)</span>
+                <div style="background:#eee; height:10px; border-radius:5px; width:100%;">
+                    <div style="background:#D32F2F; height:100%; border-radius:5px; width: 100%;"></div>
+                </div>
+            </div>
+
+            <div>
+                <span style="font-size:12px;">Confirmed (Fake Data 60%)</span>
+                <div style="background:#eee; height:10px; border-radius:5px; width:100%;">
+                    <div style="background:#1976D2; height:100%; border-radius:5px; width: 60%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-logout" onclick="window.location.href='organiser_dashboard.html'">Back</button>
+    </div>
+
+    <script type="module" src="reports.js"></script>
+</body>
+</html>
