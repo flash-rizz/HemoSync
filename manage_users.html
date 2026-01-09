@@ -69,6 +69,18 @@
       justify-content: flex-start;
       margin-top: 10px;
     }
+    /* Override global button width inside mobile cards only */
+    .user-card-actions .btn-login,
+    .user-card-actions .btn-logout {
+      width: auto !important;          /* cancels width:100% from style.css */
+      flex: 1 1 calc(50% - 8px);       /* 2 columns */
+      padding: 10px 12px !important;   /* slightly smaller */
+      font-size: 12px !important;
+    }
+
+.user-card-actions button {
+  margin-top: 0 !important;        /* cancels margin-top from .btn-login */
+}
 
     .status-pill {
       display: inline-flex;
