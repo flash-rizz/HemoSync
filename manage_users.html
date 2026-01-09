@@ -1,83 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HemoSync - Manage Users</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HemoSync - Manage Users</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- Mobile responsive helper styles (only affects this page) -->
+  <style>
+    /* Desktop table default */
+    #desktopTableWrap { display: block; }
+    #mobileCardWrap { display: none; }
+
+    /* Mobile: switch to cards, no horizontal scroll */
+    @media (max-width: 768px) {
+      #desktopTableWrap { display: none; }
+      #mobileCardWrap { display: block; }
+    }
+
+    .user-card {
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 14px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+    }
+
+    .user-card.pending {
+      background: #fffbe6;
+      border-color: #ffe58f;
+    }
+
+    .user-card-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .user-card .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #999;
+      letter-spacing: 0.5px;
+    }
+
+    .user-card .value {
+      font-size: 14px;
+      color: #222;
+      font-weight: 600;
+    }
+
+    .user-card .subvalue {
+      font-size: 12px;
+      color: #666;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .user-card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      margin-top: 10px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      color: white;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="app-container dashboard-container" style="max-width: 1200px; width: 95%; margin: auto;">
-        
-        <div class="dashboard-header">
-            <div class="user-info">
-                <button onclick="window.location.href='admin_dashboard.html'" class="btn-back" style="background: #f8f9fa; border: 1px solid #ddd; color: #333; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; display: inline-flex; align-items: center; gap: 10px; font-weight: 600;">
-                    <i class="fa-solid fa-arrow-left"></i> 
-                    <span>Back to Dashboard</span>
-                </button>
-                <h2>User Management</h2>
-                <p>Oversight for Donors, Organisers, and Hospitals.</p>
-            </div>
+  <div class="app-container dashboard-container" style="max-width: 1200px; width: 95%; margin: auto;">
+    <div class="dashboard-header">
+      <div class="user-info">
+        <button
+          onclick="window.location.href='admin_dashboard.html'"
+          class="btn-back"
+          style="background: #f8f9fa; border: 1px solid #ddd; color: #333; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; display: inline-flex; align-items: center; gap: 10px; font-weight: 600;"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back to Dashboard</span>
+        </button>
+
+        <h2>User Management</h2>
+        <p>Oversight for Donors, Organisers, and Hospitals.</p>
+      </div>
+    </div>
+
+    <!-- User Details Panel -->
+    <div
+      id="userDetailsPanel"
+      class="status-card"
+      style="display: none; background: #fffbe6; border-left: 5px solid #ffe58f; margin-bottom: 20px; animation: slideUpFade 0.4s ease;"
+    >
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h3><i class="fa-solid fa-id-card"></i> Profile Details</h3>
+        <button onclick="closeDetails()" style="background:none; border:none; font-size: 24px; cursor:pointer;">&times;</button>
+      </div>
+
+      <div
+        id="userDetailsContent"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 15px;"
+      ></div>
+    </div>
+
+    <!-- Search + Filter -->
+    <div class="status-card" style="display: block;">
+      <div class="search-box" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input
+          type="text"
+          id="adminSearchInput"
+          placeholder="Search by email..."
+          style="flex: 1; min-width: 280px; padding: 12px; border-radius: 8px; border: 1px solid #ddd;"
+        />
+
+        <select
+          id="statusFilter"
+          style="min-width: 200px; padding: 12px; border-radius: 8px; border: 1px solid #ddd;"
+        >
+          <option value="ALL">All statuses</option>
+          <option value="Pending">Pending (needs verify)</option>
+          <option value="Active">Active</option>
+          <option value="Suspended">Suspended</option>
+        </select>
+
+        <div
+          id="pendingCounter"
+          style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 8px; border: 1px solid #ffe58f; background: #fffbe6; color: #b26a00; font-weight: 600; min-width: 150px; justify-content: center;"
+        >
+          <i class="fa-solid fa-clock"></i>
+          <span>Pending: 0</span>
         </div>
 
-        <div id="userDetailsPanel" class="status-card" style="display: none; background: #fffbe6; border-left: 5px solid #ffe58f; margin-bottom: 20px; animation: slideUpFade 0.4s ease;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                <h3><i class="fa-solid fa-id-card"></i> Profile Details</h3>
-                <button onclick="closeDetails()" style="background:none; border:none; font-size: 24px; cursor:pointer;">&times;</button>
-            </div>
-            <div id="userDetailsContent" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 15px;">
-                </div>
+        <div style="display: flex; gap: 10px; width: 100%; flex: 1;">
+          <button id="execSearchBtn" class="btn-login" style="margin: 0; flex: 1;">Find</button>
+          <button id="clearSearchBtn" class="btn-logout" style="margin: 0; flex: 1; background: #6c757d; color:white;">Reset</button>
         </div>
 
-        <div class="status-card" style="display: block;">
-            <div class="search-box" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <input type="text" id="adminSearchInput" placeholder="Search by email..." style="flex: 1; min-width: 280px; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
-                <div style="display: flex; gap: 10px; width: 100%; flex: 1;">
-                    <button id="execSearchBtn" class="btn-login" style="margin: 0; flex: 1;">Find</button>
-                    <button id="clearSearchBtn" class="btn-logout" style="margin: 0; flex: 1; background: #6c757d; color:white;">Reset</button>
-                </div>
-            </div>
+        <div id="pendingHeadsUp" style="display:none; width: 100%; font-size: 12px; color: #b26a00; margin-top: 6px;">
+          Heads up: These accounts are pending. Verify them or remind them to complete screening.
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop Table (hidden on mobile) -->
+    <div id="desktopTableWrap" class="status-card" style="display: block; overflow-x: auto; padding: 0;">
+      <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+        <thead style="background: #f8f9fa;">
+          <tr style="text-align: left; border-bottom: 2px solid #eee;">
+            <th style="padding: 15px;">User Info</th>
+            <th style="padding: 15px;">Role</th>
+            <th style="padding: 15px;">Status</th>
+            <th style="padding: 15px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Cards (hidden on desktop) -->
+    <div id="mobileCardWrap" class="status-card" style="display: block;">
+      <div id="mobileUserCards" style="display: grid; gap: 12px;"></div>
+    </div>
+
+    <!-- Pagination below list/table -->
+    <div class="status-card" style="display: block; margin-top: 12px;">
+      <div style="display: flex; gap: 10px; width: 100%; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <label style="font-size: 12px; color: #777;">Rows per page:</label>
+          <select id="pageSizeSelect" style="padding: 10px; border-radius: 8px; border: 1px solid #ddd; min-width: 120px;">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+          </select>
         </div>
 
-        <div class="status-card" style="display: block; overflow-x: auto; padding: 0;">
-            <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
-                <thead style="background: #f8f9fa;">
-                    <tr style="text-align: left; border-bottom: 2px solid #eee;">
-                        <th style="padding: 15px;">User Info</th>
-                        <th style="padding: 15px;">Role</th>
-                        <th style="padding: 15px;">Status</th>
-                        <th style="padding: 15px; text-align: center;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="userTableBody"></tbody>
-            </table>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button id="prevPageBtn" class="btn-logout" style="margin: 0; background: #6c757d; color: white;">Prev</button>
+          <div id="pageInfo" style="font-size: 12px; color: #777; min-width: 160px; text-align: center;">Page 1</div>
+          <button id="nextPageBtn" class="btn-login" style="margin: 0;">Next</button>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div id="suspensionModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);">
-            <div class="status-card" style="max-width: 450px; width: 90%; background: white; padding: 30px; border-radius: 15px; border-top: 8px solid #e74c3c; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3);">
-                
-                <div style="text-align: center;">
-                    <h3 style="color: #e74c3c; margin-bottom: 10px; font-size: 22px;">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Suspend Account
-                    </h3>
-                    <p id="suspensionTargetText" style="font-size: 14px; color: #555; line-height: 1.5;"></p>
-                </div>
-                
-                <div style="width: 100%;">
-                    <label style="font-size: 11px; font-weight: 600; color: #999; letter-spacing: 1px; display: block; margin-bottom: 8px;">REASON FOR SUSPENSION</label>
-                    <textarea id="suspensionReason" placeholder="Enter audit reason here..." 
-                              style="width: 100%; height: 100px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-family: 'Poppins'; resize: none; box-sizing: border-box;"></textarea>
-                </div>
-                
-                <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
-                    <button id="cancelModalBtn" class="btn-logout" style="flex: 1; background: #6c757d; color: white; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none;">Cancel</button>
-                    <button id="confirmModalBtn" class="btn-login" style="flex: 1; background: #e74c3c; color: white; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none;">Confirm</button>
-                </div>
-            </div>
-        </div>
-    
-        <script type="module" src="manage_users.js"></script>
-    </body>
+  <!-- Suspension Modal -->
+  <div
+    id="suspensionModal"
+    class="modal-overlay"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);"
+  >
+    <div
+      class="status-card"
+      style="max-width: 450px; width: 90%; background: white; padding: 30px; border-radius: 15px; border-top: 8px solid #e74c3c; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3);"
+    >
+      <div style="text-align: center;">
+        <h3 style="color: #e74c3c; margin-bottom: 10px; font-size: 22px;">
+          <i class="fa-solid fa-triangle-exclamation"></i> Suspend Account
+        </h3>
+        <p id="suspensionTargetText" style="font-size: 14px; color: #555; line-height: 1.5;"></p>
+      </div>
+
+      <div style="width: 100%;">
+        <label style="font-size: 11px; font-weight: 600; color: #999; letter-spacing: 1px; display: block; margin-bottom: 8px;">
+          REASON FOR SUSPENSION
+        </label>
+        <textarea
+          id="suspensionReason"
+          placeholder="Enter audit reason here..."
+          style="width: 100%; height: 100px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-family: 'Poppins'; resize: none; box-sizing: border-box;"
+        ></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
+        <button id="cancelModalBtn" class="btn-logout" style="flex: 1; background: #6c757d; color: white; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none;">
+          Cancel
+        </button>
+        <button id="confirmModalBtn" class="btn-login" style="flex: 1; background: #e74c3c; color: white; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none;">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="manage_users.js"></script>
+</body>
 </html>

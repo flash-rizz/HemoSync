@@ -533,3 +533,13 @@ tbody tr {
     width: 18px;
     height: 18px;
 }
+
+<style>
+  #desktopTableWrap { display: block !important; }
+  #mobileCardWrap { display: none !important; }
+
+  @media (max-width: 768px) {
+    #desktopTableWrap { display: none !important; }
+    #mobileCardWrap { display: block !important; }
+  }
+</style>
