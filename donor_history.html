@@ -10,7 +10,7 @@
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="app-container dashboard-container">
         
         <div class="dashboard-header" style="justify-content: flex-start; gap: 15px;">
             <i class="fa-solid fa-arrow-left" style="font-size: 1.2rem; cursor: pointer;" onclick="window.location.href='donor_home.html'"></i>
@@ -41,6 +41,33 @@
 
     </div>
 
-    <script type="module" src="donor_history.js"></script>
+    <div id="feedbackModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Rate Experience</h3>
+                <p>How was your donation at <span id="feedbackEventName" style="font-weight:600; color:#D32F2F;">Event</span>?</p>
+            </div>
+            
+            <div class="modal-body" style="text-align: center;">
+                <div class="star-rating">
+                    <i class="fa-solid fa-star" data-value="1" onclick="selectStar(1)"></i>
+                    <i class="fa-solid fa-star" data-value="2" onclick="selectStar(2)"></i>
+                    <i class="fa-solid fa-star" data-value="3" onclick="selectStar(3)"></i>
+                    <i class="fa-solid fa-star" data-value="4" onclick="selectStar(4)"></i>
+                    <i class="fa-solid fa-star" data-value="5" onclick="selectStar(5)"></i>
+                </div>
+                <p id="ratingLabel" style="font-size: 0.8rem; color: #888; margin-bottom: 15px;">Tap a star to rate</p>
+
+                <textarea id="feedbackText" placeholder="Share your experience (Optional)..." rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; font-size: 0.9rem; resize: none;"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeFeedbackModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitFeedback()">Submit Review</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="donor_history.js"></script>
 </body>
 </html>

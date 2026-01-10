@@ -852,3 +852,55 @@ tbody tr {
 .dashboard-header p {
     margin: 0;
 }
+
+/* --- FEEDBACK & REVIEW STYLES --- */
+.star-rating {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.star-rating i {
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.star-rating i.active {
+    color: #FFD700; /* Gold for selected stars */
+}
+
+.star-rating i:hover {
+    transform: scale(1.2);
+    color: #FFD700;
+}
+
+.btn-rate {
+    background: white;
+    border: 1px solid #ddd;
+    color: #555;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.btn-rate:hover:not(:disabled) {
+    background: #f9f9f9;
+    color: #D32F2F;
+    border-color: #D32F2F;
+}
+
+.btn-rate.disabled {
+    background-color: #f1f1f1;
+    color: #888;
+    border-color: transparent;
+    cursor: default;
+}
