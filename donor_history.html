@@ -11,7 +11,6 @@
 <body>
 
     <div class="app-container dashboard-container">
-        
         <div class="dashboard-header" style="justify-content: flex-start; gap: 15px;">
             <i class="fa-solid fa-arrow-left" style="font-size: 1.2rem; cursor: pointer;" onclick="window.location.href='donor_home.html'"></i>
             <div class="user-info">
@@ -23,7 +22,7 @@
         <div class="status-card" style="padding: 15px; margin-bottom: 20px;">
             <div class="card-text">
                 <h3 style="font-size: 1rem;"><i class="fa-solid fa-trophy" style="color: #FFD700;"></i> Total Donations</h3>
-                <p>You have saved lives <strong>3 times</strong>.</p>
+                <p>You have saved lives <strong id="totalDonationCount">0</strong> times.</p>
             </div>
         </div>
 
@@ -36,8 +35,7 @@
             <p>No Donation History Found.</p>
         </div>
 
-        <div id="historyContainer" class="events-list" style="padding-bottom: 80px;">
-            </div>
+        <div id="historyContainer" class="events-list" style="padding-bottom: 80px;"></div>
 
     </div>
 
@@ -57,7 +55,6 @@
                     <i class="fa-solid fa-star" data-value="5" onclick="selectStar(5)"></i>
                 </div>
                 <p id="ratingLabel" style="font-size: 0.8rem; color: #888; margin-bottom: 15px;">Tap a star to rate</p>
-
                 <textarea id="feedbackText" placeholder="Share your experience (Optional)..." rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; font-size: 0.9rem; resize: none;"></textarea>
             </div>
 
@@ -68,6 +65,7 @@
         </div>
     </div>
 
-    <script src="donor_history.js"></script>
+    <script type="module" src="donor_history.js"></script>
+
 </body>
 </html>
