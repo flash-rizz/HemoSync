@@ -19,6 +19,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Global variable to store user data
 let currentUserData = null;
 
 // 1. Run on Load: Check User & Check Appointments
@@ -35,7 +36,8 @@ onAuthStateChanged(auth, async (user) => {
 
             if (docSnap.exists()) {
                 currentUserData = docSnap.data();
-                // Set Name
+                
+                // Set Name on Dashboard Header
                 const displayName = currentUserData.fullname || "Donor"; 
                 document.getElementById('welcomeName').textContent = "Hi, " + displayName;
             }
@@ -71,13 +73,13 @@ window.checkDonationEligibility = function() {
         return;
     }
 
-    // Check if they already have an appointment booked
+    // Check if they already have an appointment booked (Local Storage check)
     if (localStorage.getItem('hemoSyncAppointment')) {
         alert("You already have an upcoming appointment! Please cancel it before booking a new one.");
         return;
     }
 
-    // Success
+    // Success - Go to Booking Page
     window.location.href = "donor_donate.html";
 };
 
@@ -91,20 +93,23 @@ function checkAppointment() {
 
     if (appointment) {
         // Show Reminder Card
-        card.style.display = 'block';
+        if(card) {
+            card.style.display = 'block';
+            
+            // Populate Data
+            document.getElementById('reminderTitle').textContent = appointment.eventName;
+            document.getElementById('reminderLocation').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${appointment.location}`;
+            document.getElementById('reminderTime').textContent = appointment.time;
+            document.getElementById('reminderDay').textContent = appointment.day;
+            document.getElementById('reminderMonth').textContent = appointment.month;
+        }
         
         // Hide "Ready to Donate" toggle (optional cleanup)
         if(statusCard) statusCard.style.display = 'none';
 
-        // Populate Data
-        document.getElementById('reminderTitle').textContent = appointment.eventName;
-        document.getElementById('reminderLocation').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${appointment.location}`;
-        document.getElementById('reminderTime').textContent = appointment.time;
-        document.getElementById('reminderDay').textContent = appointment.day;
-        document.getElementById('reminderMonth').textContent = appointment.month;
     } else {
         // No appointment
-        card.style.display = 'none';
+        if(card) card.style.display = 'none';
         if(statusCard) statusCard.style.display = 'flex';
     }
 }
@@ -115,4 +120,26 @@ window.cancelAppointment = function() {
         localStorage.removeItem('hemoSyncAppointment');
         location.reload(); 
     }
+};
+
+// 7. PROFILE CONTACT CARD FUNCTIONS (Global)
+window.openProfileCard = function() {
+    // Check if data is loaded
+    if (!currentUserData) {
+        alert("Profile data is still loading...");
+        return;
+    }
+
+    // Populate Data into the Modal
+    document.getElementById('cardName').innerText = currentUserData.fullname || "Donor";
+    document.getElementById('cardPhone').innerText = currentUserData.phone || "No phone linked";
+    document.getElementById('cardAddress').innerText = currentUserData.address || "No address set";
+    document.getElementById('cardBlood').innerText = currentUserData.bloodType || "Unknown";
+
+    // Show Modal
+    document.getElementById('profileCardModal').classList.add('active');
+};
+
+window.closeProfileCard = function() {
+    document.getElementById('profileCardModal').classList.remove('active');
 };

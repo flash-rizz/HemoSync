@@ -17,18 +17,18 @@
                 <h2 id="welcomeName">Hello, Donor</h2> 
                 <p>Let's save some lives today.</p>
             </div>
-            <div class="profile-pic">
+            
+            <div class="profile-pic" onclick="openProfileCard()" style="cursor: pointer;">
                 <i class="fa-solid fa-circle-user"></i>
             </div>
         </div>
 
         <div id="appointmentCard" class="event-card reminder-card" style="display: none;">
-            <div class="reminder-badge"><i class="fa-solid fa-bell"></i> Upcoming Appointment</div>
-            
-            <div class="event-header" style="border:none; padding-bottom:0; margin-bottom: 5px;">
+            <div class="reminder-badge"><i class="fa-solid fa-bell"></i> Upcoming</div>
+            <div class="event-header" style="border:none; padding-bottom:0;">
                 <div class="event-details">
-                    <h4 id="reminderTitle" style="color:white; font-size: 1.1rem;">Blood Drive Name</h4>
-                    <p id="reminderLocation" style="color: rgba(255,255,255,0.9);"><i class="fa-solid fa-location-dot"></i> Location</p>
+                    <h4 id="reminderTitle" style="color:white;">Blood Drive</h4>
+                    <p id="reminderLocation" style="color: rgba(255,255,255,0.9);">Location</p>
                     <div class="reminder-time">
                         <i class="fa-regular fa-clock"></i> <span id="reminderTime">09:00 AM</span>
                     </div>
@@ -38,9 +38,9 @@
                     <div id="reminderMonth">JAN</div>
                 </div>
             </div>
-            
-            <button onclick="cancelAppointment()" class="btn-cancel-sm">Cancel Appointment</button>
+            <button onclick="cancelAppointment()" class="btn-cancel-sm">Cancel</button>
         </div>
+
         <div class="status-card">
             <div class="card-text">
                 <h3>Ready to Donate?</h3>
@@ -67,7 +67,7 @@
                 <span>Profile</span>
             </div>
 
-            <div class="menu-item" onclick="alert('Coming Soon: List of Blood Drives near Cyberjaya')">
+            <div class="menu-item" onclick="alert('Coming Soon: List of Blood Drives')">
                 <div class="icon-box bg-blue">
                     <i class="fa-solid fa-magnifying-glass-location"></i>
                 </div>
@@ -75,15 +75,53 @@
             </div>
 
             <div class="menu-item" onclick="window.location.href='donor_history.html'">
-                <div class="icon-box bg-orange"> <i class="fa-solid fa-clock-rotate-left"></i>
+                <div class="icon-box bg-orange"> 
+                    <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
                 <span>History</span>
             </div>
         </div>
 
-
         <button id="logoutBtn" class="btn-logout">Logout</button>
 
+    </div>
+
+    <div id="profileCardModal" class="modal-overlay">
+        <div class="modal-content profile-card-content">
+            <div style="text-align: right;">
+                <i class="fa-solid fa-xmark" onclick="closeProfileCard()" style="cursor: pointer; font-size: 1.2rem; color: #888;"></i>
+            </div>
+            
+            <div class="profile-header-center">
+                <div class="avatar-circle">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <h3 id="cardName">Loading...</h3>
+                <span id="cardBlood" class="blood-badge">--</span>
+            </div>
+
+            <div class="profile-details-list">
+                <div class="detail-item">
+                    <div class="icon-wrap-sm"><i class="fa-solid fa-phone"></i></div>
+                    <div class="detail-text">
+                        <small>Phone</small>
+                        <p id="cardPhone">Not set</p>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="icon-wrap-sm"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="detail-text">
+                        <small>Address</small>
+                        <p id="cardAddress">Not set</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-logout" onclick="window.location.href='donor_profile.html'" style="margin-top: 20px; padding: 10px; font-size: 14px;">
+                Edit Profile
+            </button>
+        </div>
     </div>
 
     <script type="module" src="dashboard.js"></script>

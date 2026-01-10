@@ -755,6 +755,86 @@ tbody tr {
 .locked-banner i { font-size: 24px; }
 .locked-banner p { font-size: 12px; margin: 3px 0 0 0; color: #4caf50; }
 
+/* --- PROFILE CONTACT CARD (NEW) --- */
+.profile-card-content {
+    max-width: 320px;
+    padding: 20px 25px;
+    border-radius: 30px;
+}
+
+.profile-header-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+    margin-top: -10px;
+}
+
+.avatar-circle {
+    width: 80px;
+    height: 80px;
+    background-color: #ffebee;
+    color: #D32F2F;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+    margin-bottom: 15px;
+    box-shadow: 0 5px 15px rgba(211, 47, 47, 0.15);
+}
+
+.profile-header-center h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+    text-align: center;
+}
+
+.blood-badge {
+    background-color: #D32F2F;
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 10px;
+    border-radius: 10px;
+    margin-top: 5px;
+    font-weight: 600;
+}
+
+.profile-details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #f9f9f9;
+    padding: 10px 15px;
+    border-radius: 15px;
+}
+
+.detail-text {
+    text-align: left;
+}
+
+.detail-text small {
+    display: block;
+    font-size: 0.7rem;
+    color: #999;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.detail-text p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #333;
+    font-weight: 500;
+}
+
 #desktopTableWrap { display: block !important; }
 #mobileCardWrap { display: none !important; }
 
