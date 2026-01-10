@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HemoSync - Select Slot</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container dashboard-container">
+        
+        <div class="dashboard-header" style="justify-content: flex-start; gap: 15px;">
+            <i class="fa-solid fa-arrow-left" style="font-size: 1.2rem; cursor: pointer;" onclick="window.location.href='donor_home.html'"></i>
+            <div class="user-info">
+                <h2>Select Time Slot</h2> 
+                <p>Choose a convenient time to donate.</p>
+            </div>
+        </div>
+
+        <div class="status-card" style="padding: 15px;">
+            <div class="card-text">
+                <h3 style="font-size: 1rem;"><i class="fa-solid fa-filter"></i> Showing Events</h3>
+                <p>Near <strong>Cyberjaya, Malaysia</strong></p>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" style="text-align: center; padding: 20px; color: #888;">
+            <i class="fa-solid fa-circle-notch fa-spin" style="color: #e63946;"></i> Loading availability...
+        </div>
+
+        <div id="eventsContainer" class="events-list" style="margin-top: 20px; padding-bottom: 80px;">
+            </div>
+
+    </div>
+
+    <div id="slotModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Time Slot</h3>
+                <p>Choose a time for <span id="slotEventName" style="color:#D32F2F; font-weight:600;">Event</span></p>
+            </div>
+            
+            <div class="modal-body">
+                <div id="slotListContainer" class="slots-grid" style="grid-template-columns: 1fr 1fr;">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeSlotModal()">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Appointment</h3>
+                <p>Please review details before booking.</p>
+            </div>
+            
+            <div class="modal-body">
+                <div class="info-row">
+                    <div class="icon-wrap"><i class="fa-solid fa-droplet"></i></div>
+                    <div>
+                        <span class="label">Event</span>
+                        <p id="modalEventName" class="value"></p>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="icon-wrap"><i class="fa-regular fa-clock"></i></div>
+                    <div>
+                        <span class="label">Time</span>
+                        <p id="modalTime" class="value"></p>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="icon-wrap"><i class="fa-solid fa-location-dot"></i></div>
+                    <div>
+                        <span class="label">Location</span>
+                        <p id="modalLocation" class="value"></p>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <small>By clicking confirm, you agree that you meet the eligibility criteria.</small>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" onclick="processBooking()">Confirm Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="donor_donate.js"></script>
+</body>
+</html>

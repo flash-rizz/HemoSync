@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// TODO: Paste your firebaseConfig here (Same as previous files)
+// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
     authDomain: "hemosync-765c9.firebaseapp.com",
@@ -13,77 +13,161 @@ const firebaseConfig = {
     messagingSenderId: "749126382362",
     appId: "1:749126382362:web:8852a1e895edbbea3072a3",
     measurementId: "G-JP1Y2S1LN5"
-  };
-  
+};
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 1. Check if User is Logged In
+// Global variable to store user data
+let currentUserData = null;
+
+// 1. Run on Load: Check User, Appointments & Setup Toggle
+document.addEventListener('DOMContentLoaded', () => {
+    checkAppointment();
+    setupToggleListener();
+});
+
+// 2. Auth State Listener
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // User is signed in, let's get their name
-        console.log("Current User ID:", user.uid);
-        
         try {
             const docRef = doc(db, "users", user.uid);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-                const userData = docSnap.data();
-                // Update the HTML element with their real name
-                document.getElementById('welcomeName').textContent = "Hi, " + userData.fullname;
+                currentUserData = docSnap.data();
+                
+                // Set Name on Dashboard Header
+                const displayName = currentUserData.fullname || "Donor"; 
+                document.getElementById('welcomeName').textContent = "Hi, " + displayName;
             }
         } catch (error) {
             console.error("Error fetching user data:", error);
         }
-
     } else {
-        // No user is signed in? Kick them back to login page
         window.location.href = "index.html";
     }
 });
 
-// 2. Handle Logout
+// 3. LOGOUT Function
 const logoutBtn = document.getElementById('logoutBtn');
-
-logoutBtn.addEventListener('click', () => {
-    signOut(auth).then(() => {
-        // Sign-out successful.
-        alert("You have logged out.");
-        window.location.href = "index.html";
-    }).catch((error) => {
-        console.error("Logout Error:", error);
+if(logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        signOut(auth).then(() => {
+            alert("You have logged out.");
+            window.location.href = "index.html";
+        });
     });
-});
-
-// 3. Handle donor eligibility
-
-
-function checkDonationEligibility() {
-    // Retrieve user data
-    const userData = JSON.parse(localStorage.getItem('hemoSyncUser'));
-
-    // Check profile completion
-    if (!userData || !userData.isProfileComplete) {
-        const confirmProfile = confirm("You must complete your health profile before donating. Go to Profile now?");
-        if (confirmProfile) {
-            window.location.href = "profile.html";
-        }
-        return;
-    }
-
-    // Check eligibility
-    if (userData.isEligible === false) {
-        alert("You are currently not eligible to donate based on your profile.\nReason: " + userData.rejectionReason);
-        return;
-    }
-
-    // This is complete both
-    alert("Eligibility Confirmed. Proceeding to Blood Drive Map...");
-    // window.location.href = "donate_flow.html"; // Next step in your app
 }
 
-// Attach this to your Donate button in the HTML
-// Example: <div class="menu-item" onclick="checkDonationEligibility()"> ... </div>
+// 4. DONATION ELIGIBILITY (Global) - Updated Logic
+window.checkDonationEligibility = function() {
+    if (!currentUserData) {
+        alert("Loading profile data... please wait.");
+        return;
+    }
+
+    // --- NEW: Check if Eligibility Screening is Complete ---
+    if (!currentUserData.isProfileComplete) {
+        // Redirect logic
+        if(confirm("You haven't completed your eligibility check yet.\n\nClick OK to verify your eligibility now.")) {
+            window.location.href = "donor_profile.html";
+        }
+        return; // Stop execution
+    }
+    
+    // Check if user is marked as Ineligible or Deferred in Firestore
+    if (currentUserData.eligibilityStatus === "Ineligible" || currentUserData.status === "Deferred") {
+        alert("You are currently not eligible to donate based on your health records.");
+        return;
+    }
+
+    // Check if they already have an appointment booked (Local Storage check)
+    if (localStorage.getItem('hemoSyncAppointment')) {
+        alert("You already have an upcoming appointment! Please cancel it before booking a new one.");
+        return;
+    }
+
+    // Success - Go to Booking Page
+    window.location.href = "donor_donate.html";
+};
+
+// 5. APPOINTMENT REMINDER LOGIC
+function checkAppointment() {
+    const card = document.getElementById('appointmentCard');
+    const statusCard = document.querySelector('.status-card');
+    
+    // Get data from LocalStorage
+    const appointment = JSON.parse(localStorage.getItem('hemoSyncAppointment'));
+
+    if (appointment) {
+        // Show Reminder Card
+        if(card) {
+            card.style.display = 'block';
+            
+            // Populate Data
+            document.getElementById('reminderTitle').textContent = appointment.eventName;
+            document.getElementById('reminderLocation').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${appointment.location}`;
+            document.getElementById('reminderTime').textContent = appointment.time;
+            document.getElementById('reminderDay').textContent = appointment.day;
+            document.getElementById('reminderMonth').textContent = appointment.month;
+        }
+        
+        // Hide "Ready to Donate" toggle (optional cleanup)
+        if(statusCard) statusCard.style.display = 'none';
+
+    } else {
+        // No appointment
+        if(card) card.style.display = 'none';
+        if(statusCard) statusCard.style.display = 'flex';
+    }
+}
+
+// 6. CANCEL APPOINTMENT (Global)
+window.cancelAppointment = function() {
+    if(confirm("Are you sure you want to cancel this appointment?")) {
+        localStorage.removeItem('hemoSyncAppointment');
+        location.reload(); 
+    }
+};
+
+// 7. PROFILE CONTACT CARD FUNCTIONS (Global)
+window.openProfileCard = function() {
+    if (!currentUserData) {
+        alert("Profile data is still loading...");
+        return;
+    }
+    document.getElementById('cardName').innerText = currentUserData.fullname || "Donor";
+    document.getElementById('cardPhone').innerText = currentUserData.phone || "No phone linked";
+    document.getElementById('cardAddress').innerText = currentUserData.address || "No address set";
+    document.getElementById('cardBlood').innerText = currentUserData.bloodType || "Unknown";
+
+    document.getElementById('profileCardModal').classList.add('active');
+};
+
+window.closeProfileCard = function() {
+    document.getElementById('profileCardModal').classList.remove('active');
+};
+
+// 8. NEW: TOGGLE SWITCH BLOCKER
+function setupToggleListener() {
+    const availabilityToggle = document.getElementById('availabilityToggle');
+    if (availabilityToggle) {
+        availabilityToggle.addEventListener('click', function(e) {
+            // If data hasn't loaded, block it
+            if (!currentUserData) {
+                e.preventDefault();
+                return;
+            }
+
+            // If eligibility not checked, block it and redirect
+            if (!currentUserData.isProfileComplete) {
+                e.preventDefault(); // Stop the switch from toggling
+                if(confirm("You cannot enable this status until you complete your eligibility check.\n\nGo to Profile now?")) {
+                    window.location.href = "donor_profile.html";
+                }
+            }
+        });
+    }
+}

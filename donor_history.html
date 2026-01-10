@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HemoSync - History</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container dashboard-container">
+        <div class="dashboard-header" style="justify-content: flex-start; gap: 15px;">
+            <i class="fa-solid fa-arrow-left" style="font-size: 1.2rem; cursor: pointer;" onclick="window.location.href='donor_home.html'"></i>
+            <div class="user-info">
+                <h2>My History</h2> 
+                <p>Track your life-saving journey.</p>
+            </div>
+        </div>
+
+        <div class="status-card" style="padding: 15px; margin-bottom: 20px;">
+            <div class="card-text">
+                <h3 style="font-size: 1rem;"><i class="fa-solid fa-trophy" style="color: #FFD700;"></i> Total Donations</h3>
+                <p>You have saved lives <strong id="totalDonationCount">0</strong> times.</p>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" style="text-align: center; padding: 20px; color: #888;">
+            <i class="fa-solid fa-circle-notch fa-spin" style="color: #e63946;"></i> Loading records...
+        </div>
+
+        <div id="emptyState" style="display: none; text-align: center; margin-top: 50px; color: #888;">
+            <i class="fa-regular fa-folder-open" style="font-size: 40px; margin-bottom: 10px; opacity: 0.5;"></i>
+            <p>No Donation History Found.</p>
+        </div>
+
+        <div id="historyContainer" class="events-list" style="padding-bottom: 80px;"></div>
+
+    </div>
+
+    <div id="feedbackModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Rate Experience</h3>
+                <p>How was your donation at <span id="feedbackEventName" style="font-weight:600; color:#D32F2F;">Event</span>?</p>
+            </div>
+            
+            <div class="modal-body" style="text-align: center;">
+                <div class="star-rating">
+                    <i class="fa-solid fa-star" data-value="1" onclick="selectStar(1)"></i>
+                    <i class="fa-solid fa-star" data-value="2" onclick="selectStar(2)"></i>
+                    <i class="fa-solid fa-star" data-value="3" onclick="selectStar(3)"></i>
+                    <i class="fa-solid fa-star" data-value="4" onclick="selectStar(4)"></i>
+                    <i class="fa-solid fa-star" data-value="5" onclick="selectStar(5)"></i>
+                </div>
+                <p id="ratingLabel" style="font-size: 0.8rem; color: #888; margin-bottom: 15px;">Tap a star to rate</p>
+                <textarea id="feedbackText" placeholder="Share your experience (Optional)..." rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; font-size: 0.9rem; resize: none;"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeFeedbackModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitFeedback()">Submit Review</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="donor_history.js"></script>
+
+</body>
+</html>
