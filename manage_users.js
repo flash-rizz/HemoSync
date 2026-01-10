@@ -53,17 +53,23 @@ let pageSize = parseInt(pageSizeSelect.value, 10) || 20;
 // Cached docs for pagination
 let cachedFilteredDocs = [];
 
-// Normalize status blank/missing/"pending" => Pending
-function normalizeStatus(rawStatus) {
-  const s = (rawStatus ?? "").toString().trim();
-  if (s === "" || s.toLowerCase() === "pending") return "Pending";
-  return s;
+// --- NEW LOGIC: Status based on Eligibility Check (isProfileComplete) ---
+function normalizeStatus(user) {
+  // 1. Suspension takes priority
+  if (user.status === "Suspended") return "Suspended";
+
+  // 2. If profile is complete (eligibility check done) -> Active
+  if (user.isProfileComplete === true) return "Active";
+
+  // 3. Otherwise -> Pending
+  return "Pending";
 }
 
 function statusToColor(status) {
   if (status === "Suspended") return "#e74c3c";
-  if (status === "Pending") return "#f39c12";
-  return "#2ecc71";
+  if (status === "Pending") return "#f39c12"; // Orange
+  if (status === "Active") return "#2ecc71";  // Green
+  return "#95a5a6";
 }
 
 function updateHeadsUpVisibility() {
@@ -88,18 +94,12 @@ async function logAdminAction(actionType, payload) {
   }
 }
 
-async function buildFirestoreQuery(emailSearch, statusFilter) {
-  const hasEmail = !!emailSearch;
-
-  if (hasEmail) {
+async function buildFirestoreQuery(emailSearch) {
+  // Note: We fetch loosely and filter client-side for status
+  // because status is now derived from isProfileComplete
+  if (emailSearch) {
     return query(collection(db, "users"), where("email", "==", emailSearch));
   }
-
-  if (statusFilter === "Active" || statusFilter === "Suspended") {
-    return query(collection(db, "users"), where("status", "==", statusFilter));
-  }
-
-  // Pending/ALL needs client-side normalization (to include missing/blank)
   return collection(db, "users");
 }
 
@@ -107,8 +107,8 @@ function sortDocsPendingFirst(docs, statusFilter) {
   if (statusFilter !== "ALL") return docs;
 
   return docs.slice().sort((a, b) => {
-    const sa = normalizeStatus(a.data().status);
-    const sb = normalizeStatus(b.data().status);
+    const sa = normalizeStatus(a.data());
+    const sb = normalizeStatus(b.data());
 
     const pa = sa === "Pending" ? 0 : 1;
     const pb = sb === "Pending" ? 0 : 1;
@@ -120,35 +120,19 @@ function sortDocsPendingFirst(docs, statusFilter) {
   });
 }
 
-// Actions
-window.verifyUser = async function (userId, userEmail) {
-  const ok = confirm(`Verify ${userEmail}? This will set status to Active.`);
-  if (!ok) return;
+// --- ACTIONS ---
 
-  try {
-    await updateDoc(doc(db, "users", userId), {
-      status: "Active",
-      verifiedAt: new Date().toISOString(),
-      verifiedBy: "admin"
-    });
+// Note: "Verify" is removed because Active status is now automatic upon profile completion.
 
-    await logAdminAction("VERIFY_USER", { userId, userEmail });
-
-    alert("User verified. Status is now Active.");
-    await refreshWithCurrentInputs();
-  } catch (e) {
-    console.error("Verify Error:", e);
-    alert("Failed to verify user: " + e.message);
-  }
-};
-
+// "Unverify" now forces the user back to Pending by flagging profile as incomplete
 window.unverifyUser = async function (userId, userEmail) {
-  const ok = confirm(`Move ${userEmail} back to Pending?`);
+  const ok = confirm(`Reset eligibility for ${userEmail}? This will move them back to Pending.`);
   if (!ok) return;
 
   try {
     await updateDoc(doc(db, "users", userId), {
-      status: "Pending",
+      isProfileComplete: false, // Forces status to Pending
+      status: "Pending",        // Sync legacy field just in case
       unverifiedAt: new Date().toISOString(),
       unverifiedBy: "admin"
     });
@@ -159,7 +143,7 @@ window.unverifyUser = async function (userId, userEmail) {
     await refreshWithCurrentInputs();
   } catch (e) {
     console.error("Unverify Error:", e);
-    alert("Failed to unverify user: " + e.message);
+    alert("Failed to reset user: " + e.message);
   }
 };
 
@@ -175,8 +159,8 @@ window.remindUser = async function (userId, userEmail) {
 
     await logAdminAction("REMIND_USER", { userId, userEmail });
 
-    const subject = encodeURIComponent("HemoSync screening reminder");
-    const body = encodeURIComponent("Hi, please complete your screening process so your account can be activated.");
+    const subject = encodeURIComponent("HemoSync: Action Required");
+    const body = encodeURIComponent("Hi, please complete your eligibility screening in the app so your account can be activated.");
     window.location.href = `mailto:${userEmail}?subject=${subject}&body=${body}`;
 
     await refreshWithCurrentInputs();
@@ -190,10 +174,12 @@ window.remindUser = async function (userId, userEmail) {
 function renderUserRow(docSnap, index = 0) {
   const user = docSnap.data();
 
-  const status = normalizeStatus(user.status);
+  // Use new logic
+  const status = normalizeStatus(user);
   const statusColor = statusToColor(status);
 
-  const showVerify = status === "Pending";
+  // Logic: Pending users get Remind. Active users get Unverify. Suspended get nothing special here.
+  const showRemind = status === "Pending";
   const showUnverify = status === "Active";
 
   const rowBg = status === "Pending" ? "background: #fffbe6;" : "";
@@ -222,12 +208,8 @@ function renderUserRow(docSnap, index = 0) {
         </button>
 
         ${
-          showVerify
+          showRemind
             ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #f39c12; color: white;"
-                 onclick="verifyUser('${docSnap.id}', '${user.email || ""}')">
-                 <i class="fa-solid fa-circle-check"></i> Verify
-               </button>
-               <button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #6c757d; color: white;"
                  onclick="remindUser('${docSnap.id}', '${user.email || ""}')">
                  <i class="fa-solid fa-envelope"></i> Remind
                </button>`
@@ -238,7 +220,7 @@ function renderUserRow(docSnap, index = 0) {
           showUnverify
             ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #6c757d; color: white;"
                  onclick="unverifyUser('${docSnap.id}', '${user.email || ""}')">
-                 <i class="fa-solid fa-rotate-left"></i> Unverify
+                 <i class="fa-solid fa-rotate-left"></i> Reset
                </button>`
             : ``
         }
@@ -256,10 +238,10 @@ function renderUserRow(docSnap, index = 0) {
 function renderUserCard(docSnap) {
   const user = docSnap.data();
 
-  const status = normalizeStatus(user.status);
+  const status = normalizeStatus(user);
   const statusColor = statusToColor(status);
 
-  const showVerify = status === "Pending";
+  const showRemind = status === "Pending";
   const showUnverify = status === "Active";
   const cardClass = status === "Pending" ? "user-card pending" : "user-card";
 
@@ -289,12 +271,8 @@ function renderUserCard(docSnap) {
         </button>
 
         ${
-          showVerify
+          showRemind
             ? `<button class="btn-login" style="padding: 10px 12px; font-size: 12px; margin: 0; background-color: #f39c12; color: white;"
-                 onclick="verifyUser('${docSnap.id}', '${user.email || ""}')">
-                 <i class="fa-solid fa-circle-check"></i> Verify
-               </button>
-               <button class="btn-login" style="padding: 10px 12px; font-size: 12px; margin: 0; background-color: #6c757d; color: white;"
                  onclick="remindUser('${docSnap.id}', '${user.email || ""}')">
                  <i class="fa-solid fa-envelope"></i> Remind
                </button>`
@@ -305,7 +283,7 @@ function renderUserCard(docSnap) {
           showUnverify
             ? `<button class="btn-login" style="padding: 10px 12px; font-size: 12px; margin: 0; background-color: #6c757d; color: white;"
                  onclick="unverifyUser('${docSnap.id}', '${user.email || ""}')">
-                 <i class="fa-solid fa-rotate-left"></i> Unverify
+                 <i class="fa-solid fa-rotate-left"></i> Reset
                </button>`
             : ``
         }
@@ -362,18 +340,20 @@ async function loadUsers(emailSearch = null, statusFilter = "ALL") {
   }
 
   try {
-    const q = await buildFirestoreQuery(emailSearch, statusFilter);
+    const q = await buildFirestoreQuery(emailSearch);
     const querySnapshot = await getDocs(q);
 
     let docs = [];
     querySnapshot.forEach((d) => docs.push(d));
 
-    const pendingCount = docs.reduce((acc, d) => acc + (normalizeStatus(d.data().status) === "Pending" ? 1 : 0), 0);
+    // Calculate Pending Count based on new normalized logic
+    const pendingCount = docs.reduce((acc, d) => acc + (normalizeStatus(d.data()) === "Pending" ? 1 : 0), 0);
     setPendingCounter(pendingCount);
 
+    // Client-side filtering based on derived status
     const selected = (statusFilter || "ALL").trim();
     if (selected !== "ALL") {
-      docs = docs.filter((d) => normalizeStatus(d.data().status) === selected);
+      docs = docs.filter((d) => normalizeStatus(d.data()) === selected);
     }
 
     docs = sortDocsPendingFirst(docs, selected);
@@ -418,13 +398,14 @@ window.viewUser = async function (userId) {
     if (!docSnap.exists()) return;
 
     const u = docSnap.data();
-    const status = normalizeStatus(u.status);
+    const status = normalizeStatus(u); // Use new logic
 
     let detailsHTML = `
       <div><strong style="color:#888; font-size:12px;">FULL NAME</strong><br>${u.fullname || "-"}</div>
       <div><strong style="color:#888; font-size:12px;">EMAIL ADDRESS</strong><br>${u.email || "-"}</div>
       <div><strong style="color:#888; font-size:12px;">ACCOUNT ROLE</strong><br><span class="role-badge">${u.role || "-"}</span></div>
       <div><strong style="color:#888; font-size:12px;">STATUS</strong><br>${status}</div>
+      <div><strong style="color:#888; font-size:12px;">ELIGIBILITY CHECK</strong><br>${u.isProfileComplete ? "Submitted" : "Not Submitted"}</div>
 
       <div style="grid-column: 1 / -1; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
         <button onclick="initiatePasswordReset('${u.email || ""}', '${userId}')" class="btn-reset">

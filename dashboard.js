@@ -22,9 +22,10 @@ const db = getFirestore(app);
 // Global variable to store user data
 let currentUserData = null;
 
-// 1. Run on Load: Check User & Check Appointments
+// 1. Run on Load: Check User, Appointments & Setup Toggle
 document.addEventListener('DOMContentLoaded', () => {
     checkAppointment();
+    setupToggleListener();
 });
 
 // 2. Auth State Listener
@@ -60,11 +61,20 @@ if(logoutBtn) {
     });
 }
 
-// 4. DONATION ELIGIBILITY (Global)
+// 4. DONATION ELIGIBILITY (Global) - Updated Logic
 window.checkDonationEligibility = function() {
     if (!currentUserData) {
         alert("Loading profile data... please wait.");
         return;
+    }
+
+    // --- NEW: Check if Eligibility Screening is Complete ---
+    if (!currentUserData.isProfileComplete) {
+        // Redirect logic
+        if(confirm("You haven't completed your eligibility check yet.\n\nClick OK to verify your eligibility now.")) {
+            window.location.href = "donor_profile.html";
+        }
+        return; // Stop execution
     }
     
     // Check if user is marked as Ineligible or Deferred in Firestore
@@ -124,22 +134,40 @@ window.cancelAppointment = function() {
 
 // 7. PROFILE CONTACT CARD FUNCTIONS (Global)
 window.openProfileCard = function() {
-    // Check if data is loaded
     if (!currentUserData) {
         alert("Profile data is still loading...");
         return;
     }
-
-    // Populate Data into the Modal
     document.getElementById('cardName').innerText = currentUserData.fullname || "Donor";
     document.getElementById('cardPhone').innerText = currentUserData.phone || "No phone linked";
     document.getElementById('cardAddress').innerText = currentUserData.address || "No address set";
     document.getElementById('cardBlood').innerText = currentUserData.bloodType || "Unknown";
 
-    // Show Modal
     document.getElementById('profileCardModal').classList.add('active');
 };
 
 window.closeProfileCard = function() {
     document.getElementById('profileCardModal').classList.remove('active');
 };
+
+// 8. NEW: TOGGLE SWITCH BLOCKER
+function setupToggleListener() {
+    const availabilityToggle = document.getElementById('availabilityToggle');
+    if (availabilityToggle) {
+        availabilityToggle.addEventListener('click', function(e) {
+            // If data hasn't loaded, block it
+            if (!currentUserData) {
+                e.preventDefault();
+                return;
+            }
+
+            // If eligibility not checked, block it and redirect
+            if (!currentUserData.isProfileComplete) {
+                e.preventDefault(); // Stop the switch from toggling
+                if(confirm("You cannot enable this status until you complete your eligibility check.\n\nGo to Profile now?")) {
+                    window.location.href = "donor_profile.html";
+                }
+            }
+        });
+    }
+}

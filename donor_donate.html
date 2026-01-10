@@ -10,7 +10,7 @@
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="app-container dashboard-container">
         
         <div class="dashboard-header" style="justify-content: flex-start; gap: 15px;">
             <i class="fa-solid fa-arrow-left" style="font-size: 1.2rem; cursor: pointer;" onclick="window.location.href='donor_home.html'"></i>
@@ -32,8 +32,26 @@
         </div>
 
         <div id="eventsContainer" class="events-list" style="margin-top: 20px; padding-bottom: 80px;">
-        </div>
+            </div>
 
+    </div>
+
+    <div id="slotModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Time Slot</h3>
+                <p>Choose a time for <span id="slotEventName" style="color:#D32F2F; font-weight:600;">Event</span></p>
+            </div>
+            
+            <div class="modal-body">
+                <div id="slotListContainer" class="slots-grid" style="grid-template-columns: 1fr 1fr;">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeSlotModal()">Back</button>
+            </div>
+        </div>
     </div>
 
     <div id="confirmModal" class="modal-overlay">

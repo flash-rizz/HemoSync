@@ -6,6 +6,56 @@
     <title>HemoSync - Schedule Event</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .slot-manager {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        .slot-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .slot-inputs .input-group {
+            margin-bottom: 0;
+            flex: 1;
+        }
+        .btn-add {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            height: 46px; /* Match input height */
+        }
+        .btn-add:hover { background: #27ae60; }
+        
+        .added-slots-list {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .slot-chip {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .slot-chip span { font-weight: 600; color: #333; }
+        .slot-chip i { cursor: pointer; color: #e74c3c; margin-left: 5px; }
+    </style>
 </head>
 <body>
 
@@ -13,7 +63,7 @@
         
         <div class="login-header">
             <h1>Schedule Blood Drive</h1>
-            <p>Fill in the details to publish a new event.</p>
+            <p>Define venue, date, and available time slots.</p>
         </div>
 
         <div class="login-form-container">
@@ -29,14 +79,35 @@
                     <input type="date" id="eventDate" required>
                 </div>
 
-                <div class="input-group">
-                    <label>Time</label>
-                    <input type="time" id="eventTime" required>
+                <div class="slot-manager">
+                    <label style="font-size:14px; font-weight:600; color:#333; margin-bottom:10px; display:block;">
+                        Manage Time Slots
+                    </label>
+                    
+                    <div class="slot-inputs">
+                        <div class="input-group">
+                            <label style="font-size:12px;">Start Time</label>
+                            <input type="time" id="newSlotTime">
+                        </div>
+                        <div class="input-group">
+                            <label style="font-size:12px;">Capacity (Pax)</label>
+                            <input type="number" id="newSlotCap" placeholder="Qty" min="1">
+                        </div>
+                        <button type="button" class="btn-add" id="addSlotBtn">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <div id="slotsContainer" class="added-slots-list">
+                        <p id="noSlotsMsg" style="font-size:12px; color:#999; width:100%; text-align:center; margin-top:10px;">
+                            No slots added yet.
+                        </p>
+                    </div>
                 </div>
 
                 <div class="input-group">
-                    <label>Total Donation Slots</label>
-                    <input type="number" id="slots" placeholder="e.g. 50" min="10" required>
+                    <label>Total Capacity (Auto-calculated)</label>
+                    <input type="text" id="totalCapacity" value="0" readonly style="background:#eee; color:#555;">
                 </div>
 
                 <div class="input-group">
