@@ -27,12 +27,12 @@
             </div>
         </div>
 
-        <div id="loadingIndicator" style="text-align: center; padding: 20px; display: none;">
+        <div id="loadingIndicator" style="text-align: center; padding: 20px; color: #888;">
             <i class="fa-solid fa-circle-notch fa-spin" style="color: #e63946;"></i> Loading availability...
         </div>
 
         <div id="eventsContainer" class="events-list" style="margin-top: 20px; padding-bottom: 80px;">
-            </div>
+        </div>
 
     </div>
 
@@ -40,14 +40,40 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Confirm Appointment</h3>
+                <p>Please review details before booking.</p>
             </div>
+            
             <div class="modal-body">
-                <p><strong>Event:</strong> <span id="modalEventName"></span></p>
-                <p><strong>Time:</strong> <span id="modalTime"></span></p>
-                <p><strong>Location:</strong> <span id="modalLocation"></span></p>
-                <hr>
-                <p class="warning-text"><small>By clicking confirm, you agree that you meet the eligibility criteria.</small></p>
+                <div class="info-row">
+                    <div class="icon-wrap"><i class="fa-solid fa-droplet"></i></div>
+                    <div>
+                        <span class="label">Event</span>
+                        <p id="modalEventName" class="value"></p>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="icon-wrap"><i class="fa-regular fa-clock"></i></div>
+                    <div>
+                        <span class="label">Time</span>
+                        <p id="modalTime" class="value"></p>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="icon-wrap"><i class="fa-solid fa-location-dot"></i></div>
+                    <div>
+                        <span class="label">Location</span>
+                        <p id="modalLocation" class="value"></p>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <small>By clicking confirm, you agree that you meet the eligibility criteria.</small>
+                </div>
             </div>
+
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>
                 <button class="btn-primary" onclick="processBooking()">Confirm Booking</button>

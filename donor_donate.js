@@ -1,4 +1,4 @@
-// --- 1. MOCK DATA (The events we want to show) ---
+// --- 1. MOCK DATA ---
 const availableEvents = [
     {
         id: 101,
@@ -32,9 +32,8 @@ const availableEvents = [
 
 let selectedBooking = null;
 
-// --- 2. RUN WHEN PAGE LOADS ---
+// --- 2. INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Page Loaded. Running loadEvents()...");
     loadEvents();
 });
 
@@ -42,26 +41,18 @@ function loadEvents() {
     const container = document.getElementById('eventsContainer');
     const loading = document.getElementById('loadingIndicator');
 
-    if (!container) {
-        alert("Error: Could not find <div id='eventsContainer'> in your HTML.");
-        return;
-    }
+    if (!container) return; // Safety check
 
-    // Simulate a network delay (makes it feel real)
     setTimeout(() => {
-        // Hide loading spinner
         if(loading) loading.style.display = 'none';
         
-        // Loop through data and create HTML
         availableEvents.forEach(event => {
             const card = document.createElement('div');
             card.className = 'event-card';
             
-            // Create buttons for each time slot
             let slotsHtml = '';
             event.slots.forEach((slot) => {
                 const statusClass = slot.available ? '' : 'disabled';
-                // Note: We use window.selectSlot because of type="module"
                 slotsHtml += `
                     <button class="time-slot ${statusClass}" 
                         onclick="window.selectSlot(${event.id}, '${slot.time}', this)" 
@@ -71,7 +62,6 @@ function loadEvents() {
                 `;
             });
 
-            // Fill the card HTML
             card.innerHTML = `
                 <div class="event-header">
                     <div class="event-details">
@@ -87,23 +77,16 @@ function loadEvents() {
                     ${slotsHtml}
                 </div>
             `;
-            
-            // Add card to the page
             container.appendChild(card);
         });
-    }, 800); // 0.8 second delay
+    }, 800);
 }
 
-// --- 3. CLICK HANDLERS (Attached to Window) ---
-
+// --- 3. SELECTION LOGIC ---
 window.selectSlot = function(eventId, time, element) {
-    // 1. Remove 'selected' color from all other buttons
     document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
-    
-    // 2. Add 'selected' color to clicked button
     element.classList.add('selected');
 
-    // 3. Save selection
     const event = availableEvents.find(e => e.id === eventId);
     selectedBooking = {
         eventId: event.id,
@@ -112,18 +95,14 @@ window.selectSlot = function(eventId, time, element) {
         time: time
     };
 
-    // 4. Show the popup modal
     openConfirmModal();
 };
 
 function openConfirmModal() {
     if(!selectedBooking) return;
-
     document.getElementById('modalEventName').innerText = selectedBooking.eventName;
     document.getElementById('modalTime').innerText = selectedBooking.time;
     document.getElementById('modalLocation').innerText = selectedBooking.location;
-    
-    // Show the modal (CSS handles the display:flex)
     document.getElementById('confirmModal').classList.add('active');
 }
 
@@ -133,20 +112,37 @@ window.closeModal = function() {
     selectedBooking = null;
 }
 
+// --- 4. BOOKING PROCESS (SAVES TO LOCALSTORAGE) ---
 window.processBooking = function() {
     const btn = document.querySelector('.btn-primary');
     
-    // Change button text to show it's working
+    // UI Loading
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
     btn.disabled = true;
 
     setTimeout(() => {
-        // Success state
+        // 1. Get Event Details
+        const event = availableEvents.find(e => e.id === selectedBooking.eventId);
+
+        // 2. Create Appointment Object
+        const appointmentData = {
+            eventName: selectedBooking.eventName,
+            location: selectedBooking.location,
+            time: selectedBooking.time,
+            date: event.date,
+            day: event.day,
+            month: event.month
+        };
+
+        // 3. Save to Storage (So Dashboard can see it)
+        localStorage.setItem('hemoSyncAppointment', JSON.stringify(appointmentData));
+
+        // 4. Success & Redirect
         btn.innerText = "Confirmed!";
         btn.style.backgroundColor = "#4CAF50";
 
         setTimeout(() => {
-            alert(`Booking Successful!\n\nAppointment confirmed for ${selectedBooking.eventName}.`);
+            alert(`Booking Successful!\n\nReminder set for ${selectedBooking.eventName}.`);
             window.location.href = 'donor_home.html';
         }, 1000);
 

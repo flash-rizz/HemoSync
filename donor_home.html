@@ -22,6 +22,25 @@
             </div>
         </div>
 
+        <div id="appointmentCard" class="event-card reminder-card" style="display: none;">
+            <div class="reminder-badge"><i class="fa-solid fa-bell"></i> Upcoming Appointment</div>
+            
+            <div class="event-header" style="border:none; padding-bottom:0; margin-bottom: 5px;">
+                <div class="event-details">
+                    <h4 id="reminderTitle" style="color:white; font-size: 1.1rem;">Blood Drive Name</h4>
+                    <p id="reminderLocation" style="color: rgba(255,255,255,0.9);"><i class="fa-solid fa-location-dot"></i> Location</p>
+                    <div class="reminder-time">
+                        <i class="fa-regular fa-clock"></i> <span id="reminderTime">09:00 AM</span>
+                    </div>
+                </div>
+                <div class="event-date white-date">
+                    <div id="reminderDay">12</div>
+                    <div id="reminderMonth">JAN</div>
+                </div>
+            </div>
+            
+            <button onclick="cancelAppointment()" class="btn-cancel-sm">Cancel Appointment</button>
+        </div>
         <div class="status-card">
             <div class="card-text">
                 <h3>Ready to Donate?</h3>
@@ -43,7 +62,7 @@
 
             <div class="menu-item" onclick="window.location.href='donor_profile.html'">
                 <div class="icon-box bg-green">
-                    <i class="fa-solid fa-user-gear"></i>
+                    <i class="fa-solid fa-user-doctor"></i>
                 </div>
                 <span>Profile</span>
             </div>

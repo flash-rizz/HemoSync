@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// Firebase Configuration
+// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
     authDomain: "hemosync-765c9.firebaseapp.com",
@@ -19,81 +19,100 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Global variable to store user data after fetching it
 let currentUserData = null;
 
-// 1. Check if User is Logged In & Fetch Data
+// 1. Run on Load: Check User & Check Appointments
+document.addEventListener('DOMContentLoaded', () => {
+    checkAppointment();
+});
+
+// 2. Auth State Listener
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        console.log("Current User ID:", user.uid);
-        
         try {
             const docRef = doc(db, "users", user.uid);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-                // Store data globally so we can check eligibility later without re-fetching
                 currentUserData = docSnap.data();
-
-                // Update the HTML element with their real name
+                // Set Name
                 const displayName = currentUserData.fullname || "Donor"; 
                 document.getElementById('welcomeName').textContent = "Hi, " + displayName;
-            } else {
-                console.log("No such document!");
             }
         } catch (error) {
             console.error("Error fetching user data:", error);
         }
-
     } else {
-        // No user is signed in? Kick them back to login page
         window.location.href = "index.html";
     }
 });
 
-// 2. Handle Logout
+// 3. LOGOUT Function
 const logoutBtn = document.getElementById('logoutBtn');
-
 if(logoutBtn) {
     logoutBtn.addEventListener('click', () => {
         signOut(auth).then(() => {
             alert("You have logged out.");
             window.location.href = "index.html";
-        }).catch((error) => {
-            console.error("Logout Error:", error);
         });
     });
 }
 
-// 3. Handle Donor Eligibility (Attached to Window for HTML access)
+// 4. DONATION ELIGIBILITY (Global)
 window.checkDonationEligibility = function() {
-    
-    // Safety check: Has data loaded yet?
     if (!currentUserData) {
-        alert("Still loading your profile data. Please wait a moment...");
-        return;
-    }
-
-    // A. Check if they have completed their basic profile (Optional, depends on your flow)
-    // Assuming 'isProfileComplete' is a boolean field in your Firestore 'users' collection
-    if (!currentUserData.isProfileComplete) {
-        const confirmProfile = confirm("You must complete your health profile before donating. Go to Profile now?");
-        if (confirmProfile) {
-            window.location.href = "donor_profile.html";
-        }
+        alert("Loading profile data... please wait.");
         return;
     }
     
-
-    // B. Check Eligibility Status
-    // Based on your Use Case: "Precondition: Donor has a current 'Eligible' status"
-    // Adjust 'eligibilityStatus' to match the exact field name in your Firestore
+    // Check if user is marked as Ineligible or Deferred in Firestore
     if (currentUserData.eligibilityStatus === "Ineligible" || currentUserData.status === "Deferred") {
         alert("You are currently not eligible to donate based on your health records.");
         return;
     }
 
-    // C. Success - Redirect to the Slots Selection Page
-    console.log("User is eligible. Redirecting...");
+    // Check if they already have an appointment booked
+    if (localStorage.getItem('hemoSyncAppointment')) {
+        alert("You already have an upcoming appointment! Please cancel it before booking a new one.");
+        return;
+    }
+
+    // Success
     window.location.href = "donor_donate.html";
+};
+
+// 5. APPOINTMENT REMINDER LOGIC
+function checkAppointment() {
+    const card = document.getElementById('appointmentCard');
+    const statusCard = document.querySelector('.status-card');
+    
+    // Get data from LocalStorage
+    const appointment = JSON.parse(localStorage.getItem('hemoSyncAppointment'));
+
+    if (appointment) {
+        // Show Reminder Card
+        card.style.display = 'block';
+        
+        // Hide "Ready to Donate" toggle (optional cleanup)
+        if(statusCard) statusCard.style.display = 'none';
+
+        // Populate Data
+        document.getElementById('reminderTitle').textContent = appointment.eventName;
+        document.getElementById('reminderLocation').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${appointment.location}`;
+        document.getElementById('reminderTime').textContent = appointment.time;
+        document.getElementById('reminderDay').textContent = appointment.day;
+        document.getElementById('reminderMonth').textContent = appointment.month;
+    } else {
+        // No appointment
+        card.style.display = 'none';
+        if(statusCard) statusCard.style.display = 'flex';
+    }
+}
+
+// 6. CANCEL APPOINTMENT (Global)
+window.cancelAppointment = function() {
+    if(confirm("Are you sure you want to cancel this appointment?")) {
+        localStorage.removeItem('hemoSyncAppointment');
+        location.reload(); 
+    }
 };

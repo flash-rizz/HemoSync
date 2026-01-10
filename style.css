@@ -1,4 +1,6 @@
-/* Reset basic styles for consistency */
+/* =========================================
+   1. BASICS & LAYOUT
+   ========================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -14,52 +16,27 @@ body {
     min-height: 100vh;
 }
 
-/* Container to look like a mobile app screen */
 .app-container {
     background-color: white;
     width: 100%;
-    max-width: 400px; /* Mobile width constraint */
+    max-width: 400px;
     padding: 40px 30px;
     border-radius: 25px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     text-align: center;
-    position: relative; /* Needed for absolute positioning context if used */
-    /* BASE ANIMATION: Slide Up on Load */
+    position: relative;
     animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Header Styling */
-.login-header {
-    margin-bottom: 40px;
-}
-
-.logo-icon {
-    font-size: 50px;
-    margin-bottom: 10px;
-    display: inline-block;
-    animation: float 3s ease-in-out infinite; /* Floating Blood Drop */
-}
-
-.login-header h1 {
-    color: #D32F2F; /* Blood Red color from images */
-    font-size: 28px;
-    font-weight: 600;
-}
-
-.login-header p {
-    color: #888;
-    font-size: 14px;
-}
-
-/* Form Styling */
+/* =========================================
+   2. FORMS & INPUTS
+   ========================================= */
 .input-group {
     text-align: left;
     margin-bottom: 20px;
-    transition: transform 0.2s ease;
-}
-
-.input-group:focus-within {
-    transform: translateX(5px);
 }
 
 .input-group label {
@@ -70,86 +47,8 @@ body {
     font-weight: 600;
 }
 
-.input-group input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 12px; /* Soft rounded corners like the reference */
-    font-size: 14px;
-    background-color: #FAFAFA;
-    outline: none;
-    transition: all 0.3s ease;
-}
-
-.input-group input:focus {
-    border-color: #D32F2F;
-    box-shadow: 0 0 8px rgba(211, 47, 47, 0.2);
-    background-color: #fff;
-}
-
-/* Button Styling */
-.btn-login {
-    width: 100%;
-    padding: 15px;
-    background-color: #D32F2F; /* Primary Brand Color */
-    color: white;
-    border: none;
-    border-radius: 30px; /* Pill shape button */
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    margin-top: 10px;
-    position: relative;
-    overflow: hidden;
-}
-
-.btn-login:hover {
-    background-color: #b71c1c;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
-}
-
-.btn-login:active {
-    transform: scale(0.98);
-}
-
-/* Error Message Styling */
-.error-msg {
-    color: red;
-    font-size: 12px;
-    min-height: 20px;
-    margin-bottom: 10px;
-    text-align: center;
-    transition: opacity 0.3s;
-}
-
-/* Footer Links */
-.footer-links {
-    margin-top: 20px;
-    font-size: 13px;
-    color: #666;
-}
-
-.footer-links a {
-    color: #D32F2F;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s;
-}
-
-.footer-links a:hover {
-    color: #8e0000;
-}
-
-.forgot-pass {
-    display: block;
-    margin-top: 10px;
-    color: #999 !important;
-    font-weight: 400 !important;
-}
-
-select {
+.input-group input, 
+.input-group select {
     width: 100%;
     padding: 12px 15px;
     border: 1px solid #ddd;
@@ -157,33 +56,64 @@ select {
     font-size: 14px;
     background-color: #FAFAFA;
     outline: none;
-    color: #333;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23D32F2F%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 15px top 50%;
-    background-size: 10px auto;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
 }
 
-select:focus {
+.input-group input:focus,
+.input-group select:focus {
     border-color: #D32F2F;
+    background-color: #fff;
 }
 
-/* --- Dashboard Specific Styles --- */
-
-.dashboard-container {
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    min-height: 80vh;
+.btn-login {
+    width: 100%;
+    padding: 15px;
+    background-color: #D32F2F;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
 }
 
+.btn-login:hover {
+    background-color: #b71c1c;
+    transform: translateY(-2px);
+}
+
+.btn-logout {
+    width: 100%;
+    padding: 15px;
+    background-color: white;
+    border: 1px solid #D32F2F;
+    color: #D32F2F;
+    border-radius: 30px;
+    font-weight: 600;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-logout:hover {
+    background-color: #D32F2F;
+    color: white;
+}
+
+/* =========================================
+   3. DASHBOARD HEADER & STATUS
+   ========================================= */
 .dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
+}
+
+.user-info {
+    text-align: left;
 }
 
 .dashboard-header h2 {
@@ -198,11 +128,7 @@ select:focus {
     transition: color 0.3s;
 }
 
-.profile-pic:hover i {
-    color: #D32F2F;
-}
-
-/* The Status Card */
+/* Status Card */
 .status-card {
     background: white;
     border-radius: 15px;
@@ -213,25 +139,31 @@ select:focus {
     align-items: center;
     margin-bottom: 30px;
     border-left: 5px solid #D32F2F;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.status-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+.card-text {
+    text-align: left;
 }
 
-.card-text h3 {
-    font-size: 16px;
-    color: #333;
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+    min-width: 50px;
+    flex-shrink: 0;
 }
 
-.card-text p {
-    font-size: 12px;
-    color: #888;
-}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: #D32F2F; }
+input:checked + .slider:before { transform: translateX(22px); }
 
-/* The Grid Menu */
+/* =========================================
+   4. MENU GRID
+   ========================================= */
 .menu-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -246,26 +178,10 @@ select:focus {
     text-align: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    /* Animation for items loading */
-    opacity: 0;
-    animation: fadeIn 0.5s ease forwards;
+    transition: transform 0.2s;
 }
 
-/* Stagger animation for menu items */
-.menu-item:nth-child(1) { animation-delay: 0.1s; }
-.menu-item:nth-child(2) { animation-delay: 0.2s; }
-.menu-item:nth-child(3) { animation-delay: 0.3s; }
-.menu-item:nth-child(4) { animation-delay: 0.4s; }
-
-.menu-item:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-}
-
-.menu-item:active {
-    transform: scale(0.95);
-}
+.menu-item:hover { transform: translateY(-5px); }
 
 .icon-box {
     width: 50px;
@@ -277,11 +193,6 @@ select:focus {
     margin: 0 auto 10px auto;
     color: white;
     font-size: 20px;
-    transition: transform 0.4s ease;
-}
-
-.menu-item:hover .icon-box {
-    transform: rotate(15deg) scale(1.1);
 }
 
 .bg-red { background-color: #FF5252; }
@@ -289,352 +200,9 @@ select:focus {
 .bg-orange { background-color: #FFAB40; }
 .bg-green { background-color: #69F0AE; }
 
-.menu-item span {
-    font-weight: 600;
-    color: #555;
-    font-size: 14px;
-}
-
-/* Logout Button */
-.btn-logout {
-    width: 100%;
-    padding: 15px;
-    background-color: white;
-    border: 1px solid #D32F2F;
-    color: #D32F2F;
-    border-radius: 30px;
-    font-weight: 600;
-    margin-top: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-logout:hover {
-    background-color: #D32F2F;
-    color: white;
-}
-
-/* Toggle Switch */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 28px;
-}
-
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Bouncy switch */
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #D32F2F;
-}
-
-input:checked + .slider:before {
-  transform: translateX(22px);
-}
-
-/* manage_users.html Back Button Styles */
-.btn-back {
-    transition: all 0.2s ease;
-}
-.btn-back:hover {
-    background: rgba(0,0,0,0.05) !important;
-    transform: translateX(-3px);
-}
-
-@media (max-width: 480px) {
-    .btn-back span {
-        display: none; 
-    }
-    .btn-back {
-        padding: 8px 12px !important;
-    }
-}
-
-/* User Details Panel */
-#userDetailsContent div {
-    word-wrap: break-word; 
-}
-
-/* Table Animation classes */
-tbody tr {
-    opacity: 0; /* Hidden by default, JS triggers animation */
-    animation: fadeInUp 0.5s ease forwards;
-}
-
-/* --- Event Booking & Slot Styling (NEW) --- */
-
-.event-card {
-    background: white;
-    border-radius: 15px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
-    text-align: left; /* Ensure text aligns left inside card */
-}
-
-.event-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-}
-
-.event-date {
-    background-color: #ffebee;
-    color: #c62828;
-    padding: 5px 10px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.8rem;
-    text-align: center;
-    min-width: 50px;
-}
-
-.event-details h4 {
-    margin: 0;
-    color: #333;
-    font-size: 0.95rem;
-}
-
-.event-details p {
-    margin: 5px 0 0;
-    font-size: 0.85rem;
-    color: #666;
-}
-
-/* Time Slot Grid */
-.slots-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.time-slot {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: white;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-    color: #555;
-}
-
-.time-slot:hover {
-    border-color: #c62828;
-    color: #c62828;
-}
-
-.time-slot.selected {
-    background-color: #c62828;
-    color: white;
-    border-color: #c62828;
-}
-
-.time-slot.disabled {
-    background-color: #f5f5f5;
-    color: #aaa;
-    border-color: #eee;
-    cursor: not-allowed;
-    text-decoration: line-through;
-}
-
-/* ---------------- ANIMATION KEYFRAMES ---------------- */
-
-/* 1. Slide Up and Fade In (Container Entry) */
-@keyframes slideUpFade {
-    0% {
-        opacity: 0;
-        transform: translateY(40px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* 2. Simple Fade In */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* 3. Fade In Up (For Table Rows) */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* 4. Floating Effect (Logo) */
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
-    100% { transform: translateY(0px); }
-}
-
-/* 5. Modal Styling (Updated for Booking Confirmation) */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: none; /* Hidden by default */
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease-out;
-}
-
-.modal-overlay.active {
-    display: flex;
-}
-
-.modal-content {
-    background: white;
-    width: 85%;
-    max-width: 350px;
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    animation: slideUp 0.3s ease;
-    text-align: left;
-}
-
-.modal-header h3 {
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.modal-body p {
-    margin: 10px 0;
-    color: #555;
-    font-size: 14px;
-}
-
-.modal-body .warning-text {
-    font-size: 11px;
-    color: #888;
-    margin-top: 15px;
-    display: block;
-}
-
-.modal-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.btn-primary {
-    background-color: #c62828;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    flex: 1;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.2s;
-}
-
-.btn-primary:hover { background-color: #b71c1c; }
-
-.btn-secondary {
-    background-color: #f5f5f5;
-    color: #333;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    flex: 1;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-@keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* 6. Dropdown Slide */
-#suspensionDropContent {
-    animation: slideDown 0.3s ease-out;
-    transform-origin: top;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px) scaleY(0.9); }
-    to { opacity: 1; transform: translateY(0) scaleY(1); }
-}
-
-#dropIcon {
-    display: inline-block;
-    transition: transform 0.3s ease;
-}
-
-.btn-reset {
-    width: 100%;
-    padding: 12px;
-    background-color: #6200ea; /* Deep Purple */
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.btn-reset:hover {
-    background-color: #3700b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(98, 0, 234, 0.3);
-}
-
-.btn-reset:active {
-    transform: scale(0.98);
-}
-
-/* Donor Profile Styling */
-
+/* =========================================
+   5. DONOR PROFILE PAGE STYLES
+   ========================================= */
 .grid-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -657,6 +225,12 @@ tbody tr {
     border-radius: 12px;
     margin-bottom: 15px;
     border-left: 4px solid #ddd;
+    transition: all 0.2s;
+}
+
+.screening-question:hover {
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .screening-question p {
@@ -677,6 +251,7 @@ tbody tr {
     gap: 8px;
     font-size: 14px;
     cursor: pointer;
+    color: #333;
 }
 
 .radio-group input[type="radio"] {
@@ -685,10 +260,282 @@ tbody tr {
     height: 18px;
 }
 
-#desktopTableWrap { display: block !important; }
-#mobileCardWrap { display: none !important; }
+/* =========================================
+   6. EVENT & REMINDER CARDS
+   ========================================= */
 
-@media (max-width: 768px) {
-  #desktopTableWrap { display: none !important; }
-  #mobileCardWrap { display: block !important; }
+/* Base Event Card */
+.event-card {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: left;
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.event-details h4 { margin: 0; color: #333; font-size: 1rem; }
+.event-details p { margin: 5px 0 0; font-size: 0.85rem; color: #666; }
+
+/* Date Badge Style */
+.event-date {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffebee;
+    color: #c62828;
+    min-width: 60px;
+    height: 60px;
+    padding: 5px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.1);
+}
+
+.event-date div:nth-child(1) {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.event-date div:nth-child(2) {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+/* Slot Selection Buttons */
+.slots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.time-slot {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: center;
+    color: #555;
+}
+
+.time-slot:hover { border-color: #D32F2F; color: #D32F2F; }
+.time-slot.selected { background-color: #D32F2F; color: white; border-color: #D32F2F; }
+.time-slot.disabled { background-color: #f5f5f5; color: #aaa; border-color: #eee; cursor: not-allowed; text-decoration: line-through; }
+
+/* Reminder Card (Red) Overrides */
+#appointmentCard.reminder-card {
+    background: linear-gradient(135deg, #D32F2F, #b71c1c) !important;
+    color: white !important;
+    border: none !important;
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+    text-align: left;
+    animation: slideDown 0.5s ease;
+}
+
+.reminder-badge {
+    background: rgba(255,255,255,0.2);
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.reminder-time {
+    margin-top: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#appointmentCard h4, #appointmentCard p, #appointmentCard span, #appointmentCard i {
+    color: white !important;
+}
+
+/* Special White Date Box for Red Card */
+#appointmentCard .white-date {
+    background-color: white !important;
+    color: #D32F2F !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
+}
+
+#appointmentCard .white-date div {
+    color: #D32F2F !important;
+}
+
+#appointmentCard .btn-cancel-sm {
+    background: rgba(0,0,0,0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.5);
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 15px;
+    width: 100%;
+    transition: background 0.2s;
+}
+
+/* =========================================
+   7. MODAL & ANIMATIONS (NEW DESIGN)
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+.modal-overlay.active { display: flex; }
+
+.modal-content {
+    background: white;
+    width: 90%;
+    max-width: 380px;
+    border-radius: 25px;
+    padding: 25px;
+    text-align: left;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-header {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.modal-header p {
+    margin: 5px 0 0;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+/* Info Rows (Icon + Text) */
+.info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.icon-wrap {
+    background-color: #ffebee;
+    color: #D32F2F;
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.info-row .label {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.info-row .value {
+    margin: 2px 0 0;
+    font-size: 0.95rem;
+    color: #333;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Warning Box */
+.warning-box {
+    background-color: #f9f9f9;
+    padding: 10px 15px;
+    border-radius: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 15px;
+    border: 1px solid #eee;
+}
+
+.warning-box i { color: #888; font-size: 14px; }
+.warning-box small { color: #666; font-size: 0.75rem; line-height: 1.3; }
+
+/* Buttons */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.btn-primary {
+    background-color: #D32F2F;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
+    transition: transform 0.2s;
+}
+
+.btn-primary:active { transform: scale(0.96); }
+
+.btn-secondary {
+    background-color: white;
+    color: #555;
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 12px;
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.btn-secondary:hover { background-color: #f5f5f5; }
+
+/* Animations */
+@keyframes slideUpFade { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }
