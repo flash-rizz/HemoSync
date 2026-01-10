@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HemoSync - History</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div class="dashboard-header" style="justify-content: flex-start; gap: 15px;">
+            <i class="fa-solid fa-arrow-left" style="font-size: 1.2rem; cursor: pointer;" onclick="window.location.href='donor_home.html'"></i>
+            <div class="user-info">
+                <h2>My History</h2> 
+                <p>Track your life-saving journey.</p>
+            </div>
+        </div>
+
+        <div class="status-card" style="padding: 15px; margin-bottom: 20px;">
+            <div class="card-text">
+                <h3 style="font-size: 1rem;"><i class="fa-solid fa-trophy" style="color: #FFD700;"></i> Total Donations</h3>
+                <p>You have saved lives <strong>3 times</strong>.</p>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" style="text-align: center; padding: 20px; color: #888;">
+            <i class="fa-solid fa-circle-notch fa-spin" style="color: #e63946;"></i> Loading records...
+        </div>
+
+        <div id="emptyState" style="display: none; text-align: center; margin-top: 50px; color: #888;">
+            <i class="fa-regular fa-folder-open" style="font-size: 40px; margin-bottom: 10px; opacity: 0.5;"></i>
+            <p>No Donation History Found.</p>
+        </div>
+
+        <div id="historyContainer" class="events-list" style="padding-bottom: 80px;">
+            </div>
+
+    </div>
+
+    <script type="module" src="donor_history.js"></script>
+</body>
+</html>

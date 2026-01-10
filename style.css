@@ -539,3 +539,56 @@ input:checked + .slider:before { transform: translateX(22px); }
     from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
 }
+
+/* =========================================
+   8. DONOR HISTORY
+   ========================================= */
+
+.history-card {
+    /* Slightly more compact padding than booking cards */
+    padding: 12px 15px; 
+    border-left: 4px solid transparent; /* Decorative border prep */
+    transition: transform 0.2s;
+}
+
+.history-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Status Badges */
+.status-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* 1. DONE (Completed) - Green/Teal */
+.status-done {
+    background-color: #e0f2f1;
+    color: #00695c;
+    border: 1px solid #b2dfdb;
+}
+
+/* 2. UPCOMING - Blue/Purple */
+.status-upcoming {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+}
+
+/* 3. CANCELLED - Grey/Red text */
+.status-cancelled {
+    background-color: #f5f5f5;
+    color: #9e9e9e;
+    border: 1px solid #eeeeee;
+    text-decoration: line-through; /* Visual cue for cancellation */
+}
+
+/* Optional: Add colored borders to the left of the cards */
+.history-card:has(.status-done) { border-left-color: #00695c; }
+.history-card:has(.status-upcoming) { border-left-color: #1565c0; }
+.history-card:has(.status-cancelled) { border-left-color: #9e9e9e; opacity: 0.8; }
