@@ -260,6 +260,56 @@ input:checked + .slider:before { transform: translateX(22px); }
     height: 18px;
 }
 
+/* --- PROFILE TABS --- */
+.profile-tabs {
+    display: flex;
+    background: #f1f1f1;
+    border-radius: 15px;
+    padding: 5px;
+    margin-bottom: 25px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #D32F2F;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* --- LOCKED BANNER --- */
+.locked-banner {
+    background-color: #e8f5e9; /* Light Green */
+    border: 1px solid #c8e6c9;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #2e7d32;
+}
+
+.locked-banner i {
+    font-size: 24px;
+}
+
+.locked-banner p {
+    font-size: 12px;
+    margin: 3px 0 0 0;
+    color: #4caf50;
+}
+
 /* =========================================
    6. EVENT & REMINDER CARDS
    ========================================= */
