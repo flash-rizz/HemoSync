@@ -33,7 +33,7 @@ const mobileCards = document.getElementById("mobileUserCards");
 const detailPanel = document.getElementById("userDetailsPanel");
 const detailContent = document.getElementById("userDetailsContent");
 
-const emailInput = document.getElementById("adminSearchInput");
+const searchInput = document.getElementById("adminSearchInput");
 const statusFilterSelect = document.getElementById("statusFilter");
 const pendingHeadsUp = document.getElementById("pendingHeadsUp");
 const pendingCounter = document.getElementById("pendingCounter");
@@ -94,25 +94,23 @@ async function logAdminAction(actionType, payload) {
   }
 }
 
-async function buildFirestoreQuery(emailSearch) {
-  // Note: We fetch loosely and filter client-side for status
-  // because status is now derived from isProfileComplete
-  if (emailSearch) {
-    return query(collection(db, "users"), where("email", "==", emailSearch));
-  }
-  return collection(db, "users");
-}
+// --- FILTER & SORT ---
 
 function sortDocsPendingFirst(docs, statusFilter) {
-  if (statusFilter !== "ALL") return docs;
-
+  // Logic: 
+  // 1. Sort by Status (Pending top if filtering All)
+  // 2. Sort by Fullname A-Z
+  
   return docs.slice().sort((a, b) => {
     const sa = normalizeStatus(a.data());
     const sb = normalizeStatus(b.data());
 
-    const pa = sa === "Pending" ? 0 : 1;
-    const pb = sb === "Pending" ? 0 : 1;
-    if (pa !== pb) return pa - pb;
+    // Only force Pending to top if we are viewing ALL statuses
+    if (statusFilter === "ALL") {
+      const pa = sa === "Pending" ? 0 : 1;
+      const pb = sb === "Pending" ? 0 : 1;
+      if (pa !== pb) return pa - pb;
+    }
 
     const na = (a.data().fullname || "").toLowerCase();
     const nb = (b.data().fullname || "").toLowerCase();
@@ -121,8 +119,6 @@ function sortDocsPendingFirst(docs, statusFilter) {
 }
 
 // --- ACTIONS ---
-
-// Note: "Verify" is removed because Active status is now automatic upon profile completion.
 
 // "Unverify" now forces the user back to Pending by flagging profile as incomplete
 window.unverifyUser = async function (userId, userEmail) {
@@ -331,7 +327,8 @@ function renderCurrentPage() {
   nextPageBtn.disabled = currentPage >= totalPages;
 }
 
-async function loadUsers(emailSearch = null, statusFilter = "ALL") {
+// MAIN LOAD FUNCTION
+async function loadUsers(searchTerm = null, statusFilter = "ALL") {
   if (tableBody) {
     tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">Retrieving user directory...</td></tr>`;
   }
@@ -340,7 +337,9 @@ async function loadUsers(emailSearch = null, statusFilter = "ALL") {
   }
 
   try {
-    const q = await buildFirestoreQuery(emailSearch);
+    // We always fetch the whole collection so we can filter name OR email client-side.
+    // Firestore cannot easily do "name OR email" in one query.
+    const q = collection(db, "users");
     const querySnapshot = await getDocs(q);
 
     let docs = [];
@@ -350,13 +349,26 @@ async function loadUsers(emailSearch = null, statusFilter = "ALL") {
     const pendingCount = docs.reduce((acc, d) => acc + (normalizeStatus(d.data()) === "Pending" ? 1 : 0), 0);
     setPendingCounter(pendingCount);
 
-    // Client-side filtering based on derived status
-    const selected = (statusFilter || "ALL").trim();
-    if (selected !== "ALL") {
-      docs = docs.filter((d) => normalizeStatus(d.data()) === selected);
+    // 1. FILTER BY SEARCH (Name OR Email)
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      docs = docs.filter(d => {
+        const data = d.data();
+        const name = (data.fullname || "").toLowerCase();
+        const email = (data.email || "").toLowerCase();
+        // Check if term exists in name OR email
+        return name.includes(lowerTerm) || email.includes(lowerTerm);
+      });
     }
 
-    docs = sortDocsPendingFirst(docs, selected);
+    // 2. FILTER BY STATUS
+    const selectedStatus = (statusFilter || "ALL").trim();
+    if (selectedStatus !== "ALL") {
+      docs = docs.filter((d) => normalizeStatus(d.data()) === selectedStatus);
+    }
+
+    // 3. SORT
+    docs = sortDocsPendingFirst(docs, selectedStatus);
 
     cachedFilteredDocs = docs;
     renderCurrentPage();
@@ -373,7 +385,7 @@ async function loadUsers(emailSearch = null, statusFilter = "ALL") {
 
 async function refreshWithCurrentInputs() {
   updateHeadsUpVisibility();
-  await loadUsers(emailInput.value.trim(), statusFilterSelect.value);
+  await loadUsers(searchInput.value.trim(), statusFilterSelect.value);
 }
 
 // Suspension dropdown
@@ -520,7 +532,7 @@ document.getElementById("execSearchBtn").addEventListener("click", async () => {
 });
 
 document.getElementById("clearSearchBtn").addEventListener("click", async () => {
-  emailInput.value = "";
+  searchInput.value = "";
   statusFilterSelect.value = "Pending"; // default to Pending
   updateHeadsUpVisibility();
   currentPage = 1;

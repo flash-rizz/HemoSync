@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 
-  <!-- Mobile responsive helper styles (only affects this page) -->
   <style>
     /* Desktop table default */
     #desktopTableWrap { display: block; }
@@ -78,9 +77,9 @@
       font-size: 12px !important;
     }
 
-.user-card-actions button {
-  margin-top: 0 !important;        /* cancels margin-top from .btn-login */
-}
+    .user-card-actions button {
+      margin-top: 0 !important;        /* cancels margin-top from .btn-login */
+    }
 
     .status-pill {
       display: inline-flex;
@@ -114,7 +113,6 @@
       </div>
     </div>
 
-    <!-- User Details Panel -->
     <div
       id="userDetailsPanel"
       class="status-card"
@@ -131,13 +129,12 @@
       ></div>
     </div>
 
-    <!-- Search + Filter -->
     <div class="status-card" style="display: block;">
       <div class="search-box" style="display: flex; gap: 10px; flex-wrap: wrap;">
         <input
           type="text"
           id="adminSearchInput"
-          placeholder="Search by email..."
+          placeholder="Search by name or email..."
           style="flex: 1; min-width: 280px; padding: 12px; border-radius: 8px; border: 1px solid #ddd;"
         />
 
@@ -170,7 +167,6 @@
       </div>
     </div>
 
-    <!-- Desktop Table (hidden on mobile) -->
     <div id="desktopTableWrap" class="status-card" style="display: block; overflow-x: auto; padding: 0;">
       <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
         <thead style="background: #f8f9fa;">
@@ -185,12 +181,10 @@
       </table>
     </div>
 
-    <!-- Mobile Cards (hidden on desktop) -->
     <div id="mobileCardWrap" class="status-card" style="display: block;">
       <div id="mobileUserCards" style="display: grid; gap: 12px;"></div>
     </div>
 
-    <!-- Pagination below list/table -->
     <div class="status-card" style="display: block; margin-top: 12px;">
       <div style="display: flex; gap: 10px; width: 100%; align-items: center; justify-content: space-between; flex-wrap: wrap;">
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
@@ -211,7 +205,6 @@
     </div>
   </div>
 
-  <!-- Suspension Modal -->
   <div
     id="suspensionModal"
     class="modal-overlay"
