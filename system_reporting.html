@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HemoSync – System Reporting</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+body{
+    margin:0;
+    background:#f0f2f5;
+    font-family:'Poppins',sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+.container{
+    width:100%;
+    max-width:500px;
+    background:#fff;
+    border-radius:25px;
+    padding:30px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.1);
+}
+.header{
+    border-bottom:2px solid #eee;
+    padding-bottom:10px;
+    margin-bottom:20px;
+}
+.header h2{
+    margin:0;
+    color:#D32F2F;
+}
+.status-banner{
+    padding:15px;
+    border-radius:15px;
+    background:#f8f9fa;
+    border-left:6px solid #bbb;
+    margin-bottom:20px;
+    font-size:13px;
+}
+.section{
+    background:#f8f9fa;
+    padding:15px;
+    border-radius:15px;
+    margin-bottom:15px;
+    border:1px solid #e0e0e0;
+}
+.section h3{
+    margin:0 0 10px 0;
+    font-size:15px;
+    color:#333;
+}
+.row{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:6px;
+    font-size:13px;
+}
+.low{color:#D32F2F;font-weight:600;}
+.medium{color:#ffa000;font-weight:600;}
+.good{color:#2e7d32;font-weight:600;}
+.back-btn{
+    width:100%;
+    margin-top:15px;
+    background:#D32F2F;
+    border:none;
+    padding:12px;
+    border-radius:12px;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<h2><i class="fa-solid fa-chart-line"></i> System Reporting</h2>
+<p style="font-size:12px;color:#777;">Live System Summary</p>
+</div>
+
+<div id="statusBanner" class="status-banner">
+Loading system status...
+</div>
+
+<div id="inventorySection" class="section">
+<h3><i class="fa-solid fa-boxes-stacked"></i> Blood Inventory Summary</h3>
+</div>
+
+<div id="alertSection" class="section">
+<h3><i class="fa-solid fa-triangle-exclamation"></i> Red Alert Summary</h3>
+</div>
+
+<div id="triageSection" class="section">
+<h3><i class="fa-solid fa-user-check"></i> Donor & Triage Summary</h3>
+</div>
+
+<div id="deliverySection" class="section">
+<h3><i class="fa-solid fa-truck-medical"></i> Delivery Verification Summary</h3>
+</div>
+
+<button class="back-btn" onclick="goBack()">
+<i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+</button>
+
+</div>
+
+<script>
+function goBack(){
+    window.location.href="hospital_clinic_dashboard.html";
+}
+</script>
+
+<script type="module" src="./firebase.js"></script>
+<script type="module" src="./system_reporting.js"></script>
+</body>
+</html>
