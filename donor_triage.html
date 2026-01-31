@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HemoSync – Donor Triage</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+/* ================= BASE ================= */
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* ================= CONTAINER ================= */
+.container {
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 30px;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.12);
+}
+
+/* ================= HEADER ================= */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #388e3c;
+}
+.header p {
+    margin: 5px 0 0;
+    font-size: 12px;
+    color: #777;
+}
+.header-actions button {
+    background: #388e3c;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* ================= STATUS CARD ================= */
+.status-card {
+    background: #ffffff;
+    border-left: 6px solid #388e3c;
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* ================= SEARCH ================= */
+.search-section {
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+.search-title {
+    margin: 0 0 15px;
+    font-size: 15px;
+    color: #333;
+}
+.search-box {
+    display: flex;
+    gap: 10px;
+}
+.search-input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+}
+.search-btn {
+    background: #388e3c;
+    color: #fff;
+    border: none;
+    padding: 0 20px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* ================= DONOR PROFILE ================= */
+.donor-profile {
+    display: none;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.profile-name {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+}
+.eligibility-status {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.pending {
+    background: #fff3e0;
+    color: #f57c00;
+}
+.eligible {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+.ineligible {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+/* ================= INFO GRID ================= */
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+.info-card {
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 10px;
+}
+.info-label {
+    font-size: 11px;
+    color: #777;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+.info-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* ================= ACTION BUTTONS ================= */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+.btn-approve,
+.btn-reject {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-approve {
+    background: #388e3c;
+}
+.btn-reject {
+    background: #d32f2f;
+}
+.btn-clear {
+    margin-top: 12px;
+    width: 100%;
+    padding: 10px;
+    background: #757575;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+/* ================= BACK BUTTON ================= */
+.back-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: #d32f2f;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div>
+            <h2><i class="fa-solid fa-user-shield"></i> Donor Triage</h2>
+            <p>Eligibility verification</p>
+        </div>
+        <div class="header-actions">
+            <button onclick="clearSearch()">Clear</button>
+        </div>
+    </div>
+
+    <div id="statusCard" class="status-card">
+        Search for donor to begin triage process
+    </div>
+
+    <div class="search-section">
+        <h3 class="search-title">Donor Lookup</h3>
+        <div class="search-box">
+            <input id="searchInput" class="search-input" placeholder="Enter Donor ID">
+            <button class="search-btn" onclick="searchDonor()">
+                <i class="fa-solid fa-search"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="donorProfile" class="donor-profile">
+        <div class="profile-header">
+            <h3 id="donorName" class="profile-name"></h3>
+            <div id="eligibilityStatus" class="eligibility-status pending">Pending</div>
+        </div>
+
+        <div class="profile-grid">
+            <div class="info-card">
+                <div class="info-label">Donor ID</div>
+                <div id="donorId" class="info-value"></div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Blood Type</div>
+                <div id="bloodType" class="info-value"></div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Age</div>
+                <div id="donorAge" class="info-value"></div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Gender</div>
+                <div id="donorGender" class="info-value"></div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-approve" onclick="approveDonor()">Approve</button>
+            <button class="btn-reject" onclick="rejectDonor()">Reject</button>
+        </div>
+
+        <button class="btn-clear" onclick="clearSearch()">Clear Profile</button>
+    </div>
+
+    <button class="back-btn" onclick="goBack()">Back to Dashboard</button>
+
+</div>
+
+<script type="module" src="./firebase.js"></script>
+<script type="module" src="./donor_triage.js"></script>
+
+</body>
+</html>

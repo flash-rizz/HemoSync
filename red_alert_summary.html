@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HemoSync – Red Alert Summary</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+body{
+    margin:0;
+    background:#f0f2f5;
+    font-family:'Poppins',sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+.container{
+    width:100%;
+    max-width:500px;
+    background:#fff;
+    border-radius:25px;
+    padding:30px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.1);
+}
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+.header h2{
+    margin:0;
+    color:#d32f2f;
+}
+.alert-card{
+    background:#ffebee;
+    border:1px solid #f44336;
+    border-radius:18px;
+    padding:15px;
+    margin-bottom:15px;
+}
+.alert-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    margin-bottom:6px;
+}
+.alert-row span:first-child{
+    color:#555;
+}
+.alert-row span:last-child{
+    font-weight:600;
+}
+.empty{
+    text-align:center;
+    font-size:13px;
+    color:#777;
+    padding:20px;
+}
+.back-btn{
+    width:100%;
+    margin-top:20px;
+    background:#d32f2f;
+    border:none;
+    padding:12px;
+    border-radius:12px;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+.remove-btn{
+    background:#757575;
+    color:#fff;
+    padding:5px 10px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+    <h2><i class="fa-solid fa-triangle-exclamation"></i> Red Alert Summary</h2>
+</div>
+
+<div id="alertList">
+    <div class="empty">Loading red alert records...</div>
+</div>
+
+<button class="back-btn" onclick="goBack()">
+    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+</button>
+
+</div>
+
+<!-- Firebase config -->
+<script type="module" src="./firebase.js"></script>
+
+<!-- 🔥 FIRESTORE READ LOGIC INLINE -->
+<script type="module">
+import { db } from "./firebase.js";
+import { collection, getDocs, orderBy, query } 
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+const alertList = document.getElementById("alertList");
+
+async function loadRedAlerts(){
+    alertList.innerHTML = "";
+
+    try{
+        const q = query(
+            collection(db, "RedAlerts"),
+            orderBy("createdAt", "desc")
+        );
+
+        const snapshot = await getDocs(q);
+
+        if(snapshot.empty){
+            alertList.innerHTML =
+                `<div class="empty">No red alerts recorded</div>`;
+            return;
+        }
+
+        snapshot.forEach(doc=>{
+            const d = doc.data();
+            const id = doc.id;
+
+            alertList.innerHTML += `
+            <div class="alert-card" id="alert-${id}">
+                <div class="alert-row">
+                    <span>Blood Type</span>
+                    <span>${d.bloodType || "-"}</span>
+                </div>
+                <div class="alert-row">
+                    <span>Quantity Needed</span>
+                    <span>${d.units || 0} units</span>
+                </div>
+                <div class="alert-row">
+                    <span>Urgency</span>
+                    <span style="color:#d32f2f">${d.urgency || "Critical"}</span>
+                </div>
+                <div class="alert-row">
+                    <span>Reason</span>
+                    <span>${d.notes || "-"}</span>
+                </div>
+                <div class="alert-row">
+                    <span>Requested By</span>
+                    <span>${d.requestedBy || "Hospital / Clinic"}</span>
+                </div>
+                <div style="text-align:right;margin-top:10px;">
+                    <button class="remove-btn" onclick="removeAlert('${id}')">Remove from Page</button>
+                </div>
+            </div>`;
+        });
+
+    }catch(err){
+        console.error(err);
+        alertList.innerHTML =
+            `<div class="empty">Failed to load data</div>`;
+    }
+}
+
+// Remove alert from page but NOT Firebase
+window.removeAlert = function(id){
+    if(confirm("Remove this alert from the page? This will NOT delete the Firebase data.")){
+        const alertEl = document.getElementById(`alert-${id}`);
+        if(alertEl) alertEl.remove();
+    }
+};
+
+// Expose goBack to global scope so HTML onclick works
+window.goBack = function(){
+    window.location.href = "hospital_clinic_dashboard.html";
+};
+
+loadRedAlerts();
+</script>
+
+</body>
+</html>

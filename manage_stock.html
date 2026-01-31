@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HemoSync – Manage Blood Stock</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            background: #f0f2f5;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: #fff;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .header h2 {
+            color: #D32F2F;
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .status-card {
+            padding: 15px;
+            border-radius: 15px;
+            background: #e8f5e9;
+            border-left: 6px solid #388e3c;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .quantity.low { color: #D32F2F; font-weight: 600; }
+        .quantity.good { color: #388e3c; font-weight: 600; }
+
+        .btn {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 11px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .btn-use { background: #D32F2F; }
+        .btn-discard { background: #757575; }
+        .btn-add { background: #388e3c; }
+
+        .add-stock {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+        }
+
+        .back-btn {
+            width: 100%;
+            margin-top: 20px;
+            background: #D32F2F;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>
+            <h2><i class="fa-solid fa-boxes-stacked"></i> Manage Blood Stock</h2>
+            <p style="font-size:12px;color:#888;">Inventory overview</p>
+        </div>
+    </div>
+
+    <!-- STATUS -->
+    <div id="statusCard" class="status-card">
+        All blood stocks are currently sufficient.
+    </div>
+
+    <!-- TABLE -->
+    <table>
+        <thead>
+            <tr>
+                <th>Blood Type</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="stockTable"></tbody>
+    </table>
+
+    <!-- ADD STOCK -->
+    <div class="add-stock">
+        <h4>Add New Stock</h4>
+
+        <select id="bloodType">
+            <option value="">Select Blood Type</option>
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>O+</option><option>O-</option>
+            <option>AB+</option><option>AB-</option>
+        </select>
+
+        <input type="number" id="quantity" placeholder="Quantity">
+        <input type="date" id="expiryDate">
+
+        <button class="btn btn-add" onclick="addBloodUnit()">Add Stock</button>
+    </div>
+
+    <!-- BACK -->
+    <button class="back-btn" onclick="goBack()">Back to Dashboard</button>
+
+</div>
+
+<!-- Removed static stockData & renderTable -->
+<script type="module" src="./firebase.js"></script>
+<script type="module" src="./manage_stock.js"></script>
+</body>
+</html>

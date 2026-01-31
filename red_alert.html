@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HemoSync – Red Alert Emergency</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+body{
+    margin:0;
+    background:#f0f2f5;
+    font-family:'Poppins',sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+.container{
+    max-width:500px;
+    width:100%;
+    background:#fff;
+    border-radius:25px;
+    padding:30px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.1);
+}
+.header{
+    border-bottom:2px solid #f0f0f0;
+    padding-bottom:15px;
+    margin-bottom:20px;
+}
+.header h2{
+    color:#d32f2f;
+    font-size:20px;
+    margin:0;
+}
+.header p{
+    font-size:12px;
+    color:#888;
+    margin:5px 0 0;
+}
+.emergency-banner{
+    background:linear-gradient(135deg,#d32f2f,#b71c1c);
+    color:#fff;
+    padding:15px;
+    border-radius:15px;
+    text-align:center;
+    font-weight:600;
+    margin-bottom:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+}
+.form-box{
+    background:#f8f9fa;
+    border-radius:15px;
+    padding:20px;
+    border:1px solid #e0e0e0;
+}
+.form-title{
+    font-size:16px;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+select,input,textarea{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    font-family:'Poppins';
+    font-size:13px;
+    margin-bottom:12px;
+}
+textarea{min-height:80px}
+.urgency{
+    display:flex;
+    gap:10px;
+    margin-bottom:12px;
+}
+.urgency button{
+    flex:1;
+    padding:10px;
+    border-radius:8px;
+    border:2px solid #e0e0e0;
+    background:#fff;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:600;
+}
+.urgency .active{
+    border-color:#d32f2f;
+    background:#ffebee;
+    color:#d32f2f;
+}
+.submit-btn,.back-btn{
+    width:100%;
+    padding:14px;
+    border-radius:12px;
+    font-weight:600;
+    border:none;
+    cursor:pointer;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    font-size:14px;
+}
+.submit-btn{background:#d32f2f;color:#fff}
+.back-btn{background:#757575;color:#fff;margin-top:10px}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<h2><i class="fa-solid fa-bullhorn"></i> Red Alert Emergency</h2>
+<p>Emergency blood request system</p>
+</div>
+
+<div class="emergency-banner">
+<i class="fa-solid fa-triangle-exclamation"></i> CRITICAL USE ONLY
+</div>
+
+<div class="form-box">
+<h3 class="form-title"><i class="fa-solid fa-syringe"></i> Create Emergency Request</h3>
+
+<select id="bloodType">
+<option value="">Select Blood Type</option>
+<option>A+</option><option>A-</option>
+<option>B+</option><option>B-</option>
+<option>O+</option><option>O-</option>
+<option>AB+</option><option>AB-</option>
+</select>
+
+<input type="number" id="units" placeholder="Units Required" min="1">
+
+<div class="urgency">
+<button class="active" onclick="setUrgency('Critical',this)">Critical</button>
+<button onclick="setUrgency('High',this)">High</button>
+<button onclick="setUrgency('Medium',this)">Medium</button>
+</div>
+
+<input type="datetime-local" id="requiredBy">
+
+<textarea id="notes" placeholder="Patient / Case Details (optional)"></textarea>
+<input type="text" id="doctor" placeholder="Doctor / Department (optional)">
+
+<button class="submit-btn" onclick="submitAlert()">
+<i class="fa-solid fa-bullhorn"></i> Issue Red Alert
+</button>
+</div>
+
+<button class="back-btn" onclick="location.href='hospital_clinic_dashboard.html'">
+<i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+</button>
+
+</div>
+
+<script>
+let urgency="Critical";
+
+document.addEventListener("DOMContentLoaded",()=>{
+    const now=new Date();
+    const local=new Date(now.getTime()-now.getTimezoneOffset()*60000)
+        .toISOString().slice(0,16);
+    document.getElementById("requiredBy").value=local;
+});
+
+function setUrgency(level,btn){
+    urgency=level;
+    document.querySelectorAll(".urgency button")
+        .forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+}
+</script>
+
+<script type="module" src="./firebase.js"></script>
+<script type="module" src="./red_alert.js"></script>
+</body>
+</html>
