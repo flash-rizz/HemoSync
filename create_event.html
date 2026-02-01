@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Student Style: Simple layout for slots */
         .slot-manager {
             background: #f9f9f9;
             padding: 15px;
@@ -53,6 +54,21 @@
             cursor: pointer;
             color: #c62828;
         }
+        /* New Checkbox Style */
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: normal;
+            font-size: 14px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -85,6 +101,17 @@
                     <small style="color:#666; font-size:11px;">Blood collected will go to this unit.</small>
                 </div>
 
+                <div class="input-group">
+                    <label>Priority Blood Types Needed</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" name="priority" value="A"> Type A</label>
+                        <label class="checkbox-label"><input type="checkbox" name="priority" value="B"> Type B</label>
+                        <label class="checkbox-label"><input type="checkbox" name="priority" value="O"> Type O</label>
+                        <label class="checkbox-label"><input type="checkbox" name="priority" value="AB"> Type AB</label>
+                    </div>
+                    <small style="color:#888; font-size:11px;">Leave unchecked if all types are welcome.</small>
+                </div>
+
                 <div class="slot-manager">
                     <label style="font-size:14px; font-weight:600; margin-bottom:10px; display:block;">Manage Time Slots</label>
                     
@@ -114,25 +141,6 @@
                     <input type="text" id="totalCapacity" value="0" readonly style="background:#eee; color:#555;">
                 </div>
 
-                <div class="input-group">
-                    <label>Priority Blood Types Needed</label>
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 5px;">
-                        <label style="display:flex; align-items:center; gap:5px; font-weight:normal;">
-                            <input type="checkbox" name="priorityBlood" value="A"> Type A
-                        </label>
-                        <label style="display:flex; align-items:center; gap:5px; font-weight:normal;">
-                            <input type="checkbox" name="priorityBlood" value="B"> Type B
-                        </label>
-                        <label style="display:flex; align-items:center; gap:5px; font-weight:normal;">
-                            <input type="checkbox" name="priorityBlood" value="O"> Type O
-                        </label>
-                        <label style="display:flex; align-items:center; gap:5px; font-weight:normal;">
-                            <input type="checkbox" name="priorityBlood" value="AB"> Type AB
-                        </label>
-                    </div>
-                    <small style="color:#888;">Leave all unchecked to accept Any type.</small>
-                </div>
-
                 <button type="submit" class="btn-login">Publish Event</button>
                 
                 <button type="button" class="btn-logout" style="margin-top: 10px;" onclick="window.location.href='organiser_dashboard.html'">Cancel</button>
@@ -142,5 +150,4 @@
 
     <script type="module" src="create_event.js"></script>
 </body>
-
 </html>
