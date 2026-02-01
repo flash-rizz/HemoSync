@@ -2,7 +2,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, signOut, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 // TODO: Paste your firebaseConfig here
 const firebaseConfig = {
@@ -28,11 +27,7 @@ const errorMsg = document.getElementById('errorMessage');
 // Handle Login
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault(); // Stop page reload
-    try {
-        await setPersistence(auth, browserSessionPersistence);
-
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+    const user = userCredential.user;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
@@ -132,4 +127,5 @@ styleSheet.innerText = `
 }`;
 
 document.head.appendChild(styleSheet);
+
 
