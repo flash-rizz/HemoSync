@@ -5,6 +5,7 @@
     <title>HemoSync - Attendance</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="app-container">
@@ -20,17 +21,26 @@
             </select>
         </div>
 
-        <div id="attendanceSection" style="display:none; margin-top:20px;">
-            <h3>Donor List</h3>
-            <p style="font-size:12px; color:#666;">Mark users as Present or Absent.</p>
-            
-            <div id="donorList">
-                </div>
-
-            <button class="btn-login" id="saveBtn">Save Attendance</button>
+        <div id="loadingMsg" style="display:none; text-align:center; margin: 20px 0; color:#666;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Loading appointments...
         </div>
 
-        <button class="btn-logout" style="margin-top: 20px;" onclick="window.location.href='organiser_dashboard.html'">Back</button>
+        <div id="attendanceSection" style="display:none; margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3>Donor List</h3>
+                <span id="donorCount" style="background:#eee; padding:2px 8px; border-radius:10px; font-size:12px;">0 found</span>
+            </div>
+            
+            <div id="donorList"></div>
+
+            <p id="emptyMsg" style="display:none; text-align:center; color:#999; font-size:13px; margin-top:20px;">
+                No donors have booked this event yet.
+            </p>
+        </div>
+
+        <button class="btn-logout" style="margin-top: 20px;" onclick="window.location.href='organiser_dashboard.html'">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </button>
     </div>
 
     <script type="module" src="attendance.js"></script>

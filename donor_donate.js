@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getFirestore, collection, getDocs, getDoc, query, where, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+// ADDED: 'addDoc' to the imports so we can create the appointment
+import { getFirestore, collection, getDocs, getDoc, query, where, doc, updateDoc, increment, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -17,22 +18,43 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 // State variables
-let tempEventData = null; // Stores event details temporarily
-let selectedSlotIndex = null; // Stores which time slot user clicked
+let tempEventData = null; 
+let selectedSlotIndex = null; 
 let currentUser = null;
+let currentUserData = null; // New: Store profile data (Name, Blood Type)
 
 // 1. Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    loadPublishedEvents();
+    // Only load events if we know who the user is (moved logic slightly)
 });
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
+        console.log("User detected:", user.uid);
+        
+        // Fetch the user's name and blood type immediately
+        await loadUserProfile(user.uid);
+        
+        // Now load the events
+        loadPublishedEvents();
     } else {
         window.location.href = "index.html";
     }
 });
+
+// Helper: Get User Profile (Student Logic: simple fetch)
+async function loadUserProfile(uid) {
+    try {
+        const userSnap = await getDoc(doc(db, "users", uid));
+        if (userSnap.exists()) {
+            currentUserData = userSnap.data();
+            console.log("Profile loaded:", currentUserData.fullname);
+        }
+    } catch (e) {
+        console.error("Error loading profile:", e);
+    }
+}
 
 // 2. Fetch Events
 async function loadPublishedEvents() {
@@ -83,13 +105,12 @@ function renderEventCard(id, data, container) {
     const day = dateObj.getDate();
     const month = dateObj.toLocaleString('default', { month: 'short' }).toUpperCase();
     
-    // Check global capacity
     const isFull = data.availableSlots <= 0;
     const btnText = isFull ? 'Full' : 'Book Now';
     const btnClass = isFull ? 'disabled' : '';
     
     // We store the data in a JSON string to pass it to the openSlotModal function
-    // (Simpler than maintaining a global array map for this scale)
+    // Including the ID is crucial for the database update later
     const eventSafeStr = encodeURIComponent(JSON.stringify({ ...data, id: id }));
 
     const html = `
@@ -120,26 +141,22 @@ function renderEventCard(id, data, container) {
 
 // 3. STEP 1: OPEN SLOT MODAL
 window.prepareSlotSelection = function(eventString) {
-    // Decode data
     tempEventData = JSON.parse(decodeURIComponent(eventString));
     
     document.getElementById('slotEventName').innerText = tempEventData.venue;
     const container = document.getElementById('slotListContainer');
-    container.innerHTML = ''; // Clear previous
+    container.innerHTML = ''; 
 
-    // Loop through the timeSlots array from Firestore
     if (!tempEventData.timeSlots || tempEventData.timeSlots.length === 0) {
         container.innerHTML = '<p style="grid-column:span 2; text-align:center;">No specific slots defined.</p>';
         return;
     }
 
     tempEventData.timeSlots.forEach((slot, index) => {
-        // Calculate remaining for this specific time
         const booked = slot.booked || 0;
         const remaining = slot.capacity - booked;
         const isSlotFull = remaining <= 0;
 
-        // Create button
         const btn = document.createElement('button');
         btn.className = `time-slot ${isSlotFull ? 'disabled' : ''}`;
         btn.innerHTML = `
@@ -162,17 +179,12 @@ window.selectSlot = function(index) {
     selectedSlotIndex = index;
     const slotData = tempEventData.timeSlots[index];
 
-    // Close Slot Modal
     document.getElementById('slotModal').classList.remove('active');
 
-    // Populate Confirmation Modal
     document.getElementById('modalEventName').innerText = tempEventData.venue;
     document.getElementById('modalLocation').innerText = tempEventData.venue;
-    
-    // Show specific time selected
     document.getElementById('modalTime').innerText = formatTime(slotData.time);
     
-    // Open Confirm Modal
     document.getElementById('confirmModal').classList.add('active');
 };
 
@@ -184,9 +196,15 @@ window.closeModal = function() {
     document.getElementById('confirmModal').classList.remove('active');
 };
 
-// 5. STEP 3: PROCESS BOOKING (Update Database)
+// 5. STEP 3: PROCESS BOOKING (The Logic Fix)
 window.processBooking = async function() {
     if (!tempEventData || !currentUser || selectedSlotIndex === null) return;
+
+    // Safety check: ensure we loaded the user profile
+    if (!currentUserData) {
+        alert("Still loading your profile... please wait a moment.");
+        return;
+    }
 
     const btn = document.querySelector('#confirmModal .btn-primary');
     const originalText = btn.innerText;
@@ -197,14 +215,12 @@ window.processBooking = async function() {
         const eventRef = doc(db, "events", tempEventData.id);
 
         // A. READ FRESH DATA (Concurrency Safety)
-        // We must read the doc again to ensure we don't overwrite someone else's booking that happened 1 second ago
         const freshSnap = await getDoc(eventRef);
         if (!freshSnap.exists()) throw new Error("Event not found");
         
         const freshData = freshSnap.data();
         const slotsArray = freshData.timeSlots;
 
-        // Check capacity again
         if (slotsArray[selectedSlotIndex].booked >= slotsArray[selectedSlotIndex].capacity) {
             alert("Sorry! This slot was just taken by someone else.");
             location.reload();
@@ -214,19 +230,38 @@ window.processBooking = async function() {
         // B. MODIFY ARRAY IN MEMORY
         slotsArray[selectedSlotIndex].booked = (slotsArray[selectedSlotIndex].booked || 0) + 1;
 
-        // C. WRITE BACK TO FIRESTORE
+        // C. UPDATE EVENT (Reduce Slots)
         await updateDoc(eventRef, {
-            timeSlots: slotsArray, // Update the array
-            availableSlots: increment(-1) // Decrement global counter
+            timeSlots: slotsArray,
+            availableSlots: increment(-1)
         });
 
-        // D. SAVE TO LOCAL STORAGE (For Dashboard)
+        // D. CREATE APPOINTMENT (This was missing!)
+        // The Attendance page looks for documents in the 'appointments' collection
+        await addDoc(collection(db, "appointments"), {
+            eventId: tempEventData.id,
+            eventName: tempEventData.venue,
+            eventDate: tempEventData.date,
+            
+            donorId: currentUser.uid,
+            donorName: currentUserData.fullname || "Unknown Donor",
+            donorBloodType: currentUserData.bloodType || "Unknown",
+            
+            // Needed so the specific hospital can verify attendance
+            hospitalId: tempEventData.assignedHospitalId || "Unassigned",
+            
+            slotTime: formatTime(slotsArray[selectedSlotIndex].time),
+            status: "Booked", 
+            createdAt: new Date()
+        });
+
+        // E. SAVE TO LOCAL STORAGE (For the Dashboard Reminder Card)
         const dateObj = new Date(tempEventData.date);
         const bookingData = {
             eventId: tempEventData.id,
             eventName: tempEventData.venue,
             location: tempEventData.venue,
-            time: formatTime(slotsArray[selectedSlotIndex].time), // Use the specific slot time
+            time: formatTime(slotsArray[selectedSlotIndex].time),
             day: dateObj.getDate(),
             month: dateObj.toLocaleString('default', { month: 'short' }).toUpperCase()
         };
@@ -244,7 +279,6 @@ window.processBooking = async function() {
     }
 };
 
-// Utility: Format "14:00" -> "02:00 PM"
 function formatTime(timeStr) {
     if(!timeStr) return "";
     const [hour, min] = timeStr.split(':');
