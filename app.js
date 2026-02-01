@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 // TODO: Paste your firebaseConfig here
 const firebaseConfig = {
@@ -125,4 +126,5 @@ styleSheet.innerText = `
   75% { transform: translateX(-5px); }
   100% { transform: translateX(0); }
 }`;
+
 document.head.appendChild(styleSheet);
