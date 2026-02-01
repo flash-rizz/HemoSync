@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { 
+    getFirestore, collection, query, where, getDocs, doc, getDoc, deleteDoc, updateDoc, increment 
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
@@ -37,16 +39,14 @@ async function loadHistory(userId) {
     const empty = document.getElementById('emptyState');
     const totalCountEl = document.getElementById('totalDonationCount');
 
+    // Get submitted reviews from local storage
     const submittedReviews = JSON.parse(localStorage.getItem('hemoSyncReviews') || '[]');
 
     try {
-        // CHANGED: Query 'appointments' instead of 'bookings'
-        // CHANGED: Query field 'donorId' instead of 'userId'
+        // Query 'appointments' collection
         const q = query(
             collection(db, "appointments"), 
             where("donorId", "==", userId)
-            // Note: If you get an index error, remove the orderBy temporarily
-            // orderBy("createdAt", "desc") 
         );
 
         const querySnapshot = await getDocs(q);
@@ -61,43 +61,52 @@ async function loadHistory(userId) {
 
         let totalDonations = 0;
 
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const recordId = doc.id; 
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const recordId = docSnap.id; 
             
-            // Handle Date (Field name in appointments is 'eventDate')
+            // 1. Handle Display Data
             let displayDate = data.eventDate || "Unknown Date";
-
-            // Determine Status
-            // 'Booked' -> Upcoming
-            // 'Completed' -> Done (Donation Successful)
             let statusDisplay = data.status;
-            let badgeClass = 'status-upcoming'; // Default
+            let badgeClass = 'status-upcoming'; 
+            let actionButton = '';
 
+            // 2. Logic for Buttons based on Status
             if (data.status === 'Completed') {
                 statusDisplay = "Success";
                 badgeClass = 'status-done';
                 totalDonations++;
-            } else if (data.status === 'Absent') {
-                badgeClass = 'status-cancelled';
-            }
 
-            // Create Rating Button Logic
-            let actionButton = '';
-            if (data.status === 'Completed') {
+                // Rate Button Logic
                 if (submittedReviews.includes(recordId)) {
                     actionButton = `<button class="btn-rate disabled" disabled><i class="fa-solid fa-check"></i> Rated</button>`;
                 } else {
                     const safeEventName = (data.eventName || "Event").replace(/'/g, "\\'");
                     actionButton = `<button class="btn-rate" onclick="window.openFeedbackModal('${recordId}', '${safeEventName}')"><i class="fa-regular fa-star"></i> Rate</button>`;
                 }
-            } else {
-                 actionButton = `<span style="font-size:12px; color:#999;">${data.status}</span>`;
+
+            } else if (data.status === 'Booked') {
+                statusDisplay = "Upcoming";
+                badgeClass = 'status-upcoming';
+                
+                // NEW: Cancel Button Logic
+                // We pass the Appointment ID, Event ID, and the Slot Time to the function
+                actionButton = `
+                    <button class="btn-rate" 
+                        style="border:1px solid #D32F2F; color:#D32F2F; background:white;"
+                        onclick="cancelAppointment('${recordId}', '${data.eventId}', '${data.slotTime}')">
+                        Cancel
+                    </button>
+                `;
+
+            } else if (data.status === 'Absent') {
+                badgeClass = 'status-cancelled';
+                actionButton = `<span style="font-size:12px; color:#999;">Marked Absent</span>`;
             }
 
+            // 3. Render Card
             const card = document.createElement('div');
             card.className = 'event-card history-card';
-
             card.innerHTML = `
                 <div class="event-header">
                     <div class="event-details" style="flex: 1;">
@@ -106,6 +115,7 @@ async function loadHistory(userId) {
                             <span class="status-badge ${badgeClass}">${statusDisplay}</span>
                         </div>
                         <p><i class="fa-solid fa-location-dot"></i> Cyberjaya (See Details)</p>
+                        <p style="font-size: 13px; color: #555; margin-top:5px;"><i class="fa-regular fa-clock"></i> ${data.slotTime}</p>
                         
                         <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                             <p style="font-size: 0.75rem; color: #999; margin:0;">${displayDate}</p>
@@ -125,7 +135,74 @@ async function loadHistory(userId) {
     }
 }
 
-// --- FEEDBACK MODAL LOGIC (Kept the same) ---
+// --- NEW: CANCEL APPOINTMENT FUNCTION ---
+window.cancelAppointment = async function(apptId, eventId, slotTime) {
+    if (!confirm("Are you sure you want to cancel this appointment? This action cannot be undone.")) return;
+
+    try {
+        const eventRef = doc(db, "events", eventId);
+        
+        // Step A: Get Event Data to find the slot
+        const eventSnap = await getDoc(eventRef);
+        
+        if (eventSnap.exists()) {
+            const eventData = eventSnap.data();
+            let slots = eventData.timeSlots;
+            let foundIndex = -1;
+
+            // Find the slot matching the time (e.g., "02:00 PM")
+            // Note: slotTime comes from the Appointment doc, slots comes from Event doc
+            slots.forEach((s, index) => {
+                // Simple format check (assuming formatTime was consistent)
+                if (formatTime(s.time) === slotTime || s.time === slotTime) {
+                    foundIndex = index;
+                }
+            });
+
+            if (foundIndex !== -1) {
+                // Step B: Refund the slot (Decrease booked count)
+                if (slots[foundIndex].booked > 0) {
+                    slots[foundIndex].booked -= 1;
+                }
+
+                // Step C: Update Event (Increase available slots + Update array)
+                await updateDoc(eventRef, {
+                    timeSlots: slots,
+                    availableSlots: increment(1)
+                });
+                console.log("Slot refunded to event.");
+            }
+        }
+
+        // Step D: Delete the Appointment Document
+        await deleteDoc(doc(db, "appointments", apptId));
+
+        // Step E: Clean up Dashboard Reminder
+        localStorage.removeItem('hemoSyncAppointment');
+
+        alert("Appointment cancelled successfully.");
+        location.reload();
+
+    } catch (error) {
+        console.error("Cancellation Error:", error);
+        alert("Error cancelling: " + error.message);
+    }
+};
+
+// Helper: Ensure time format matches for comparison
+function formatTime(timeStr) {
+    if(!timeStr) return "";
+    if(timeStr.includes("M")) return timeStr; // Already AM/PM
+    
+    const [hour, min] = timeStr.split(':');
+    const h = parseInt(hour);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${min} ${ampm}`;
+}
+
+// --- FEEDBACK MODAL LOGIC (Existing) ---
+
 window.openFeedbackModal = function(id, name) {
     currentEventId = id;
     currentRating = 0;
@@ -153,11 +230,13 @@ function updateStars() {
         const val = parseInt(star.getAttribute('data-value'));
         if (val <= currentRating) {
             star.classList.add('active');
-            star.classList.remove('fa-solid');
-            star.classList.add('fa-solid'); // Fix to ensure solid star
+            star.classList.remove('fa-regular'); // Remove hollow star
+            star.classList.add('fa-solid');   // Add solid star
             star.style.color = "#FFD700";
         } else {
             star.classList.remove('active');
+            star.classList.remove('fa-solid'); // Remove solid
+            star.classList.add('fa-regular');  // Add hollow
             star.style.color = "#ddd";
         }
     });
@@ -169,11 +248,15 @@ window.submitFeedback = function() {
         alert("Please select a star rating.");
         return;
     }
-    // Update LocalStorage
+
     let reviews = JSON.parse(localStorage.getItem('hemoSyncReviews') || '[]');
     reviews.push(currentEventId);
     localStorage.setItem('hemoSyncReviews', JSON.stringify(reviews));
 
     closeFeedbackModal();
-    setTimeout(() => { alert("Thank You for your Feedback!"); location.reload(); }, 300);
+    
+    setTimeout(() => {
+        alert("Thank You for your Feedback!");
+        location.reload(); 
+    }, 300);
 };
