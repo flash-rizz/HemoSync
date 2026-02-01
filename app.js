@@ -84,8 +84,8 @@ loginForm.addEventListener('submit', async (e) => {
                     window.location.href = "organiser_dashboard.html";
                 } 
                 else if (role === 'medical') {
-                    alert("Hospital Dashboard coming soon!");
-                }
+                    window.location.href = "hospital_clinic_dashboard.html";
+
                 else if (role === 'admin') {
                     window.location.href = "admin_dashboard.html";
                 } 
@@ -126,4 +126,5 @@ styleSheet.innerText = `
   100% { transform: translateX(0); }
 }`;
 document.head.appendChild(styleSheet);
+
 
