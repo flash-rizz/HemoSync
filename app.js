@@ -1,9 +1,9 @@
+// Import the functions we need from Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-// NEW: Added 'setPersistence' and 'browserSessionPersistence' to the imports
-import { getAuth, signInWithEmailAndPassword, signOut, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// YOUR CONFIG
+// TODO: Paste your firebaseConfig here
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
     authDomain: "hemosync-765c9.firebaseapp.com",
@@ -15,89 +15,115 @@ const firebaseConfig = {
     measurementId: "G-JP1Y2S1LN5"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Get HTML elements
 const loginForm = document.getElementById('loginForm');
 const errorMsg = document.getElementById('errorMessage');
 
+// Handle Login
 loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    // 1. VISUAL FEEDBACK
-    errorMsg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
-    errorMsg.style.color = "#666";
-    
+    e.preventDefault(); // Stop page reload
+
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    try {
-        console.log("Step 1: Setting Persistence...");
-        // 2. FIX TAB ISSUE: Isolate this session
-        await setPersistence(auth, browserSessionPersistence);
+    // Visual feedback while loading
+    errorMsg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying credentials...';
+    errorMsg.style.color = "#666";
 
-        console.log("Step 2: Authenticating...");
-        // 3. LOGIN
+    try {
+        // 1. Check Credentials (Authentication)
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        console.log("Step 3: Checking Database for User:", user.uid);
-        // 4. CHECK DB
+        // 2. Get User Info from Database (Firestore)
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
             const userData = docSnap.data();
-            
-            // 5. SUSPENSION CHECK
+
+            // ---------------------------------------------------------
+            // SUSPENSION CHECK LOGIC
+            // ---------------------------------------------------------
             if (userData.status === "Suspended") {
-                console.log("User is suspended!");
-                await signOut(auth); // Log them out immediately
-                
-                errorMsg.style.color = "#e74c3c";
+                // IMPORTANT: Sign out immediately so they don't stay logged in
+                await signOut(auth);
+
+                // Show detailed error message with animation
+                errorMsg.style.color = "#e74c3c"; // Red color
                 errorMsg.innerHTML = `
                     <div style="animation: shake 0.5s;">
                         <strong><i class="fa-solid fa-ban"></i> Access Denied</strong><br>
-                        <span style="font-size: 11px;">Account Suspended: ${userData.suspensionReason || "Violation of terms"}</span>
-                    </div>`;
-                return;
+                        <span style="font-size: 11px;">Your account has been suspended.</span><br>
+                        <span style="font-size: 11px; color: #555; background: #ffe6e6; padding: 2px 5px; border-radius: 4px;">
+                            Reason: ${userData.suspensionReason || "Violation of terms"}
+                        </span>
+                    </div>
+                `;
+                return; // STOP EXECUTION HERE (Do not redirect)
             }
+            // ---------------------------------------------------------
 
-            // 6. SUCCESS
-            const role = userData.role;
+            const role = userData.role; 
+
+            // Success Message
             errorMsg.style.color = "green";
-            errorMsg.textContent = "Login Success! Redirecting...";
-            
+            errorMsg.textContent = "Login successful! Redirecting...";
+
+            // 3. REDIRECT LOGIC 
             setTimeout(() => {
-                if (role === 'donor') window.location.href = "donor_home.html";
-                else if (role === 'organiser') window.location.href = "organiser_dashboard.html";
-                else if (role === 'medical') alert("Hospital Dashboard coming soon!");
-                else if (role === 'admin') window.location.href = "admin_dashboard.html";
-                else alert("Unknown Role: " + role);
-            }, 800);
+                if (role === 'donor') {
+                    window.location.href = "donor_home.html";
+                } 
+                else if (role === 'organiser') {  
+                    window.location.href = "organiser_dashboard.html";
+                } 
+                else if (role === 'medical') {
+                    alert("Hospital Dashboard coming soon!");
+                }
+                else if (role === 'admin') {
+                    window.location.href = "admin_dashboard.html";
+                } 
+                else {
+                    alert("Error: Role '" + role + "' is not recognized.");
+                }
+            }, 800); // Small delay for UX
 
         } else {
-            console.error("User in Auth but missing in Firestore");
-            errorMsg.textContent = "Error: Profile not found.";
-            await signOut(auth);
+            errorMsg.textContent = "Error: User data not found in database.";
+            await signOut(auth); // Sign out if data is corrupt/missing
         }
 
     } catch (error) {
-        console.error("FULL ERROR:", error); // Check Console (F12) if this happens
-        
+        console.error("Login Error:", error.code);
+
         errorMsg.style.color = "red";
-        if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-            errorMsg.textContent = "Invalid email or password.";
+        if(error.code === 'auth/user-not-found') {
+            errorMsg.textContent = "Account not found. Please Sign Up.";
+        } else if (error.code === 'auth/wrong-password') {
+            errorMsg.textContent = "Incorrect password.";
         } else if (error.code === 'auth/too-many-requests') {
-            errorMsg.textContent = "Too many attempts. Please wait.";
+             errorMsg.textContent = "Too many failed attempts. Try again later.";
         } else {
-            errorMsg.textContent = "Error: " + error.message;
+            errorMsg.textContent = "Login failed: " + error.message;
         }
     }
 });
 
-// Add the shake animation for the suspension alert
+// Add shake animation style dynamically
 const styleSheet = document.createElement("style");
-styleSheet.innerText = `@keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }`;
+styleSheet.innerText = `
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}`;
 document.head.appendChild(styleSheet);
+
