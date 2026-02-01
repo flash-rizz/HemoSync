@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+// Added 'query', 'where', and 'getDocs' to fetch the hospitals list
+import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
@@ -17,95 +18,120 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 1. Auth Check
+// 1. Auth Check & Init
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = "index.html";
+    } else {
+        // Load the list of hospitals when page loads
+        loadHospitals();
     }
 });
 
-// 2. Slot Management Logic
-let timeSlots = []; // Array to hold { time: "09:00", capacity: 10 }
+// Global array to hold our slots before saving
+let timeSlots = []; 
 
-const addSlotBtn = document.getElementById('addSlotBtn');
-const slotsContainer = document.getElementById('slotsContainer');
-const noSlotsMsg = document.getElementById('noSlotsMsg');
-const totalCapInput = document.getElementById('totalCapacity');
+// 2. Load Hospital Options for Dropdown
+async function loadHospitals() {
+    const select = document.getElementById("hospitalSelect");
+    select.innerHTML = '<option value="" disabled selected>Select Hospital...</option>';
 
-addSlotBtn.addEventListener('click', () => {
-    const timeInput = document.getElementById('newSlotTime');
-    const capInput = document.getElementById('newSlotCap');
-    
-    const time = timeInput.value;
-    const cap = parseInt(capInput.value);
+    try {
+        // Find all users who are 'medical' role (Hospital/Clinic)
+        const q = query(collection(db, "users"), where("role", "==", "medical"));
+        const querySnapshot = await getDocs(q);
 
-    if (!time || !cap || cap <= 0) {
-        alert("Please enter a valid time and capacity.");
-        return;
+        if (querySnapshot.empty) {
+            const opt = document.createElement('option');
+            opt.text = "No Hospitals Found";
+            select.add(opt);
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const opt = document.createElement('option');
+            opt.value = doc.id; // Save the UserID (UID) as value
+            opt.text = data.fullname; // Show the Name in dropdown
+            select.add(opt);
+        });
+
+    } catch (error) {
+        console.error("Error loading hospitals:", error);
+        alert("Failed to load hospital list.");
     }
+}
 
-    // Check for duplicates
-    if (timeSlots.some(slot => slot.time === time)) {
-        alert("This time slot already exists!");
+// 3. Add Slot Logic
+const slotTimeInput = document.getElementById('slotTime');
+const slotCapInput = document.getElementById('slotCap');
+const slotsContainer = document.getElementById('slotsContainer');
+const totalCapInput = document.getElementById('totalCapacity');
+const noSlotsMsg = document.getElementById('noSlotsMsg');
+
+window.addTimeSlot = function() {
+    const timeVal = slotTimeInput.value;
+    const capVal = parseInt(slotCapInput.value);
+
+    if (!timeVal || !capVal) {
+        alert("Please select time and capacity.");
         return;
     }
 
     // Add to array
-    timeSlots.push({ time: time, capacity: cap, booked: 0 });
-    
-    // Sort slots chronologically
-    timeSlots.sort((a, b) => a.time.localeCompare(b.time));
+    timeSlots.push({
+        time: timeVal,
+        capacity: capVal,
+        booked: 0
+    });
 
+    // Update UI
     renderSlots();
     
-    // Reset inputs
-    timeInput.value = '';
-    capInput.value = '';
-});
+    // Sort slots by time so they look nice
+    timeSlots.sort((a, b) => a.time.localeCompare(b.time));
+};
 
 function renderSlots() {
-    slotsContainer.innerHTML = '';
+    slotsContainer.innerHTML = "";
     let total = 0;
 
     if (timeSlots.length === 0) {
         slotsContainer.appendChild(noSlotsMsg);
-        noSlotsMsg.style.display = 'block';
     } else {
-        noSlotsMsg.style.display = 'none';
-        
         timeSlots.forEach((slot, index) => {
             total += slot.capacity;
 
-            const chip = document.createElement('div');
-            chip.className = 'slot-chip';
-            chip.innerHTML = `
-                <span>${formatTime(slot.time)}</span> 
-                <small style="color:#666;">(${slot.capacity} slots)</small>
+            const div = document.createElement("div");
+            div.className = "slot-tag";
+            // Simple format for display
+            div.innerHTML = `
+                <span>${slot.time} (${slot.capacity})</span>
                 <i class="fa-solid fa-xmark" onclick="removeSlot(${index})"></i>
             `;
-            slotsContainer.appendChild(chip);
+            slotsContainer.appendChild(div);
         });
     }
-    
+
     totalCapInput.value = total;
 }
 
-// Helper to format "14:00" to "02:00 PM"
-function formatTime(timeStr) {
-    const [hour, min] = timeStr.split(':');
-    const h = parseInt(hour);
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    const h12 = h % 12 || 12;
-    return `${h12}:${min} ${ampm}`;
-}
-
-// Make removeSlot global so HTML onclick can see it
 window.removeSlot = function(index) {
     timeSlots.splice(index, 1);
     renderSlots();
 };
 
-// 3. Handle Form Submission
+// Utility to make time look nice (e.g., 14:00 -> 02:00 PM)
+function formatTime(timeStr) {
+    if(!timeStr) return "";
+    const [hour, min] = timeStr.split(':');
+    const h = parseInt(hour);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12; 
+    return `${h12 < 10 ? '0'+h12 : h12}:${min} ${ampm}`;
+}
+
+// 4. Submit Event
 const eventForm = document.getElementById('createEventForm');
 
 eventForm.addEventListener('submit', async (e) => {
@@ -120,6 +146,16 @@ eventForm.addEventListener('submit', async (e) => {
     const date = document.getElementById('eventDate').value;
     const priority = document.getElementById('priority').value;
     const totalCap = parseInt(totalCapInput.value);
+    
+    // Get the selected hospital ID and Name
+    const hospitalSelect = document.getElementById('hospitalSelect');
+    const selectedHospitalId = hospitalSelect.value;
+    const selectedHospitalName = hospitalSelect.options[hospitalSelect.selectedIndex].text;
+
+    if (!selectedHospitalId) {
+        alert("Please assign a hospital to this event.");
+        return;
+    }
 
     // Display time is just the earliest slot for list view
     const displayTime = formatTime(timeSlots[0].time);
@@ -133,12 +169,16 @@ eventForm.addEventListener('submit', async (e) => {
         await addDoc(collection(db, "events"), {
             venue: venue,
             date: date,
-            time: displayTime, // For summary card display
+            time: displayTime, 
             
             // Critical Data for Slot Booking
             timeSlots: timeSlots, 
             totalSlots: totalCap,
             availableSlots: totalCap,
+            
+            // NEW: Link the hospital
+            assignedHospitalId: selectedHospitalId,
+            assignedHospitalName: selectedHospitalName,
             
             priorityBlood: priority,
             status: "Published",
@@ -146,7 +186,7 @@ eventForm.addEventListener('submit', async (e) => {
             createdAt: new Date()
         });
 
-        alert("Event Published Successfully with " + timeSlots.length + " time slots.");
+        alert("Event Published Successfully! Assigned to: " + selectedHospitalName);
         window.location.href = "organiser_dashboard.html";
 
     } catch (error) {
