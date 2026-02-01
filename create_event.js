@@ -132,6 +132,33 @@ function formatTime(timeStr) {
 }
 
 // 4. Submit Event
+// NEW: Get all checked values
+const checkedBoxes = document.querySelectorAll('input[name="priorityBlood"]:checked');
+let priorityArray = Array.from(checkedBoxes).map(cb => cb.value);
+
+    // If none selected, default to "Any"
+if (priorityArray.length === 0) {
+    priorityArray = ["Any"];
+    }
+
+try {
+    await addDoc(collection(db, "events"), {
+            venue: venue,
+            date: date,
+            time: displayTime, 
+            timeSlots: timeSlots, 
+            totalSlots: totalCap,
+            availableSlots: totalCap,
+            assignedHospitalId: selectedHospitalId,
+            assignedHospitalName: selectedHospitalName,
+            
+            // CHANGED: Save as an Array
+            priorityBlood: priorityArray, 
+            
+            status: "Published",
+            organiserId: auth.currentUser.uid,
+            createdAt: new Date()
+        });
 const eventForm = document.getElementById('createEventForm');
 
 eventForm.addEventListener('submit', async (e) => {
@@ -195,4 +222,5 @@ eventForm.addEventListener('submit', async (e) => {
         submitBtn.textContent = oldText;
         submitBtn.disabled = false;
     }
+
 });
