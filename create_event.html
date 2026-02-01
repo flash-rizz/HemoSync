@@ -115,14 +115,22 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Priority Blood Type Needed</label>
-                    <select id="priority">
-                        <option value="Any">Any / All Types</option>
-                        <option value="A">Type A</option>
-                        <option value="B">Type B</option>
-                        <option value="O">Type O</option>
-                        <option value="AB">Type AB</option>
-                    </select>
+                    <label>Priority Blood Types Needed</label>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 5px;">
+                        <label style="display:flex; align-items:center; gap:5px; font-weight:normal;">
+                            <input type="checkbox" name="priorityBlood" value="A"> Type A
+                        </label>
+                        <label style="display:flex; align-items:center; gap:5px; font-weight:normal;">
+                            <input type="checkbox" name="priorityBlood" value="B"> Type B
+                        </label>
+                        <label style="display:flex; align-items:center; gap:5px; font-weight:normal;">
+                            <input type="checkbox" name="priorityBlood" value="O"> Type O
+                        </label>
+                        <label style="display:flex; align-items:center; gap:5px; font-weight:normal;">
+                            <input type="checkbox" name="priorityBlood" value="AB"> Type AB
+                        </label>
+                    </div>
+                    <small style="color:#888;">Leave all unchecked to accept Any type.</small>
                 </div>
 
                 <button type="submit" class="btn-login">Publish Event</button>
@@ -134,4 +142,5 @@
 
     <script type="module" src="create_event.js"></script>
 </body>
+
 </html>
