@@ -28,7 +28,31 @@
             Back to Dashboard
         </button>
     </div>
+    <div id="detailsModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Event Details</h3>
+            <p id="detailVenue" style="color:#D32F2F; margin:0;">Venue Name</p>
+        </div>
+        
+        <div class="modal-body" style="text-align:left;">
+            <p><strong>Date:</strong> <span id="detailDate">--</span></p>
+            <p><strong>Hospital:</strong> <span id="detailHospital">--</span></p>
+            <p><strong>Priority Types:</strong> <span id="detailTypes">--</span></p>
+            
+            <hr style="margin:15px 0; border:0; border-top:1px solid #eee;">
+            
+            <h4>Slot Breakdown:</h4>
+            <div id="slotDetailsList" style="max-height:150px; overflow-y:auto; background:#f9f9f9; padding:10px; border-radius:8px;">
+                </div>
+        </div>
 
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="document.getElementById('detailsModal').style.display='none'">Close</button>
+        </div>
+    </div>
+</div>
     <script type="module" src="my_events.js"></script>
 </body>
+
 </html>
