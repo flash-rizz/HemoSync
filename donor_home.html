@@ -17,7 +17,6 @@
                 <h2 id="welcomeName">Hello, Donor</h2> 
                 <p>Let's save some lives today.</p>
             </div>
-            
             <div class="profile-pic" onclick="openProfileCard()" style="cursor: pointer;">
                 <i class="fa-solid fa-circle-user"></i>
             </div>
@@ -30,60 +29,54 @@
                     <h4 id="reminderTitle" style="color:white;">Blood Drive</h4>
                     <p id="reminderLocation" style="color: rgba(255,255,255,0.9);">Location</p>
                     <div class="reminder-time">
-                        <i class="fa-regular fa-clock"></i> <span id="reminderTime">09:00 AM</span>
+                        <i class="fa-regular fa-clock"></i> <span id="reminderTime">--:--</span>
                     </div>
                 </div>
                 <div class="event-date white-date">
-                    <div id="reminderDay">12</div>
-                    <div id="reminderMonth">JAN</div>
+                    <div id="reminderDay">--</div>
+                    <div id="reminderMonth">---</div>
                 </div>
             </div>
-            <button onclick="cancelAppointment()" class="btn-cancel-sm">Cancel</button>
         </div>
 
-        <div class="status-card">
-            <div class="card-text">
-                <h3>Ready to Donate?</h3>
-                <p>Toggle this to show you are available.</p>
+        <div id="noAppointmentCard" class="event-card empty-state-card" style="display: none;">
+            <div class="event-header" style="border:none; padding-bottom:0; align-items: center;">
+                <div class="event-details">
+                    <div class="reminder-badge status-neutral"><i class="fa-solid fa-calendar-xmark"></i> Status</div>
+                    <h4 style="color: #333;">No Bookings</h4>
+                    <p style="color: #888; font-size: 0.8rem; margin-top: 5px;">
+                        Select <b>Donate Now</b> below to<br>schedule an appointment.
+                    </p>
+                </div>
+                <div class="event-date" style="background: #f9f9f9; color: #ddd; box-shadow: none; border: 1px solid #eee;">
+                    <i class="fa-solid fa-plus" style="font-size: 1.2rem;"></i>
+                </div>
             </div>
-            <label class="switch">
-                <input type="checkbox" id="availabilityToggle">
-                <span class="slider round"></span>
-            </label>
         </div>
 
         <div class="menu-grid">
             <div class="menu-item" onclick="checkDonationEligibility()">
-                <div class="icon-box bg-red">
-                    <i class="fa-solid fa-hand-holding-droplet"></i>
-                </div>
+                <div class="icon-box bg-red"><i class="fa-solid fa-hand-holding-droplet"></i></div>
                 <span>Donate Now</span>
             </div>
-
+            
             <div class="menu-item" onclick="window.location.href='donor_profile.html'">
-                <div class="icon-box bg-green">
-                    <i class="fa-solid fa-user-doctor"></i>
-                </div>
+                <div class="icon-box bg-green"><i class="fa-solid fa-user-doctor"></i></div>
                 <span>Profile</span>
             </div>
 
-            <div class="menu-item" onclick="alert('Coming Soon: List of Blood Drives')">
-                <div class="icon-box bg-blue">
-                    <i class="fa-solid fa-magnifying-glass-location"></i>
-                </div>
-                <span>Find Drive</span>
+            <div class="menu-item" onclick="window.location.href='donor_faq.html'">
+                <div class="icon-box bg-blue"><i class="fa-solid fa-circle-question"></i></div>
+                <span>FAQ</span>
             </div>
 
             <div class="menu-item" onclick="window.location.href='donor_history.html'">
-                <div class="icon-box bg-orange"> 
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                </div>
+                <div class="icon-box bg-orange"><i class="fa-solid fa-clock-rotate-left"></i></div>
                 <span>History</span>
             </div>
         </div>
 
         <button id="logoutBtn" class="btn-logout">Logout</button>
-
     </div>
 
     <div id="profileCardModal" class="modal-overlay">
@@ -91,36 +84,22 @@
             <div style="text-align: right;">
                 <i class="fa-solid fa-xmark" onclick="closeProfileCard()" style="cursor: pointer; font-size: 1.2rem; color: #888;"></i>
             </div>
-            
             <div class="profile-header-center">
-                <div class="avatar-circle">
-                    <i class="fa-solid fa-user"></i>
-                </div>
+                <div class="avatar-circle"><i class="fa-solid fa-user"></i></div>
                 <h3 id="cardName">Loading...</h3>
                 <span id="cardBlood" class="blood-badge">--</span>
             </div>
-
             <div class="profile-details-list">
                 <div class="detail-item">
                     <div class="icon-wrap-sm"><i class="fa-solid fa-phone"></i></div>
-                    <div class="detail-text">
-                        <small>Phone</small>
-                        <p id="cardPhone">Not set</p>
-                    </div>
+                    <div class="detail-text"><small>Phone</small><p id="cardPhone">Not set</p></div>
                 </div>
-
                 <div class="detail-item">
                     <div class="icon-wrap-sm"><i class="fa-solid fa-location-dot"></i></div>
-                    <div class="detail-text">
-                        <small>Address</small>
-                        <p id="cardAddress">Not set</p>
-                    </div>
+                    <div class="detail-text"><small>Address</small><p id="cardAddress">Not set</p></div>
                 </div>
             </div>
-
-            <button class="btn-logout" onclick="window.location.href='donor_profile.html'" style="margin-top: 20px; padding: 10px; font-size: 14px;">
-                Edit Profile
-            </button>
+            <button class="btn-logout" onclick="window.location.href='donor_profile.html'" style="margin-top: 20px; padding: 10px; font-size: 14px;">Edit Profile</button>
         </div>
     </div>
 

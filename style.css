@@ -904,3 +904,24 @@ tbody tr {
     border-color: transparent;
     cursor: default;
 }
+
+/* --- EMPTY STATE MATCHING APPOINTMENT CARD --- */
+.empty-state-card {
+    border: 1px solid #f0f0f0 !important;
+    background-color: white !important;
+    min-height: 145px; /* Adjust to match your specific reminder-card height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.status-neutral {
+    background: #f0f0f0 !important;
+    color: #888 !important;
+}
+
+.empty-state-card .btn-logout:hover {
+    background-color: #D32F2F;
+    color: white;
+    border-color: #D32F2F;
+}
