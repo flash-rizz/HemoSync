@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
@@ -54,25 +54,31 @@ async function loadOrganiserEvents(uid) {
     }
 }
 
-// 2. Generate Real Report on Selection
+// 2. Generate REAL Report on Selection
 reportSelect.addEventListener('change', async function() {
     const eventId = this.value;
     if (!eventId) return;
 
-    // Reset UI to 0 before loading
+    // A. Reset UI to 0 immediately (Fixes the "Mock Data" issue)
     updateDisplay(0, 0, 0, 0, 0, 0);
 
     try {
         console.log(`Generating report for Event ID: ${eventId}`);
         
-        // QUERY REAL DATA: Get all appointments for this event
+        // B. QUERY REAL DATA: Get appointments ONLY for this event
         const q = query(collection(db, "appointments"), where("eventId", "==", eventId));
         const querySnapshot = await getDocs(q);
+
+        // If no donors found, the function stops here and UI remains at 0
+        if (querySnapshot.empty) {
+            console.log("No appointments found. Report is empty.");
+            return; 
+        }
 
         let presentCount = 0;
         let absentCount = 0;
         
-        // Blood counters (Group A+, A- into 'A', etc.)
+        // Blood counters
         let types = { A: 0, B: 0, O: 0, AB: 0 };
 
         querySnapshot.forEach((doc) => {
@@ -80,17 +86,18 @@ reportSelect.addEventListener('change', async function() {
             const status = data.status; // 'Booked', 'Completed', 'Absent'
             const bType = (data.donorBloodType || "").toUpperCase(); // e.g., 'A+'
 
+            // ONLY count them if they are marked "Completed" (Present)
             if (status === 'Completed') {
                 presentCount++;
                 
-                // Categorize Blood Type
-                // Logic: "A+" -> "A", "AB-" -> "AB"
+                // Clean Blood Type String (Remove + or -)
                 let baseType = bType.replace('+', '').replace('-', '').trim();
                 
+                // Increment specific type
                 if (types[baseType] !== undefined) {
                     types[baseType]++;
                 } else {
-                    // Fallback/Safety if format is weird
+                    // Fallback for safety
                     if (baseType.includes('AB')) types.AB++;
                     else if (baseType.includes('A')) types.A++;
                     else if (baseType.includes('B')) types.B++;
@@ -100,10 +107,10 @@ reportSelect.addEventListener('change', async function() {
             } else if (status === 'Absent') {
                 absentCount++;
             }
-            // 'Booked' means they haven't arrived yet, so we don't count them in stats yet
+            // If status is 'Booked', they haven't attended yet, so we count nothing.
         });
 
-        // 3. Update the UI with REAL numbers
+        // C. Update the UI with the CALCULATED real numbers
         updateDisplay(presentCount, absentCount, types.A, types.B, types.O, types.AB);
 
     } catch (error) {
@@ -112,38 +119,18 @@ reportSelect.addEventListener('change', async function() {
     }
 });
 
-// Helper: Animate numbers
+// Helper: Update the HTML elements
 function updateDisplay(present, absent, a, b, o, ab) {
-    animateValue("countPresent", present);
-    animateValue("countAbsent", absent);
-    animateValue("typeA", a);
-    animateValue("typeB", b);
-    animateValue("typeO", o);
-    animateValue("typeAB", ab);
+    // We use a simple helper to safely set text
+    safeSetText("countPresent", present);
+    safeSetText("countAbsent", absent);
+    safeSetText("typeA", a);
+    safeSetText("typeB", b);
+    safeSetText("typeO", o);
+    safeSetText("typeAB", ab);
 }
 
-function animateValue(id, end) {
-    const obj = document.getElementById(id);
-    if(!obj) return;
-    
-    // If it's 0, just show 0
-    if (end === 0) {
-        obj.innerHTML = 0;
-        return;
-    }
-
-    let start = 0;
-    let duration = 800;
-    let range = end - start;
-    let current = start;
-    let increment = end > start ? 1 : -1;
-    let stepTime = Math.abs(Math.floor(duration / range));
-    
-    let timer = setInterval(function() {
-        current += increment;
-        obj.innerHTML = current;
-        if (current == end) {
-            clearInterval(timer);
-        }
-    }, stepTime);
+function safeSetText(id, value) {
+    const el = document.getElementById(id);
+    if(el) el.innerText = value;
 }
