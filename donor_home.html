@@ -10,6 +10,14 @@
 </head>
 <body>
 
+    <div id="alertToast" class="alert-toast">
+        <div class="toast-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="toast-content">
+            <h4>Urgent Blood Need!</h4>
+            <p>Your blood type is needed at City Hospital.</p>
+        </div>
+    </div>
+
     <div class="app-container dashboard-container">
         
         <div class="dashboard-header">
@@ -17,8 +25,16 @@
                 <h2 id="welcomeName">Hello, Donor</h2> 
                 <p>Let's save some lives today.</p>
             </div>
-            <div class="profile-pic" onclick="openProfileCard()" style="cursor: pointer;">
-                <i class="fa-solid fa-circle-user"></i>
+            
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div class="notif-bell" onclick="window.location.href='donor_notifications.html'">
+                    <i class="fa-regular fa-bell"></i>
+                    <span id="notifBadge" class="red-dot" style="display: none;"></span>
+                </div>
+
+                <div class="profile-pic" onclick="openProfileCard()" style="cursor: pointer;">
+                    <i class="fa-solid fa-circle-user"></i>
+                </div>
             </div>
         </div>
 
@@ -59,17 +75,14 @@
                 <div class="icon-box bg-red"><i class="fa-solid fa-hand-holding-droplet"></i></div>
                 <span>Donate Now</span>
             </div>
-            
             <div class="menu-item" onclick="window.location.href='donor_profile.html'">
                 <div class="icon-box bg-green"><i class="fa-solid fa-user-doctor"></i></div>
                 <span>Profile</span>
             </div>
-
             <div class="menu-item" onclick="window.location.href='donor_faq.html'">
                 <div class="icon-box bg-blue"><i class="fa-solid fa-circle-question"></i></div>
                 <span>FAQ</span>
             </div>
-
             <div class="menu-item" onclick="window.location.href='donor_history.html'">
                 <div class="icon-box bg-orange"><i class="fa-solid fa-clock-rotate-left"></i></div>
                 <span>History</span>

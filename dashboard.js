@@ -132,6 +132,48 @@ window.closeProfileCard = function() {
     document.getElementById('profileCardModal').classList.remove('active');
 };
 
+async function checkNotifications(userBloodType) {
+    if (!userBloodType) return;
+
+    // 1. SIMULATED BACKEND ALERT (Replace with real Firestore listener later)
+    // In a real app, you would query Firestore here.
+    const latestAlert = {
+        id: "alert_001",
+        title: "Urgent O+ Needed",
+        message: "City Hospital has a critical shortage of O+ blood.",
+        targetBloodType: "A+", 
+        timestamp: new Date().toISOString()
+    };
+
+    // 2. Check if alert matches User
+    if (latestAlert.targetBloodType === userBloodType) {
+        
+        // 3. Check if we have already shown this specific alert (using LocalStorage)
+        const lastSeenId = localStorage.getItem('hemoLastSeenAlertId');
+
+        if (lastSeenId !== latestAlert.id) {
+            // SHOW TOAST POPUP
+            const toast = document.getElementById('alertToast');
+            toast.querySelector('h4').textContent = latestAlert.title;
+            toast.querySelector('p').textContent = latestAlert.message;
+            
+            toast.classList.add('show');
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+
+            // Update Badge
+            const badge = document.getElementById('notifBadge');
+            if(badge) badge.style.display = 'block';
+
+            // Mark as seen locally
+            localStorage.setItem('hemoLastSeenAlertId', latestAlert.id);
+        }
+    }
+}
+
 // Logout
 const logoutBtn = document.getElementById('logoutBtn');
 if(logoutBtn) {

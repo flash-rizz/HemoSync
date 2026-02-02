@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container dashboard-container">
+        
+        <div class="login-header" style="margin-bottom: 20px; text-align: left;">
+            <div class="icon-box bg-red" style="margin: 0 0 10px 0;">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <h2>Notifications</h2>
+            <p>Alerts matching your blood type.</p>
+        </div>
+
+        <div id="notifList" class="faq-list">
+            <p style="text-align: center; color: #999; margin-top: 20px;">Loading alerts...</p>
+        </div>
+
+        <button class="btn-logout" onclick="window.location.href='donor_home.html'" style="margin-top: auto;">Back to Dashboard</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        // CONFIG (Same as yours)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
+            authDomain: "hemosync-765c9.firebaseapp.com",
+            databaseURL: "https://hemosync-765c9-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "hemosync-765c9",
+            storageBucket: "hemosync-765c9.firebasestorage.app",
+            messagingSenderId: "749126382362",
+            appId: "1:749126382362:web:8852a1e895edbbea3072a3",
+            measurementId: "G-JP1Y2S1LN5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+                if (userSnap.exists()) {
+                    loadNotifications(userSnap.data().bloodType);
+                }
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        async function loadNotifications(userBloodType) {
+            const list = document.getElementById('notifList');
+            list.innerHTML = "";
+
+            try {
+                // Fetch alerts from Firestore collection 'notifications'
+                // NOTE: If you haven't created this collection yet, this will be empty.
+                const q = query(collection(db, "notifications"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                let count = 0;
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // FILTER: Show if target is 'All' or matches user's blood type
+                    if (data.targetBloodType === 'All' || data.targetBloodType === userBloodType) {
+                        count++;
+                        const item = document.createElement('div');
+                        item.className = 'faq-item'; // Reusing your existing card style
+                        item.style.padding = '15px';
+                        item.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; align-items:start;">
+                                <div>
+                                    <h4 style="margin:0; font-size:14px; color:#D32F2F;">${data.title}</h4>
+                                    <p style="margin:5px 0 0; font-size:12px; color:#555;">${data.message}</p>
+                                    <small style="color:#999; font-size:10px;">${new Date(data.timestamp.toDate()).toLocaleDateString()}</small>
+                                </div>
+                                <div style="background:#ffebee; color:#D32F2F; padding:5px 10px; border-radius:10px; font-size:10px; font-weight:bold;">
+                                    ${data.targetBloodType} Needed
+                                </div>
+                            </div>
+                        `;
+                        list.appendChild(item);
+                    }
+                });
+
+                if (count === 0) {
+                    list.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">
+                        <i class="fa-solid fa-bell-slash" style="font-size:2rem; margin-bottom:10px; display:block;"></i>
+                        No alerts for your blood type yet.
+                    </div>`;
+                }
+
+                // Clear badge on view
+                localStorage.setItem('hemoLastReadNotif', new Date().toISOString());
+
+            } catch (error) {
+                console.error("Error loading notifs:", error);
+                // Fallback for demo if no backend yet
+                list.innerHTML = `<p style="text-align:center;">Demo Mode: No backend connection.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

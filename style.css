@@ -995,3 +995,77 @@ tbody tr {
 .faq-item.active .faq-answer {
     max-height: 300px; /* Allow enough space for text to show */
 }
+
+/* --- NOTIFICATION BELL --- */
+.notif-bell {
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    position: relative; /* For badge positioning */
+    padding: 5px;
+    transition: color 0.3s;
+}
+
+.notif-bell:hover {
+    color: #D32F2F;
+}
+
+.red-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 8px;
+    height: 8px;
+    background-color: #D32F2F;
+    border-radius: 50%;
+    border: 1px solid white;
+}
+
+/* --- TOAST POPUP NOTIFICATION --- */
+.alert-toast {
+    position: fixed;
+    top: -100px; /* Hidden initially */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 2000;
+    border-left: 5px solid #D32F2F;
+    transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.alert-toast.show {
+    top: 20px; /* Slide down into view */
+}
+
+.toast-icon {
+    width: 40px;
+    height: 40px;
+    background: #ffebee;
+    color: #D32F2F;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.toast-content h4 {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.toast-content p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #666;
+}
