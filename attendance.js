@@ -30,12 +30,12 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         await loadOrganiserEvents(user.uid);
         
-        // Auto-select event if passed from My Events page
+        // Auto-select if coming from dashboard shortcut
         const preSelectedId = localStorage.getItem('autoSelectEventId');
         if (preSelectedId) {
             eventSelect.value = preSelectedId;
-            eventSelect.dispatchEvent(new Event('change')); // Trigger load
-            localStorage.removeItem('autoSelectEventId'); // Clear it
+            eventSelect.dispatchEvent(new Event('change')); 
+            localStorage.removeItem('autoSelectEventId'); 
         }
     } else {
         window.location.href = "index.html";
@@ -48,7 +48,6 @@ async function loadOrganiserEvents(uid) {
         const querySnapshot = await getDocs(q);
         
         eventSelect.innerHTML = '<option value="">Select an Event...</option>';
-        
         if (querySnapshot.empty) return;
 
         querySnapshot.forEach((doc) => {
@@ -59,9 +58,7 @@ async function loadOrganiserEvents(uid) {
             opt.innerText = `${event.venue} (${event.date})`;
             eventSelect.appendChild(opt);
         });
-    } catch (e) {
-        console.error("Error loading events:", e);
-    }
+    } catch (e) { console.error(e); }
 }
 
 eventSelect.addEventListener('change', async () => {
@@ -69,7 +66,6 @@ eventSelect.addEventListener('change', async () => {
     attendanceSection.style.display = "none";
     donorList.innerHTML = "";
     emptyMsg.style.display = "none";
-    
     if(!eventId) return;
 
     loadingMsg.style.display = "block";
@@ -123,17 +119,11 @@ eventSelect.addEventListener('change', async () => {
             `;
             donorList.appendChild(card);
         });
-
-    } catch (error) {
-        console.error("Error loading donors:", error);
-    }
+    } catch (error) { console.error(error); }
 });
 
-// MARK STATUS (Silent Version)
+// SILENT MARK STATUS (No Alert)
 window.markStatus = async function(aptId, status, donorId, bloodType) {
-    // We removed the confirm() popup for speed, but you can keep it if you want safety.
-    // if(!confirm(`Mark donor as ${status}?`)) return;
-
     const selectedOption = eventSelect.options[eventSelect.selectedIndex];
     const hospitalId = selectedOption.dataset.hospital;
 
@@ -144,41 +134,26 @@ window.markStatus = async function(aptId, status, donorId, bloodType) {
         if (status === "Completed") {
             if (hospitalId && hospitalId !== "Unassigned") {
                 await updateHospitalStock(hospitalId, bloodType);
-                console.log("Inventory Updated +1"); // Silent log
+                console.log("Inventory +1 updated silently.");
             }
         }
-
-        // Silent Refresh (No Alerts)
+        // Refresh list silently
         eventSelect.dispatchEvent(new Event('change'));
 
-    } catch (error) {
-        console.error("Error:", error);
-    }
+    } catch (error) { console.error(error); }
 };
 
 async function updateHospitalStock(hospitalId, bloodType) {
-    const q = query(
-        collection(db, "bloodInventory"), 
-        where("hospitalId", "==", hospitalId),
-        where("BloodType", "==", bloodType)
-    );
-
+    const q = query(collection(db, "bloodInventory"), where("hospitalId", "==", hospitalId), where("BloodType", "==", bloodType));
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
         querySnapshot.forEach(async (d) => {
-            await updateDoc(d.ref, { 
-                Quantity: increment(1),
-                updatedAt: new Date()
-            });
+            await updateDoc(d.ref, { Quantity: increment(1), updatedAt: new Date() });
         });
     } else {
         await addDoc(collection(db, "bloodInventory"), {
-            hospitalId: hospitalId,
-            BloodType: bloodType,
-            Quantity: 1,
-            ExpiryDate: "2026-12-31",
-            status: "Available"
+            hospitalId: hospitalId, BloodType: bloodType, Quantity: 1, ExpiryDate: "2026-12-31", status: "Available"
         });
     }
 }

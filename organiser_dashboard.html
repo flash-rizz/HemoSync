@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HemoSync - Organiser</title>
     <link rel="stylesheet" href="style.css">
-    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css\">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -17,12 +17,18 @@
                 <h2 id="welcomeName">Hello, Organiser</h2> 
                 <p>Manage your blood drives here.</p>
             </div>
-            <div class="profile-pic">
-                <i class="fa-solid fa-user-tie"></i>
+            
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="position: relative; cursor: pointer;" onclick="window.location.href='notifications.html'">
+                    <i class="fa-solid fa-bell" style="font-size: 1.5rem; color: #555;"></i>
+                    <span id="notifBadge" style="display: none; position: absolute; top: -5px; right: -2px; width: 10px; height: 10px; background-color: red; border-radius: 50%; border: 2px solid white;"></span>
+                </div>
+
+                <div class="profile-pic">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
             </div>
         </div>
-
-        <div id="alertContainer"></div>
 
         <div class="status-card" style="display: block; text-align: center; margin-top:10px;">
             <div class="card-text" style="margin-left: 0;">
