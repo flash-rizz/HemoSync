@@ -24,9 +24,26 @@ const db = getFirestore(app);
 const loginForm = document.getElementById('loginForm');
 const errorMsg = document.getElementById('errorMessage');
 const forgotPassLink = document.getElementById('forgotPasswordLink');
+const togglePassword = document.getElementById('togglePassword');
+const passwordInput = document.getElementById('password');
 
 // ---------------------------------------------------------
-// FORGOT PASSWORD LOGIC (WITH NAME VERIFICATION)
+// 1. SHOW/HIDE PASSWORD LOGIC
+// ---------------------------------------------------------
+if (togglePassword && passwordInput) {
+    togglePassword.addEventListener('click', function () {
+        // Toggle the type attribute
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle the eye / eye-slash icon
+        this.classList.toggle('fa-eye-slash');
+        this.classList.toggle('fa-eye');
+    });
+}
+
+// ---------------------------------------------------------
+// 2. FORGOT PASSWORD LOGIC (WITH NAME VERIFICATION)
 // ---------------------------------------------------------
 if (forgotPassLink) {
     forgotPassLink.addEventListener('click', async (e) => {
@@ -34,7 +51,7 @@ if (forgotPassLink) {
         
         const email = document.getElementById('email').value.trim();
 
-        // 1. Check if input is empty
+        // Check if input is empty
         if (!email) {
             errorMsg.style.color = "#f39c12"; 
             errorMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please enter your email address first.';
@@ -46,23 +63,21 @@ if (forgotPassLink) {
         errorMsg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Checking account details...';
 
         try {
-            // 2. QUERY: Find user by email
+            // QUERY: Find user by email
             const usersRef = collection(db, "users");
             const q = query(usersRef, where("email", "==", email));
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-                // To prevent email scraping, we can just say "Verification failed" or "User not found"
                 errorMsg.style.color = "red";
                 errorMsg.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> No account found with this email.';
                 return;
             }
 
-            // Get the first matching user (emails should be unique)
             const docSnap = querySnapshot.docs[0];
             const userData = docSnap.data();
 
-            // 3. CHECK SUSPENSION
+            // CHECK SUSPENSION
             if (userData.status === "Suspended") {
                 errorMsg.style.color = "#e74c3c";
                 errorMsg.innerHTML = `
@@ -74,8 +89,7 @@ if (forgotPassLink) {
                 return;
             }
 
-            // 4. SECURITY CHECK: Verify Full Name
-            // We use a browser prompt to ask for the credential
+            // SECURITY CHECK: Verify Full Name
             const inputName = prompt(`Security Check: To reset the password for ${email}, please enter your Full Name exactly as registered:`);
 
             if (!inputName) {
@@ -84,17 +98,16 @@ if (forgotPassLink) {
                 return;
             }
 
-            // Compare names (Case-insensitive)
             const dbName = (userData.fullname || "").trim().toLowerCase();
             const userProvidedName = inputName.trim().toLowerCase();
 
             if (dbName !== userProvidedName) {
                 errorMsg.style.color = "red";
                 errorMsg.innerHTML = '<i class="fa-solid fa-shield-halved"></i> <strong>Verification Failed.</strong> The name provided does not match our records.';
-                return; // STOP HERE - Do not send email
+                return;
             }
 
-            // 5. PROCEED: If name matches, send the email
+            // PROCEED
             errorMsg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending reset link...';
             await sendPasswordResetEmail(auth, email);
             
@@ -110,7 +123,7 @@ if (forgotPassLink) {
 }
 
 // ---------------------------------------------------------
-// LOGIN LOGIC
+// 3. LOGIN LOGIC
 // ---------------------------------------------------------
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -119,28 +132,23 @@ if (loginForm) {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        // Visual feedback while loading
         errorMsg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying credentials...';
         errorMsg.style.color = "#666";
 
         try {
-            // 1. Check Credentials (Authentication)
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // 2. Get User Info from Database (Firestore)
             const docRef = doc(db, "users", user.uid);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
                 const userData = docSnap.data();
 
-                // ---------------------------------------------------------
-                // SUSPENSION CHECK LOGIC
-                // ---------------------------------------------------------
+                // SUSPENSION CHECK
                 if (userData.status === "Suspended") {
                     await signOut(auth);
-                    errorMsg.style.color = "#e74c3c"; // Red color
+                    errorMsg.style.color = "#e74c3c";
                     errorMsg.innerHTML = `
                         <div style="animation: shake 0.5s;">
                             <strong><i class="fa-solid fa-ban"></i> Access Denied</strong><br>
@@ -152,15 +160,13 @@ if (loginForm) {
                     `;
                     return;
                 }
-                // ---------------------------------------------------------
 
                 const role = userData.role; 
 
-                // Success Message
                 errorMsg.style.color = "green";
                 errorMsg.textContent = "Login successful! Redirecting...";
 
-                // 3. REDIRECT LOGIC 
+                // REDIRECT
                 setTimeout(() => {
                     if (role === 'donor') {
                         window.location.href = "donor_home.html";
@@ -201,6 +207,7 @@ if (loginForm) {
     });
 }
 
+// Shake animation for error messages
 const styleSheet = document.createElement("style");
 styleSheet.innerText = `
 @keyframes shake {
