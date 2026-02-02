@@ -48,17 +48,6 @@
             color: #D32F2F;
         }
 
-        .status-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            padding: 15px;
-            border-radius: 18px;
-            border: 1px solid #eee;
-            margin-bottom: 25px;
-        }
-
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -104,6 +93,7 @@
             color: #444;
         }
 
+        /* 🔴 RED ALERT */
         .emergency-section {
             background: #ffebee;
             border: 2px solid #d32f2f;
@@ -166,16 +156,8 @@
         <i class="fa-solid fa-hospital-user logo-icon"></i>
     </div>
 
-    <div class="status-card">
-        <div>
-            <strong style="font-size:13px;">Live System Status</strong>
-            <p style="font-size:11px;margin:0;">Connected to HemoSync Network</p>
-        </div>
-        <i class="fa-solid fa-circle-check" style="color:#69F0AE;"></i>
-    </div>
-
     <div class="menu-grid">
-        <a href="manage_stock.html" class="menu-item">
+        <a href="select_profile.html" class="menu-item">
             <div class="icon-box bg-blue"><i class="fa-solid fa-boxes-stacked"></i></div>
             <span>Manage Stock</span>
         </a>
@@ -185,9 +167,9 @@
             <span>Verify Delivery</span>
         </a>
 
-        <a href="donor_triage.html" class="menu-item">
+        <a href="donor_info_review.html" class="menu-item">
             <div class="icon-box bg-green"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
-            <span>Donor Triage</span>
+            <span>Donor Infor Review</span>
         </a>
 
         <a href="system_reporting.html" class="menu-item">
