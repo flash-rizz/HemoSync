@@ -1,8 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// YOUR API KEYS
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
     authDomain: "hemosync-765c9.firebaseapp.com",
@@ -20,98 +19,131 @@ const db = getFirestore(app);
 
 const reportSelect = document.getElementById('reportSelect');
 
-// Data Holders
-let allEventsData = []; // Stores all real data from DB
-
+// 1. Auth & Load Events Dropdown
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        await loadEvents(user.uid);
+        loadOrganiserEvents(user.uid);
     } else {
         window.location.href = "index.html";
     }
 });
 
-// 1. Load All Events from Database
-async function loadEvents(uid) {
-    const q = query(collection(db, "events"), where("organiserId", "==", uid));
-    const querySnapshot = await getDocs(q);
+async function loadOrganiserEvents(uid) {
+    reportSelect.innerHTML = '<option value="">Loading...</option>';
+    try {
+        const q = query(collection(db, "events"), where("organiserId", "==", uid));
+        const querySnapshot = await getDocs(q);
 
-    reportSelect.innerHTML = '<option value="all">Summary of All Events</option>';
-    allEventsData = [];
+        reportSelect.innerHTML = '<option value="" disabled selected>Select an Event</option>';
+        
+        if(querySnapshot.empty) {
+            reportSelect.innerHTML = '<option value="">No events found</option>';
+            return;
+        }
 
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        // Save data to our local array so we don't have to query DB again
-        allEventsData.push({
-            id: doc.id,
-            venue: data.venue,
-            date: data.date,
-            slots: parseInt(data.totalSlots || 0)
+        querySnapshot.forEach((doc) => {
+            const event = doc.data();
+            const opt = document.createElement("option");
+            opt.value = doc.id;
+            opt.innerText = `${event.venue} (${event.date})`;
+            reportSelect.appendChild(opt);
         });
 
-        // Add to dropdown
-        reportSelect.innerHTML += `<option value="${doc.id}">${data.venue} (${data.date})</option>`;
-    });
-
-    // Run the report for "All" immediately
-    generateReport('all');
+    } catch (error) {
+        console.error("Error loading events:", error);
+    }
 }
 
-// 2. Listen for Selection Change
-reportSelect.addEventListener('change', () => {
-    const selectedId = reportSelect.value;
-    generateReport(selectedId);
+// 2. Generate Real Report on Selection
+reportSelect.addEventListener('change', async function() {
+    const eventId = this.value;
+    if (!eventId) return;
+
+    // Reset UI to 0 before loading
+    updateDisplay(0, 0, 0, 0, 0, 0);
+
+    try {
+        console.log(`Generating report for Event ID: ${eventId}`);
+        
+        // QUERY REAL DATA: Get all appointments for this event
+        const q = query(collection(db, "appointments"), where("eventId", "==", eventId));
+        const querySnapshot = await getDocs(q);
+
+        let presentCount = 0;
+        let absentCount = 0;
+        
+        // Blood counters (Group A+, A- into 'A', etc.)
+        let types = { A: 0, B: 0, O: 0, AB: 0 };
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const status = data.status; // 'Booked', 'Completed', 'Absent'
+            const bType = (data.donorBloodType || "").toUpperCase(); // e.g., 'A+'
+
+            if (status === 'Completed') {
+                presentCount++;
+                
+                // Categorize Blood Type
+                // Logic: "A+" -> "A", "AB-" -> "AB"
+                let baseType = bType.replace('+', '').replace('-', '').trim();
+                
+                if (types[baseType] !== undefined) {
+                    types[baseType]++;
+                } else {
+                    // Fallback/Safety if format is weird
+                    if (baseType.includes('AB')) types.AB++;
+                    else if (baseType.includes('A')) types.A++;
+                    else if (baseType.includes('B')) types.B++;
+                    else if (baseType.includes('O')) types.O++;
+                }
+
+            } else if (status === 'Absent') {
+                absentCount++;
+            }
+            // 'Booked' means they haven't arrived yet, so we don't count them in stats yet
+        });
+
+        // 3. Update the UI with REAL numbers
+        updateDisplay(presentCount, absentCount, types.A, types.B, types.O, types.AB);
+
+    } catch (error) {
+        console.error("Report Generation Error:", error);
+        alert("Failed to load report data.");
+    }
 });
 
-// 3. The Logic Engine
-function generateReport(eventId) {
-    let totalSlots = 0;
-    
-    // A. Determine the Scope (Specific Event vs All)
-    if (eventId === 'all') {
-        // Sum up slots from ALL events
-        allEventsData.forEach(event => {
-            totalSlots += event.slots;
-        });
-    } else {
-        // Find the specific event
-        const event = allEventsData.find(e => e.id === eventId);
-        if (event) totalSlots = event.slots;
-    }
-
-    // B. Calculate Metrics (Simulation Logic)
-    // NOTE: Since we haven't built the Hospital module to input real verified blood types,
-    // we calculate "Projections" based on the Total Slots to show the UI works.
-    
-    // Assume 80% attendance rate
-    const present = Math.floor(totalSlots * 0.8); 
-    const absent = totalSlots - present;
-
-    // Standard Blood Type Distribution (approximate global stats)
-    // O: 38%, A: 34%, B: 20%, AB: 8% of those PRESENT
-    const typeO = Math.floor(present * 0.38);
-    const typeA = Math.floor(present * 0.34);
-    const typeB = Math.floor(present * 0.20);
-    const typeAB = present - (typeO + typeA + typeB); // The remainder
-
-    // C. Update UI
-    updateDisplay(present, absent, typeA, typeB, typeO, typeAB);
-}
-
+// Helper: Animate numbers
 function updateDisplay(present, absent, a, b, o, ab) {
-    // Attendance
     animateValue("countPresent", present);
     animateValue("countAbsent", absent);
-
-    // Blood Types
     animateValue("typeA", a);
     animateValue("typeB", b);
     animateValue("typeO", o);
     animateValue("typeAB", ab);
 }
 
-// Helper: Simple count-up animation for effect
-function animateValue(id, value) {
+function animateValue(id, end) {
     const obj = document.getElementById(id);
-    obj.textContent = value;
+    if(!obj) return;
+    
+    // If it's 0, just show 0
+    if (end === 0) {
+        obj.innerHTML = 0;
+        return;
+    }
+
+    let start = 0;
+    let duration = 800;
+    let range = end - start;
+    let current = start;
+    let increment = end > start ? 1 : -1;
+    let stepTime = Math.abs(Math.floor(duration / range));
+    
+    let timer = setInterval(function() {
+        current += increment;
+        obj.innerHTML = current;
+        if (current == end) {
+            clearInterval(timer);
+        }
+    }, stepTime);
 }
