@@ -26,10 +26,11 @@
                 <p>Let's save some lives today.</p>
             </div>
             
-            <div style="display: flex; gap: 15px; align-items: center;">
-                <div class="notif-bell" onclick="window.location.href='donor_notifications.html'">
-                    <i class="fa-regular fa-bell"></i>
-                    <span id="notifBadge" class="red-dot" style="display: none;"></span>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                
+                <div style="position: relative; cursor: pointer;" onclick="window.location.href='donor_notifications.html'">
+                    <i class="fa-solid fa-bell" style="font-size: 1.5rem; color: #555;"></i>
+                    <span id="notifBadge" style="display: none; position: absolute; top: 0px; right: 0px; width: 10px; height: 10px; background-color: #D32F2F; border-radius: 50%; border: 2px solid white;"></span>
                 </div>
 
                 <div class="profile-pic" onclick="openProfileCard()" style="cursor: pointer;">

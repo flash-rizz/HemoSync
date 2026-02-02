@@ -157,7 +157,7 @@ document.getElementById('screeningForm').addEventListener('submit', async (e) =>
 
     try {
         await setDoc(doc(db, "users", currentUser.uid), screeningData, { merge: true });
-        alert("Data Saved.\n\nYour eligibility status: " + status);
+        alert("Your screening information is saved.\n\nYour eligibility status: " + status);
         lockScreeningSection();
     } catch (err) {
         console.error(err);

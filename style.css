@@ -1024,7 +1024,7 @@ tbody tr {
 /* --- TOAST POPUP NOTIFICATION --- */
 .alert-toast {
     position: fixed;
-    top: -100px; /* Hidden initially */
+    top: -100px; 
     left: 50%;
     transform: translateX(-50%);
     width: 90%;

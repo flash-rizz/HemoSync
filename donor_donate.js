@@ -258,6 +258,7 @@ window.processBooking = async function() {
         // E. SAVE TO LOCAL STORAGE (For the Dashboard Reminder Card)
         const dateObj = new Date(tempEventData.date);
         const bookingData = {
+            userId: currentUser.uid,
             eventId: tempEventData.id,
             eventName: tempEventData.venue,
             location: tempEventData.venue,
