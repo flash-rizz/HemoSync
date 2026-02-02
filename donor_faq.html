@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HemoSync - FAQ</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container dashboard-container">
+        
+        <div class="login-header" style="margin-bottom: 30px;">
+            <div class="icon-box bg-blue">
+                <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <h2>Help & FAQ</h2>
+            <p>Common questions about donating.</p>
+        </div>
+
+        <div class="faq-list">
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    Who can donate blood?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>Generally, donors must be at least 18 years old, weigh at least 45kg, and be in good health. Specific eligibility depends on your health history screening.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Does donating blood hurt?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>You may feel a slight pinch when the needle goes in, but the process is usually painless. Most donors find it very manageable.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    How long does it take?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>The actual donation takes only 10-15 minutes. However, the entire process (registration, screening, and recovery) takes about 45 minutes to an hour.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    How often can I donate?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>You generally need to wait 56 days (8 weeks) between whole blood donations to allow your body to replenish its red blood cells.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Should I eat before donating?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>Yes! Eat a healthy meal avoiding fatty foods before you come in. Also, drink plenty of water (an extra 16 oz) before your appointment.</p>
+                </div>
+            </div>
+
+             <div class="faq-item">
+                <button class="faq-question">
+                    Can I donate if I have a tattoo?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>In many regions, you must wait 6 to 12 months after getting a tattoo or piercing before you can donate, unless it was done in a certified sterile facility.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <button class="btn-logout" onclick="window.location.href='donor_home.html'" style="margin-top: auto; border: 1px solid #ddd; color: #555;">
+            Back to Dashboard
+        </button>
+
+    </div>
+
+    <script>
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', () => {
+                // Close other items
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('active');
+                    }
+                });
+                // Toggle current item
+                item.classList.toggle('active');
+            });
+        });
+    </script>
+
+</body>
+</html>

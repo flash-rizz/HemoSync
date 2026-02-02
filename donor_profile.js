@@ -33,12 +33,10 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 function populateForms(data) {
-    // A. Personal Info
     if(data.fullname) document.getElementById('fullName').value = data.fullname;
     if(data.phone) document.getElementById('phone').value = data.phone;
     if(data.address) document.getElementById('address').value = data.address;
 
-    // B. Screening Info
     if(data.dob) document.getElementById('dob').value = data.dob;
     if(data.gender) document.getElementById('gender').value = data.gender;
     if(data.weight) document.getElementById('weight').value = data.weight;
@@ -56,7 +54,6 @@ function populateForms(data) {
     checkRadio('sex_behavior', data.history_sex);
     checkRadio('meds', data.history_meds);
 
-    // C. Check Lock
     if (data.isProfileComplete) {
         lockScreeningSection();
     }
@@ -74,7 +71,6 @@ function lockScreeningSection() {
     }
 }
 
-// 1. Update Personal Info
 document.getElementById('personalForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button');
@@ -97,27 +93,27 @@ document.getElementById('personalForm').addEventListener('submit', async (e) => 
     }
 });
 
-// 2. Save Screening & Eligibility (WITH STRICT AGE CHECK)
+// --- UPDATED SCREENING LOGIC ---
 document.getElementById('screeningForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const dobValue = document.getElementById('dob').value;
     const dob = new Date(dobValue);
     
-    // --- NEW: Strict Age Calculation ---
+    // 1. Calculate Age
     const today = new Date();
     let age = today.getFullYear() - dob.getFullYear();
     if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) {
         age--;
     }
 
-    // --- NEW: Block if under 18 ---
-    if (age < 18) {
-        alert("Not eligible to donate.\n\nReason: You must be at least 18 years old to proceed.");
-        return; // STOP EXECUTION HERE. Data is NOT saved.
+    // 2. STRICT CHECK: Block < 18 OR > 65 immediately
+    if (age < 18 || age > 65) {
+        alert("Not eligible to donate.\n\nReason: Donors must be between 18 and 65 years old.");
+        return; // STOP HERE. Do not save data.
     }
 
-    // Continue if 18+
+    // 3. Continue with other checks if age is valid
     const genderValue = document.getElementById('gender').value;
     const weight = parseFloat(document.getElementById('weight').value);
     
@@ -133,9 +129,8 @@ document.getElementById('screeningForm').addEventListener('submit', async (e) =>
     let rejectionReason = "";
     let status = "Eligible";
 
-    // Additional Checks for 18+ Users
-    if (age > 65) { isEligible = false; rejectionReason = "Age over 65"; }
-    else if (weight < 45) { isEligible = false; rejectionReason = "Weight < 45kg"; }
+    // Weight and Medical Checks
+    if (weight < 45) { isEligible = false; rejectionReason = "Weight < 45kg"; }
     else if (disease === 'yes' || meds === 'yes') { isEligible = false; rejectionReason = "Medical History"; }
     else if (tattoo === 'yes' || pregnancy === 'yes') { isEligible = false; status = "Deferred"; rejectionReason = "Temporary Deferral"; }
     else if (drugs === 'yes' || sexBehavior === 'yes') { isEligible = false; status = "Ineligible"; rejectionReason = "High Risk Behavior"; }
