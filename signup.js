@@ -1,71 +1,59 @@
-// Import necessary Firebase functions
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// TODO: PASTE YOUR FIREBASE CONFIG HERE (Same as login page)
 const firebaseConfig = {
-    apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
-    authDomain: "hemosync-765c9.firebaseapp.com",
-    databaseURL: "https://hemosync-765c9-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "hemosync-765c9",
-    storageBucket: "hemosync-765c9.firebasestorage.app",
-    messagingSenderId: "749126382362",
-    appId: "1:749126382362:web:8852a1e895edbbea3072a3",
-    measurementId: "G-JP1Y2S1LN5"
-  };
-  
-// Initialize Firebase services
+  apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
+  authDomain: "hemosync-765c9.firebaseapp.com",
+  databaseURL: "https://hemosync-765c9-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "hemosync-765c9",
+  storageBucket: "hemosync-765c9.firebasestorage.app",
+  messagingSenderId: "749126382362",
+  appId: "1:749126382362:web:8852a1e895edbbea3072a3",
+  measurementId: "G-JP1Y2S1LN5"
+};
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Get HTML elements
-const signupForm = document.getElementById('signupForm');
-const errorMsg = document.getElementById('errorMessage');
+const signupForm = document.getElementById("signupForm");
+const errorMsg = document.getElementById("errorMessage");
 
-// Handle Sign Up Event
-signupForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Prevent page refresh
+signupForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    // Get values from the form
-    const fullname = document.getElementById('fullname').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const role = document.getElementById('role').value;
+  const fullname = document.getElementById("fullname").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const role = document.getElementById("role").value;
 
-    errorMsg.textContent = "";
+  errorMsg.textContent = "";
 
-    try {
-        // Step 1: Create user in Firebase Authentication
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-        console.log("Account created for:", user.email);
+    console.log("Account created for:", user.email);
 
-        // Step 2: Save the user's Name and Role to Firestore Database
-        // We use the User ID (uid) as the document name so it's easy to find later
-        await setDoc(doc(db, "users", user.uid), {
-            fullname: fullname,
-            email: email,
-            role: role,
-            createdAt: new Date()
-        });
+    await setDoc(doc(db, "users", user.uid), {
+      fullname: fullname,
+      email: email,
+      role: role,
+      createdAt: new Date()
+    });
 
-        // Step 3: Success! Redirect to login
-        alert("Account created successfully! Please log in.");
-        window.location.href = "index.html";
+    alert("Account created successfully! Please log in.");
+    window.location.href = "index.html";
+  } catch (error) {
+    console.error("Error code:", error.code);
 
-    } catch (error) {
-        console.error("Error code:", error.code);
-        
-        // specific error messages for better user experience
-        if (error.code === 'auth/email-already-in-use') {
-            errorMsg.textContent = "This email is already registered.";
-        } else if (error.code === 'auth/weak-password') {
-            errorMsg.textContent = "Password should be at least 6 characters.";
-        } else {
-            errorMsg.textContent = "Error: " + error.message;
-        }
+    if (error.code === "auth/email-already-in-use") {
+      errorMsg.textContent = "This email is already registered.";
+    } else if (error.code === "auth/weak-password") {
+      errorMsg.textContent = "Password should be at least 6 characters.";
+    } else {
+      errorMsg.textContent = "Error: " + error.message;
     }
+  }
 });

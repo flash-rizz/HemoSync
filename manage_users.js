@@ -1,12 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-// CHANGED: Added signOut to imports
-import { getAuth, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import {
+  getAuth,
+  sendPasswordResetEmail,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import {
   getFirestore,
   collection,
   getDocs,
-  query,
-  where,
   doc,
   getDoc,
   updateDoc,
@@ -27,7 +28,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// DOM
 const tableBody = document.getElementById("userTableBody");
 const mobileCards = document.getElementById("mobileUserCards");
 
@@ -44,13 +44,11 @@ const prevPageBtn = document.getElementById("prevPageBtn");
 const nextPageBtn = document.getElementById("nextPageBtn");
 const pageInfo = document.getElementById("pageInfo");
 
-// CHANGED: New Logout Logic
 const logoutBtn = document.getElementById("adminLogoutBtn");
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     try {
       await signOut(auth);
-      // Redirect to login page
       window.location.href = "index.html";
     } catch (e) {
       console.error("Logout error:", e);
@@ -59,37 +57,29 @@ if (logoutBtn) {
   });
 }
 
-// State
 let targetUserIdForSuspension = null;
 
-// Pagination state
 let currentPage = 1;
 let pageSize = parseInt(pageSizeSelect.value, 10) || 20;
 
-// Cached docs for pagination
 let cachedFilteredDocs = [];
 
-// --- NEW LOGIC: Status based on Eligibility Check (isProfileComplete) ---
 function normalizeStatus(user) {
-  // 1. Suspension takes priority
   if (user.status === "Suspended") return "Suspended";
-
-  // 2. If profile is complete (eligibility check done) -> Active
   if (user.isProfileComplete === true) return "Active";
-
-  // 3. Otherwise -> Pending
   return "Pending";
 }
 
 function statusToColor(status) {
   if (status === "Suspended") return "#e74c3c";
-  if (status === "Pending") return "#f39c12"; // Orange
-  if (status === "Active") return "#2ecc71";  // Green
+  if (status === "Pending") return "#f39c12";
+  if (status === "Active") return "#2ecc71";
   return "#95a5a6";
 }
 
 function updateHeadsUpVisibility() {
-  pendingHeadsUp.style.display = statusFilterSelect.value === "Pending" ? "block" : "none";
+  pendingHeadsUp.style.display =
+    statusFilterSelect.value === "Pending" ? "block" : "none";
 }
 
 function setPendingCounter(count) {
@@ -110,18 +100,11 @@ async function logAdminAction(actionType, payload) {
   }
 }
 
-// --- FILTER & SORT ---
-
 function sortDocsPendingFirst(docs, statusFilter) {
-  // Logic: 
-  // 1. Sort by Status (Pending top if filtering All)
-  // 2. Sort by Fullname A-Z
-  
   return docs.slice().sort((a, b) => {
     const sa = normalizeStatus(a.data());
     const sb = normalizeStatus(b.data());
 
-    // Only force Pending to top if we are viewing ALL statuses
     if (statusFilter === "ALL") {
       const pa = sa === "Pending" ? 0 : 1;
       const pb = sb === "Pending" ? 0 : 1;
@@ -134,17 +117,16 @@ function sortDocsPendingFirst(docs, statusFilter) {
   });
 }
 
-// --- ACTIONS ---
-
-// "Unverify" now forces the user back to Pending by flagging profile as incomplete
 window.unverifyUser = async function (userId, userEmail) {
-  const ok = confirm(`Reset eligibility for ${userEmail}? This will move them back to Pending.`);
+  const ok = confirm(
+    `Reset eligibility for ${userEmail}? This will move them back to Pending.`
+  );
   if (!ok) return;
 
   try {
     await updateDoc(doc(db, "users", userId), {
-      isProfileComplete: false, // Forces status to Pending
-      status: "Pending",        // Sync legacy field just in case
+      isProfileComplete: false,
+      status: "Pending",
       unverifiedAt: new Date().toISOString(),
       unverifiedBy: "admin"
     });
@@ -160,7 +142,9 @@ window.unverifyUser = async function (userId, userEmail) {
 };
 
 window.remindUser = async function (userId, userEmail) {
-  const ok = confirm(`Send reminder to ${userEmail}? (Temporary: opens email client)`);
+  const ok = confirm(
+    `Send reminder to ${userEmail}? (Temporary: opens email client)`
+  );
   if (!ok) return;
 
   try {
@@ -172,7 +156,9 @@ window.remindUser = async function (userId, userEmail) {
     await logAdminAction("REMIND_USER", { userId, userEmail });
 
     const subject = encodeURIComponent("HemoSync: Action Required");
-    const body = encodeURIComponent("Hi, please complete your eligibility screening in the app so your account can be activated.");
+    const body = encodeURIComponent(
+      "Hi, please complete your eligibility screening in the app so your account can be activated."
+    );
     window.location.href = `mailto:${userEmail}?subject=${subject}&body=${body}`;
 
     await refreshWithCurrentInputs();
@@ -182,15 +168,12 @@ window.remindUser = async function (userId, userEmail) {
   }
 };
 
-// Desktop table row
 function renderUserRow(docSnap, index = 0) {
   const user = docSnap.data();
 
-  // Use new logic
   const status = normalizeStatus(user);
   const statusColor = statusToColor(status);
 
-  // Logic: Pending users get Remind. Active users get Unverify. Suspended get nothing special here.
   const showRemind = status === "Pending";
   const showUnverify = status === "Active";
 
@@ -246,7 +229,6 @@ function renderUserRow(docSnap, index = 0) {
   `;
 }
 
-// Mobile card
 function renderUserCard(docSnap) {
   const user = docSnap.data();
 
@@ -309,7 +291,6 @@ function renderUserCard(docSnap) {
   `;
 }
 
-// Render both desktop + mobile from the same pageDocs
 function renderCurrentPage() {
   if (tableBody) tableBody.innerHTML = "";
   if (mobileCards) mobileCards.innerHTML = "";
@@ -343,7 +324,6 @@ function renderCurrentPage() {
   nextPageBtn.disabled = currentPage >= totalPages;
 }
 
-// MAIN LOAD FUNCTION
 async function loadUsers(searchTerm = null, statusFilter = "ALL") {
   if (tableBody) {
     tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">Retrieving user directory...</td></tr>`;
@@ -353,43 +333,38 @@ async function loadUsers(searchTerm = null, statusFilter = "ALL") {
   }
 
   try {
-    // We always fetch the whole collection so we can filter name OR email client-side.
-    // Firestore cannot easily do "name OR email" in one query.
     const q = collection(db, "users");
     const querySnapshot = await getDocs(q);
 
     let docs = [];
     querySnapshot.forEach((d) => docs.push(d));
 
-    // Exclude Admins from the list
-    docs = docs.filter(d => {
-        const role = (d.data().role || "").toLowerCase();
-        return role !== 'admin';
+    docs = docs.filter((d) => {
+      const role = (d.data().role || "").toLowerCase();
+      return role !== "admin";
     });
 
-    // Calculate Pending Count based on new normalized logic
-    const pendingCount = docs.reduce((acc, d) => acc + (normalizeStatus(d.data()) === "Pending" ? 1 : 0), 0);
+    const pendingCount = docs.reduce(
+      (acc, d) => acc + (normalizeStatus(d.data()) === "Pending" ? 1 : 0),
+      0
+    );
     setPendingCounter(pendingCount);
 
-    // 1. FILTER BY SEARCH (Name OR Email)
     if (searchTerm) {
       const lowerTerm = searchTerm.toLowerCase();
-      docs = docs.filter(d => {
+      docs = docs.filter((d) => {
         const data = d.data();
         const name = (data.fullname || "").toLowerCase();
         const email = (data.email || "").toLowerCase();
-        // Check if term exists in name OR email
         return name.includes(lowerTerm) || email.includes(lowerTerm);
       });
     }
 
-    // 2. FILTER BY STATUS
     const selectedStatus = (statusFilter || "ALL").trim();
     if (selectedStatus !== "ALL") {
       docs = docs.filter((d) => normalizeStatus(d.data()) === selectedStatus);
     }
 
-    // 3. SORT
     docs = sortDocsPendingFirst(docs, selectedStatus);
 
     cachedFilteredDocs = docs;
@@ -410,7 +385,6 @@ async function refreshWithCurrentInputs() {
   await loadUsers(searchInput.value.trim(), statusFilterSelect.value);
 }
 
-// Suspension dropdown
 window.toggleSuspensionDrop = function () {
   const content = document.getElementById("suspensionDropContent");
   const icon = document.getElementById("dropIcon");
@@ -425,14 +399,13 @@ window.toggleSuspensionDrop = function () {
   }
 };
 
-// View user details
 window.viewUser = async function (userId) {
   try {
     const docSnap = await getDoc(doc(db, "users", userId));
     if (!docSnap.exists()) return;
 
     const u = docSnap.data();
-    const status = normalizeStatus(u); // Use new logic
+    const status = normalizeStatus(u);
 
     let detailsHTML = `
       <div><strong style="color:#888; font-size:12px;">FULL NAME</strong><br>${u.fullname || "-"}</div>
@@ -463,7 +436,9 @@ window.viewUser = async function (userId) {
               <strong>Reason:</strong> ${u.suspensionReason || "No reason provided"}
             </p>
             <p style="margin: 0; color: #777; font-size: 12px;">
-              <strong>Timestamp:</strong> ${u.suspendedAt ? new Date(u.suspendedAt).toLocaleString() : "N/A"}
+              <strong>Timestamp:</strong> ${
+                u.suspendedAt ? new Date(u.suspendedAt).toLocaleString() : "N/A"
+              }
             </p>
           </div>
         </div>
@@ -482,9 +457,10 @@ window.closeDetails = function () {
   detailPanel.style.display = "none";
 };
 
-// Password reset
 window.initiatePasswordReset = async function (email, userId) {
-  const confirmed = confirm(`Are you sure you want to send a password reset link to ${email}?`);
+  const confirmed = confirm(
+    `Are you sure you want to send a password reset link to ${email}?`
+  );
   if (!confirmed) return;
 
   try {
@@ -508,7 +484,6 @@ window.initiatePasswordReset = async function (email, userId) {
   }
 };
 
-// Suspend modal
 window.confirmSuspension = function (userId, userEmail) {
   targetUserIdForSuspension = userId;
 
@@ -535,7 +510,10 @@ document.getElementById("confirmModalBtn").addEventListener("click", async () =>
       suspendedAt: new Date().toISOString()
     });
 
-    await logAdminAction("SUSPEND_USER", { userId: targetUserIdForSuspension, reason });
+    await logAdminAction("SUSPEND_USER", {
+      userId: targetUserIdForSuspension,
+      reason
+    });
 
     alert("Entity has been successfully suspended.");
     closeSuspensionModal();
@@ -545,9 +523,10 @@ document.getElementById("confirmModalBtn").addEventListener("click", async () =>
   }
 });
 
-document.getElementById("cancelModalBtn").addEventListener("click", closeSuspensionModal);
+document
+  .getElementById("cancelModalBtn")
+  .addEventListener("click", closeSuspensionModal);
 
-// Events
 document.getElementById("execSearchBtn").addEventListener("click", async () => {
   currentPage = 1;
   await refreshWithCurrentInputs();
@@ -555,7 +534,7 @@ document.getElementById("execSearchBtn").addEventListener("click", async () => {
 
 document.getElementById("clearSearchBtn").addEventListener("click", async () => {
   searchInput.value = "";
-  statusFilterSelect.value = "Pending"; // default to Pending
+  statusFilterSelect.value = "Pending";
   updateHeadsUpVisibility();
   currentPage = 1;
   await refreshWithCurrentInputs();
@@ -566,7 +545,6 @@ statusFilterSelect.addEventListener("change", async () => {
   await refreshWithCurrentInputs();
 });
 
-// Pagination
 pageSizeSelect.addEventListener("change", () => {
   pageSize = parseInt(pageSizeSelect.value, 10) || 20;
   currentPage = 1;
@@ -588,7 +566,6 @@ nextPageBtn.addEventListener("click", () => {
   }
 });
 
-// Initial load
 statusFilterSelect.value = "Pending";
 updateHeadsUpVisibility();
 refreshWithCurrentInputs();
