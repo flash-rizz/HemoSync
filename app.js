@@ -87,7 +87,7 @@ loginForm.addEventListener('submit', async (e) => {
                     window.location.href = "hospital_clinic_dashboard.html";
                 }
                 else if (role === 'admin') {
-                    window.location.href = "admin_dashboard.html";
+                    window.location.href = "manage_users.html";
                 } 
                 else {
                     alert("Error: Role '" + role + "' is not recognized.");

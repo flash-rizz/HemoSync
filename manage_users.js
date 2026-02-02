@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+// CHANGED: Added signOut to imports
+import { getAuth, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import {
   getFirestore,
   collection,
@@ -42,6 +43,21 @@ const pageSizeSelect = document.getElementById("pageSizeSelect");
 const prevPageBtn = document.getElementById("prevPageBtn");
 const nextPageBtn = document.getElementById("nextPageBtn");
 const pageInfo = document.getElementById("pageInfo");
+
+// CHANGED: New Logout Logic
+const logoutBtn = document.getElementById("adminLogoutBtn");
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      // Redirect to login page
+      window.location.href = "index.html";
+    } catch (e) {
+      console.error("Logout error:", e);
+      alert("Error logging out: " + e.message);
+    }
+  });
+}
 
 // State
 let targetUserIdForSuspension = null;
@@ -344,6 +360,12 @@ async function loadUsers(searchTerm = null, statusFilter = "ALL") {
 
     let docs = [];
     querySnapshot.forEach((d) => docs.push(d));
+
+    // Exclude Admins from the list
+    docs = docs.filter(d => {
+        const role = (d.data().role || "").toLowerCase();
+        return role !== 'admin';
+    });
 
     // Calculate Pending Count based on new normalized logic
     const pendingCount = docs.reduce((acc, d) => acc + (normalizeStatus(d.data()) === "Pending" ? 1 : 0), 0);
