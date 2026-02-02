@@ -41,7 +41,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// UI Logic: Show Active Card OR Show Empty Card
+// UI Logic
 function checkAppointment() {
     const card = document.getElementById('appointmentCard');
     const noCard = document.getElementById('noAppointmentCard');
@@ -59,7 +59,7 @@ function checkAppointment() {
         if(noCard) noCard.style.display = 'none';
     } else {
         if(card) card.style.display = 'none';
-        if(noCard) noCard.style.display = 'block'; // Using block here as flex is inside the CSS class
+        if(noCard) noCard.style.display = 'block';
     }
 }
 
@@ -67,7 +67,7 @@ function checkAppointment() {
 window.checkDonationEligibility = function() {
     if (!currentUserData) return alert("Loading profile...");
     
-    // 1. Profile Check
+    // 1. Profile Completion Check
     if (!currentUserData.isProfileComplete) {
         if(confirm("Please complete your eligibility check first. Go to profile?")) {
             window.location.href = "donor_profile.html";
@@ -75,18 +75,42 @@ window.checkDonationEligibility = function() {
         return;
     }
     
-    // 2. Health Status Check
+    // 2. Health Status Check (Static)
     if (currentUserData.eligibilityStatus === "Ineligible" || currentUserData.status === "Deferred") {
         alert("You are currently not eligible to donate based on your health records.");
         return;
     }
 
-    // 3. Existing Booking Check
+    // 3. NEW: 56-DAY INTERVAL RULE
+    // Checks if 'lastDonationDate' exists in Firebase and is less than 56 days ago
+    if (currentUserData.lastDonationDate) {
+        let lastDate = currentUserData.lastDonationDate;
+        
+        // Handle Firestore Timestamp conversion if needed
+        if (lastDate.toDate) {
+            lastDate = lastDate.toDate(); 
+        } else {
+            lastDate = new Date(lastDate);
+        }
+
+        const today = new Date();
+        const diffTime = today - lastDate; // Difference in milliseconds
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 56) {
+            const remaining = 56 - diffDays;
+            alert(`Recovery Period Active.\n\nIt has been ${diffDays} days since your last donation.\nYou must wait ${remaining} more days before donating again.`);
+            return; // Block access
+        }
+    }
+
+    // 4. Existing Booking Check
     if (localStorage.getItem('hemoSyncAppointment')) {
         alert("You already have a booking! Please visit History if you need to manage it.");
         return;
     }
     
+    // All checks passed
     window.location.href = "donor_donate.html";
 };
 
