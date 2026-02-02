@@ -4,7 +4,6 @@ import {
     getFirestore, collection, query, where, getDocs, doc, updateDoc, addDoc, increment 
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
     authDomain: "hemosync-765c9.firebaseapp.com",
@@ -20,7 +19,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// DOM Elements
 const eventSelect = document.getElementById('eventSelect');
 const attendanceSection = document.getElementById('attendanceSection');
 const donorList = document.getElementById('donorList');
@@ -28,17 +26,22 @@ const loadingMsg = document.getElementById('loadingMsg');
 const emptyMsg = document.getElementById('emptyMsg');
 const donorCount = document.getElementById('donorCount');
 
-// 1. Check Auth & Load Events
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        console.log("Organiser Logged In:", user.uid);
         await loadOrganiserEvents(user.uid);
+        
+        // Auto-select event if passed from My Events page
+        const preSelectedId = localStorage.getItem('autoSelectEventId');
+        if (preSelectedId) {
+            eventSelect.value = preSelectedId;
+            eventSelect.dispatchEvent(new Event('change')); // Trigger load
+            localStorage.removeItem('autoSelectEventId'); // Clear it
+        }
     } else {
         window.location.href = "index.html";
     }
 });
 
-// 2. Load Events Created by Organiser
 async function loadOrganiserEvents(uid) {
     try {
         const q = query(collection(db, "events"), where("organiserId", "==", uid));
@@ -46,10 +49,7 @@ async function loadOrganiserEvents(uid) {
         
         eventSelect.innerHTML = '<option value="">Select an Event...</option>';
         
-        if (querySnapshot.empty) {
-            console.log("No events found for this organiser.");
-            return;
-        }
+        if (querySnapshot.empty) return;
 
         querySnapshot.forEach((doc) => {
             const event = doc.data();
@@ -61,28 +61,20 @@ async function loadOrganiserEvents(uid) {
         });
     } catch (e) {
         console.error("Error loading events:", e);
-        alert("Error loading events. Check console.");
     }
 }
 
-// 3. Handle Event Selection (Load Donors)
 eventSelect.addEventListener('change', async () => {
     const eventId = eventSelect.value;
-    
-    // Reset UI
     attendanceSection.style.display = "none";
     donorList.innerHTML = "";
     emptyMsg.style.display = "none";
     
     if(!eventId) return;
 
-    // Show Loading
     loadingMsg.style.display = "block";
 
     try {
-        console.log("Fetching appointments for Event ID:", eventId);
-        
-        // QUERY: Get appointments for this event
         const q = query(collection(db, "appointments"), where("eventId", "==", eventId));
         const querySnapshot = await getDocs(q);
 
@@ -95,12 +87,10 @@ eventSelect.addEventListener('change', async () => {
             return;
         }
 
-        // Render List
         querySnapshot.forEach((docSnap) => {
             const apt = docSnap.data();
             const aptId = docSnap.id;
             
-            // Check if processed
             const isProcessed = apt.status === "Completed" || apt.status === "Absent";
             let statusColor = isProcessed ? (apt.status === "Completed" ? "green" : "red") : "#666";
 
@@ -136,46 +126,36 @@ eventSelect.addEventListener('change', async () => {
 
     } catch (error) {
         console.error("Error loading donors:", error);
-        loadingMsg.style.display = "none";
-        alert("Error loading data: " + error.message);
     }
 });
 
-// 4. Mark Status Logic
+// MARK STATUS (Silent Version)
 window.markStatus = async function(aptId, status, donorId, bloodType) {
-    if(!confirm(`Mark donor as ${status}?`)) return;
+    // We removed the confirm() popup for speed, but you can keep it if you want safety.
+    // if(!confirm(`Mark donor as ${status}?`)) return;
 
-    // Find hospital ID from the dropdown dataset
     const selectedOption = eventSelect.options[eventSelect.selectedIndex];
     const hospitalId = selectedOption.dataset.hospital;
 
     try {
-        // A. Update Appointment
         const aptRef = doc(db, "appointments", aptId);
         await updateDoc(aptRef, { status: status });
 
-        // B. If Present, Update Stock
         if (status === "Completed") {
             if (hospitalId && hospitalId !== "Unassigned") {
                 await updateHospitalStock(hospitalId, bloodType);
-                alert("Marked Present. Inventory Updated (+1).");
-            } else {
-                alert("Marked Present. (No Hospital linked, inventory unchanged).");
+                console.log("Inventory Updated +1"); // Silent log
             }
-        } else {
-            alert("Marked Absent.");
         }
 
-        // Refresh List
+        // Silent Refresh (No Alerts)
         eventSelect.dispatchEvent(new Event('change'));
 
     } catch (error) {
         console.error("Error:", error);
-        alert("Failed to update: " + error.message);
     }
 };
 
-// 5. Inventory Helper
 async function updateHospitalStock(hospitalId, bloodType) {
     const q = query(
         collection(db, "bloodInventory"), 
