@@ -10,7 +10,7 @@
 </head>
 <body>
 
-    <div class="app-container dashboard-container" style="animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);">
+    <div class="app-container dashboard-container">
         
         <div class="dashboard-header">
             <div class="user-info">
@@ -30,29 +30,28 @@
             </div>
         </div>
 
-        <div class="status-card" style="display: block; text-align: center; margin-top:10px;">
-            <div class="card-text" style="margin-left: 0;">
-                <h3 style="font-size: 1.1rem; justify-content: center;">
-                   <i class="fa-solid fa-calendar-plus"></i> Quick Action
-                </h3>
-                <p style="margin-bottom: 10px;">Schedule a new drive</p>
+        <div class="status-card" style="display: block; text-align: center; animation: fadeIn 0.6s ease forwards; opacity: 0; animation-delay: 0.2s;">
+            <div class="card-text" style="margin-bottom: 15px;">
+                <h3>Plan a New Event</h3>
+                <p>Schedule a new donation event.</p>
             </div>
-            <button class="btn-book" style="width: 100%; margin-top: 5px; background: #D32F2F;" onclick="window.location.href='create_event.html'">   
+            <button class="btn-login" onclick="window.location.href='create_event.html'">   
                 <i class="fa-solid fa-plus"></i> Create Event
             </button>
         </div>
 
         <div class="menu-grid">
+            
             <div class="menu-item" onclick="window.location.href='my_events.html'">
                 <div class="icon-box bg-red">
-                <i class="fa-solid fa-calendar-check"></i>
+                    <i class="fa-solid fa-calendar-check"></i>
                 </div>
                 <span>My Events</span>
             </div>
 
             <div class="menu-item" onclick="window.location.href='attendance.html'">
                 <div class="icon-box bg-blue">
-                    <i class="fa-solid fa-clipboard-user"></i>
+                    <i class="fa-solid fa-clipboard"></i>
                 </div>
                 <span>Attendance</span>
             </div>
@@ -73,6 +72,7 @@
         </div>
 
         <button id="logoutBtn" class="btn-logout">Logout</button>
+
     </div>
 
     <script type="module" src="organiser_dashboard.js"></script>
