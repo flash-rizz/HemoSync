@@ -74,14 +74,13 @@ function lockScreeningSection() {
     }
 }
 
-// 1. Update Personal Info (Phone & Address ONLY)
+// 1. Update Personal Info
 document.getElementById('personalForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button');
     const oldText = btn.innerText;
     btn.innerText = "Updating...";
     
-    // EXCLUDED 'fullname' from this list to prevent overwriting
     const updateData = {
         phone: document.getElementById('phone').value,
         address: document.getElementById('address').value
@@ -98,14 +97,29 @@ document.getElementById('personalForm').addEventListener('submit', async (e) => 
     }
 });
 
-// 2. Save Screening & Eligibility
+// 2. Save Screening & Eligibility (WITH STRICT AGE CHECK)
 document.getElementById('screeningForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const dobValue = document.getElementById('dob').value;
+    const dob = new Date(dobValue);
+    
+    // --- NEW: Strict Age Calculation ---
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) {
+        age--;
+    }
+
+    // --- NEW: Block if under 18 ---
+    if (age < 18) {
+        alert("Not eligible to donate.\n\nReason: You must be at least 18 years old to proceed.");
+        return; // STOP EXECUTION HERE. Data is NOT saved.
+    }
+
+    // Continue if 18+
     const genderValue = document.getElementById('gender').value;
     const weight = parseFloat(document.getElementById('weight').value);
-    const dob = new Date(dobValue);
     
     const getRadioVal = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || "no";
     const disease = getRadioVal('disease');
@@ -119,13 +133,8 @@ document.getElementById('screeningForm').addEventListener('submit', async (e) =>
     let rejectionReason = "";
     let status = "Eligible";
 
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) {
-        age--;
-    }
-
-    if (age < 18 || age > 65) { isEligible = false; rejectionReason = "Age must be 18-65"; }
+    // Additional Checks for 18+ Users
+    if (age > 65) { isEligible = false; rejectionReason = "Age over 65"; }
     else if (weight < 45) { isEligible = false; rejectionReason = "Weight < 45kg"; }
     else if (disease === 'yes' || meds === 'yes') { isEligible = false; rejectionReason = "Medical History"; }
     else if (tattoo === 'yes' || pregnancy === 'yes') { isEligible = false; status = "Deferred"; rejectionReason = "Temporary Deferral"; }
@@ -153,7 +162,7 @@ document.getElementById('screeningForm').addEventListener('submit', async (e) =>
 
     try {
         await setDoc(doc(db, "users", currentUser.uid), screeningData, { merge: true });
-        alert("Data Saved.\n\nNOTE: A physical screening may be required at the hospital for first-time verification.\n\nYour eligibility status: " + status);
+        alert("Data Saved.\n\nYour eligibility status: " + status);
         lockScreeningSection();
     } catch (err) {
         console.error(err);
