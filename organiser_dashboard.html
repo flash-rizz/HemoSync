@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HemoSync - Organiser</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css\">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -22,18 +22,21 @@
             </div>
         </div>
 
-        <div class="status-card" style="display: block; text-align: center; animation: fadeIn 0.6s ease forwards; opacity: 0; animation-delay: 0.2s;">
-            <div class="card-text" style="margin-bottom: 15px;">
-                <h3>Plan a New Event</h3>
-                <p>Schedule a new donation event.</p>
+        <div id="alertContainer"></div>
+
+        <div class="status-card" style="display: block; text-align: center; margin-top:10px;">
+            <div class="card-text" style="margin-left: 0;">
+                <h3 style="font-size: 1.1rem; justify-content: center;">
+                   <i class="fa-solid fa-calendar-plus"></i> Quick Action
+                </h3>
+                <p style="margin-bottom: 10px;">Schedule a new drive</p>
             </div>
-            <button class="btn-login" onclick="window.location.href='create_event.html'">   
+            <button class="btn-book" style="width: 100%; margin-top: 5px; background: #D32F2F;" onclick="window.location.href='create_event.html'">   
                 <i class="fa-solid fa-plus"></i> Create Event
             </button>
         </div>
 
         <div class="menu-grid">
-            
             <div class="menu-item" onclick="window.location.href='my_events.html'">
                 <div class="icon-box bg-red">
                 <i class="fa-solid fa-calendar-check"></i>
@@ -64,10 +67,8 @@
         </div>
 
         <button id="logoutBtn" class="btn-logout">Logout</button>
-
     </div>
 
     <script type="module" src="organiser_dashboard.js"></script>
 </body>
-
 </html>
