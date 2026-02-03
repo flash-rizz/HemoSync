@@ -5,41 +5,66 @@ from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 async function loadSystemReport(){
 
 /* ================= BLOOD INVENTORY ================= */
-const inventoryDiv = document.getElementById("inventorySection");
-const bloodSnap = await getDocs(collection(db,"bloodInventory"));
+const hospitalDiv = document.getElementById("hospitalInventory");
+const clinicDiv = document.getElementById("clinicInventory");
 
-let inventory = {};
-bloodSnap.forEach(doc=>{
-  const d = doc.data();
-  inventory[d.BloodType] = (inventory[d.BloodType] || 0) + (d.Quantity || 0);
-});
+hospitalDiv.innerHTML = `<strong style="font-size:13px;">🏥 Hospital Inventory</strong>`;
+clinicDiv.innerHTML = `<strong style="font-size:13px;">🏥 Clinic Inventory</strong>`;
 
-if(Object.keys(inventory).length === 0){
-  inventoryDiv.innerHTML += `<div class="row">No inventory data</div>`;
+/* 🏥 HOSPITAL INVENTORY */
+const hospitalSnap = await getDocs(collection(db,"bloodInventory"));
+
+if(hospitalSnap.empty){
+  hospitalDiv.innerHTML += `<div class="row">No hospital stock</div>`;
 } else {
-  Object.keys(inventory).forEach(type=>{
-    let cls="good";
-    if(inventory[type] <= 2) cls="low";
-    else if(inventory[type] <= 5) cls="medium";
+  hospitalSnap.forEach(doc=>{
+    const d = doc.data();
+    let cls = "good";
+    if(d.Quantity <= 2) cls = "low";
+    else if(d.Quantity <= 5) cls = "medium";
 
-    inventoryDiv.innerHTML += `
+    hospitalDiv.innerHTML += `
       <div class="row">
-        <span>${type}</span>
-        <span class="${cls}">${inventory[type]} units</span>
-      </div>`;
+        <span>${d.BloodType}</span>
+        <span class="${cls}">${d.Quantity} units</span>
+      </div>
+    `;
+  });
+}
+
+/* 🏥 CLINIC INVENTORY */
+const clinicSnap = await getDocs(collection(db,"bloodInventory Clinic"));
+
+if(clinicSnap.empty){
+  clinicDiv.innerHTML += `<div class="row">No clinic stock</div>`;
+} else {
+  clinicSnap.forEach(doc=>{
+    const d = doc.data();
+    let cls = "good";
+    if(d.Quantity <= 2) cls = "low";
+    else if(d.Quantity <= 5) cls = "medium";
+
+    clinicDiv.innerHTML += `
+      <div class="row">
+        <span>${d.BloodType}</span>
+        <span class="${cls}">${d.Quantity} units</span>
+      </div>
+    `;
   });
 }
 
 /* ================= RED ALERT SUMMARY ================= */
 const alertDiv = document.getElementById("alertSection");
+alertDiv.innerHTML = `<h3><i class="fa-solid fa-triangle-exclamation"></i> Red Alert Summary</h3>`;
+
 const alertSnap = await getDocs(collection(db,"RedAlerts"));
 
-let critical=0, high=0, medium=0;
+let critical = 0, high = 0, medium = 0;
 
 alertSnap.forEach(doc=>{
   const a = doc.data();
-  if(a.urgency==="Critical") critical++;
-  else if(a.urgency==="High") high++;
+  if(a.urgency === "Critical") critical++;
+  else if(a.urgency === "High") high++;
   else medium++;
 });
 
@@ -49,39 +74,32 @@ alertDiv.innerHTML += `
   <div class="row"><span>Medium Alerts</span><span>${medium}</span></div>
 `;
 
-/* ================= DONOR TRIAGE ================= */
-const triageDiv = document.getElementById("triageSection");
-const triageSnap = await getDocs(collection(db,"TriageLogs"));
-
-let eligible=0, deferred=0;
-triageSnap.forEach(doc=>{
-  if(doc.data().status==="Eligible") eligible++;
-  else deferred++;
-});
-
-triageDiv.innerHTML += `
-  <div class="row"><span>Total Screened</span><span>${triageSnap.size}</span></div>
-  <div class="row"><span>Eligible</span><span class="good">${eligible}</span></div>
-  <div class="row"><span>Deferred</span><span class="low">${deferred}</span></div>
-`;
-
-/* ================= DELIVERY SUMMARY ================= */
+/* ================= DELIVERY VERIFICATION SUMMARY ================= */
 const deliveryDiv = document.getElementById("deliverySection");
-const deliverySnap = await getDocs(collection(db,"Deliveries"));
+deliveryDiv.innerHTML = `<h3><i class="fa-solid fa-truck-medical"></i> Delivery Verification Summary</h3>`;
 
-let verified=0, rejected=0;
-deliverySnap.forEach(doc=>{
-  if(doc.data().status==="Verified") verified++;
-  else if(doc.data().status==="Rejected") rejected++;
+const eventSnap = await getDocs(collection(db,"events"));
+
+let verified = 0;
+let rejected = 0;
+let pending = 0;
+
+eventSnap.forEach(doc=>{
+  const d = doc.data();
+  if(d.deliveryStatus === "Verified") verified++;
+  else if(d.deliveryStatus === "Rejected") rejected++;
+  else pending++;
 });
 
 deliveryDiv.innerHTML += `
   <div class="row"><span>Verified Deliveries</span><span class="good">${verified}</span></div>
-  <div class="row"><span>Rejected</span><span class="medium">${rejected}</span></div>
+  <div class="row"><span>Rejected Deliveries</span><span class="low">${rejected}</span></div>
+  <div class="row"><span>Pending Verification</span><span class="medium">${pending}</span></div>
 `;
 
 /* ================= SYSTEM STATUS ================= */
 const banner = document.getElementById("statusBanner");
+
 if(critical > 0){
   banner.style.background="#ffebee";
   banner.style.borderLeft="6px solid #d32f2f";
