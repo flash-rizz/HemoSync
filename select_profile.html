@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HemoSync – Select Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Poppins',sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#f0f2f5;
+}
+.container{
+    width:100%;
+    max-width:400px;
+    background:#fff;
+    border-radius:25px;
+    padding:30px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.1);
+    text-align:center;
+}
+h2{color:#D32F2F;margin-bottom:15px;}
+p{font-size:13px;color:#666;margin-bottom:25px;}
+button{
+    width:80%;
+    padding:15px;
+    margin:10px 0;
+    font-size:14px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:600;
+    color:white;
+    transition:0.3s;
+}
+.btn-hospital{background:#1976d2;}
+.btn-clinic{background:#388e3c;}
+button:hover{opacity:0.9;}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2><i class="fa-solid fa-hospital"></i> Select Profile</h2>
+    <p>Please choose your profile to manage blood stock</p>
+
+    <button class="btn-hospital" onclick="location.href='manage_stock.html'">
+        <i class="fa-solid fa-hospital-user"></i> Hospital
+    </button>
+
+    <button class="btn-clinic" onclick="location.href='manage_stock_clinic.html'">
+        <i class="fa-solid fa-clinic-medical"></i> Clinic
+    </button>
+</div>
+
+</body>
+</html>
