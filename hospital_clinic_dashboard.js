@@ -17,8 +17,7 @@ onAuthStateChanged(auth, (user) => {
         loadInventory();
     } else {
         console.log("User not logged in");
-        // Uncomment later if needed
-        // window.location.href = "login.html";
+        window.location.href = "index.html"; //
     }
 });
 
@@ -85,10 +84,11 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
     if (confirm("Are you sure you want to logout?")) {
         signOut(auth)
             .then(() => {
-                window.location.href = "hospital_clinic_dashboard.html";
+                window.location.href = "index.html"; // 
             })
             .catch(err => {
                 console.error("Logout error:", err);
+                alert("Logout failed. Try again.");
             });
     }
 });
