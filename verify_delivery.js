@@ -1,81 +1,58 @@
 import { db } from "./firebase.js";
-import { collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { collection, getDocs, doc, updateDoc }
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-let deliveries = [];
-let currentTab = "Delivered";
+const eventList = document.getElementById("eventList");
 
-// Load deliveries from Firestore
-async function loadDeliveries() {
-    deliveries = [];
-    const snap = await getDocs(collection(db,"Deliveries"));
-    snap.forEach(d => {
-        deliveries.push({
-            id: d.id,
-            ...d.data()
-        });
-    });
-    renderDeliveries();
-}
+async function loadDeliveries(){
+    eventList.innerHTML = "";
 
-function renderDeliveries() {
-    const list = document.getElementById("eventList");
-    list.innerHTML = "";
+    const snapshot = await getDocs(collection(db, "events"));
 
-    let filtered = deliveries.filter(e => {
-        if(currentTab === "Delivered") return e.status === "Delivered";
-        if(currentTab === "Confirmed") return e.status === "Confirmed";
-        return true;
-    });
-
-    if(filtered.length === 0) {
-        list.innerHTML = `<div class="empty">No events found</div>`;
+    if(snapshot.empty){
+        eventList.innerHTML = `<div class="empty">No delivery records</div>`;
         return;
     }
 
-    filtered.forEach(e => {
-        let card = document.createElement("div");
-        card.className = "event-card";
+    snapshot.forEach(docSnap=>{
+        const d = docSnap.data();
+        const id = docSnap.id;
 
-        card.innerHTML = `
-            <div class="event-title">${e.eventName}</div>
-            <div class="event-info">Units Delivered: ${e.units}</div>
-            <div class="event-info">Status: ${e.status}</div>
-            ${e.status === "Delivered" ? `
+        const rejectedClass = d.deliveryStatus === "Rejected" ? "rejected" : "";
+
+        eventList.innerHTML += `
+            <div class="event-card ${rejectedClass}">
+                <div class="event-title">${d.venue || "Event"}</div>
+                <div class="event-info">
+                    Date: ${d.date || "-"}<br>
+                    Blood Units: ${d.collectedUnits || "N/A"}<br>
+                    Status: ${d.deliveryStatus || "Delivered"}
+                </div>
                 <div class="actions">
-                    <button class="btn btn-confirm" onclick="confirmDelivery('${e.id}')">Confirm</button>
-                    <button class="btn btn-flag" onclick="flagIssue('${e.id}')">Flag Issue</button>
-                </div>` : ``}
+                    <button class="btn btn-confirm" onclick="verify('${id}')">Verify</button>
+                    <button class="btn btn-reject" onclick="reject('${id}')">Reject</button>
+                </div>
+            </div>
         `;
-        list.appendChild(card);
     });
 }
 
-// Confirm delivery
-window.confirmDelivery = async (id) => {
-    const ref = doc(db,"Deliveries",id);
-    await updateDoc(ref,{ status:"Confirmed" });
-    alert("Delivery verified & added to stock");
+window.verify = async (id)=>{
+    await updateDoc(doc(db,"events",id),{
+        deliveryStatus:"Verified"
+    });
     loadDeliveries();
-}
+};
 
-// Flag issue
-window.flagIssue = async (id) => {
-    const ref = doc(db,"Deliveries",id);
-    await updateDoc(ref,{ status:"Issue" });
-    alert("Issue flagged for investigation");
+window.reject = async (id)=>{
+    await updateDoc(doc(db,"events",id),{
+        deliveryStatus:"Rejected"
+    });
     loadDeliveries();
-}
+};
 
-// Switch tabs
-window.switchTab = (tab, btn) => {
-    currentTab = tab;
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    btn.classList.add("active");
-    renderDeliveries();
-}
+window.goBack = ()=>{
+    window.location.href="hospital_clinic_dashboard.html";
+};
 
-// Go back
-window.goBack = () => { window.location.href = "hospital_clinic_dashboard.html"; }
-
-// Initial load
 loadDeliveries();
