@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-// ADDED: 'addDoc' to the imports so we can create the appointment
+
 import { getFirestore, collection, getDocs, getDoc, query, where, doc, updateDoc, increment, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
