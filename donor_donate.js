@@ -17,15 +17,14 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// State variables
+
 let tempEventData = null; 
 let selectedSlotIndex = null; 
 let currentUser = null;
-let currentUserData = null; // New: Store profile data (Name, Blood Type)
+let currentUserData = null; 
 
-// 1. Initialize
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Only load events if we know who the user is (moved logic slightly)
 });
 
 onAuthStateChanged(auth, async (user) => {
@@ -33,17 +32,14 @@ onAuthStateChanged(auth, async (user) => {
         currentUser = user;
         console.log("User detected:", user.uid);
         
-        // Fetch the user's name and blood type immediately
         await loadUserProfile(user.uid);
         
-        // Now load the events
         loadPublishedEvents();
     } else {
         window.location.href = "index.html";
     }
 });
 
-// Helper: Get User Profile (Student Logic: simple fetch)
 async function loadUserProfile(uid) {
     try {
         const userSnap = await getDoc(doc(db, "users", uid));
@@ -56,7 +52,6 @@ async function loadUserProfile(uid) {
     }
 }
 
-// 2. Fetch Events
 async function loadPublishedEvents() {
     const container = document.getElementById('eventsContainer');
     const loading = document.getElementById('loadingIndicator');
@@ -82,10 +77,9 @@ async function loadPublishedEvents() {
             const event = docSnap.data();
             const eventDate = new Date(event.date);
             
-            // Filter past events
+            
             if (eventDate < today) return; 
 
-            // Pass the entire event object + ID to the renderer
             renderEventCard(docSnap.id, event, container);
             upcomingCount++;
         });
@@ -109,8 +103,7 @@ function renderEventCard(id, data, container) {
     const btnText = isFull ? 'Full' : 'Book Now';
     const btnClass = isFull ? 'disabled' : '';
     
-    // We store the data in a JSON string to pass it to the openSlotModal function
-    // Including the ID is crucial for the database update later
+
     const eventSafeStr = encodeURIComponent(JSON.stringify({ ...data, id: id }));
 
     const html = `
@@ -139,7 +132,6 @@ function renderEventCard(id, data, container) {
     container.innerHTML += html;
 }
 
-// 3. STEP 1: OPEN SLOT MODAL
 window.prepareSlotSelection = function(eventString) {
     tempEventData = JSON.parse(decodeURIComponent(eventString));
     
@@ -174,7 +166,6 @@ window.prepareSlotSelection = function(eventString) {
     document.getElementById('slotModal').classList.add('active');
 };
 
-// 4. STEP 2: SELECT SLOT -> OPEN CONFIRMATION
 window.selectSlot = function(index) {
     selectedSlotIndex = index;
     const slotData = tempEventData.timeSlots[index];
@@ -196,11 +187,10 @@ window.closeModal = function() {
     document.getElementById('confirmModal').classList.remove('active');
 };
 
-// 5. STEP 3: PROCESS BOOKING (The Logic Fix)
+
 window.processBooking = async function() {
     if (!tempEventData || !currentUser || selectedSlotIndex === null) return;
 
-    // Safety check: ensure we loaded the user profile
     if (!currentUserData) {
         alert("Still loading your profile... please wait a moment.");
         return;
@@ -214,7 +204,6 @@ window.processBooking = async function() {
     try {
         const eventRef = doc(db, "events", tempEventData.id);
 
-        // A. READ FRESH DATA (Concurrency Safety)
         const freshSnap = await getDoc(eventRef);
         if (!freshSnap.exists()) throw new Error("Event not found");
         
@@ -227,17 +216,13 @@ window.processBooking = async function() {
             return;
         }
 
-        // B. MODIFY ARRAY IN MEMORY
         slotsArray[selectedSlotIndex].booked = (slotsArray[selectedSlotIndex].booked || 0) + 1;
 
-        // C. UPDATE EVENT (Reduce Slots)
         await updateDoc(eventRef, {
             timeSlots: slotsArray,
             availableSlots: increment(-1)
         });
 
-        // D. CREATE APPOINTMENT (This was missing!)
-        // The Attendance page looks for documents in the 'appointments' collection
         await addDoc(collection(db, "appointments"), {
             eventId: tempEventData.id,
             eventName: tempEventData.venue,
@@ -247,7 +232,6 @@ window.processBooking = async function() {
             donorName: currentUserData.fullname || "Unknown Donor",
             donorBloodType: currentUserData.bloodType || "Unknown",
             
-            // Needed so the specific hospital can verify attendance
             hospitalId: tempEventData.assignedHospitalId || "Unassigned",
             
             slotTime: formatTime(slotsArray[selectedSlotIndex].time),
@@ -255,7 +239,6 @@ window.processBooking = async function() {
             createdAt: new Date()
         });
 
-        // E. SAVE TO LOCAL STORAGE (For the Dashboard Reminder Card)
         const dateObj = new Date(tempEventData.date);
         const bookingData = {
             userId: currentUser.uid,

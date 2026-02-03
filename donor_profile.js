@@ -93,27 +93,24 @@ document.getElementById('personalForm').addEventListener('submit', async (e) => 
     }
 });
 
-// --- UPDATED SCREENING LOGIC ---
 document.getElementById('screeningForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const dobValue = document.getElementById('dob').value;
     const dob = new Date(dobValue);
     
-    // 1. Calculate Age
     const today = new Date();
     let age = today.getFullYear() - dob.getFullYear();
     if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) {
         age--;
     }
 
-    // 2. STRICT CHECK: Block < 18 OR > 65 immediately
     if (age < 18 || age > 65) {
         alert("Not eligible to donate.\n\nReason: Donors must be between 18 and 65 years old.");
-        return; // STOP HERE. Do not save data.
+        return; 
     }
 
-    // 3. Continue with other checks if age is valid
+
     const genderValue = document.getElementById('gender').value;
     const weight = parseFloat(document.getElementById('weight').value);
     
@@ -129,7 +126,6 @@ document.getElementById('screeningForm').addEventListener('submit', async (e) =>
     let rejectionReason = "";
     let status = "Eligible";
 
-    // Weight and Medical Checks
     if (weight < 45) { isEligible = false; rejectionReason = "Weight < 45kg"; }
     else if (disease === 'yes' || meds === 'yes') { isEligible = false; rejectionReason = "Medical History"; }
     else if (tattoo === 'yes' || pregnancy === 'yes') { isEligible = false; status = "Deferred"; rejectionReason = "Temporary Deferral"; }

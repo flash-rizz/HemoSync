@@ -56,29 +56,22 @@ async function loadMatchedEvents(userBloodType) {
         querySnapshot.forEach((doc) => {
             const event = doc.data();
             
-            // --- LOGIC SYNC: EXACTLY MATCH DASHBOARD.JS ---
-            
-            // 1. Normalize Data (Fixes "a" vs "A", numbers vs strings)
             const pBlood = String(event.priorityBlood || "").trim().toUpperCase();
             const uBlood = String(userBloodType || "").trim().toUpperCase();
 
-            // 2. Status Check
             if (event.status !== "Published") return;
 
-            // 3. Exact Match Check
             if (pBlood !== uBlood) return;
 
-            // 4. Ignore Ancient Events (> 7 Days Old)
+
             if (event.createdAt) {
                 const createdDate = event.createdAt.toDate();
                 const diffDays = (now - createdDate) / (1000 * 60 * 60 * 24);
                 if (diffDays > 7) return; 
             }
 
-            // --- RENDER ---
             count++;
             
-            // Mark as READ
             if (!readEvents.includes(doc.id)) {
                 readEvents.push(doc.id);
                 listUpdated = true;
@@ -120,12 +113,11 @@ async function loadMatchedEvents(userBloodType) {
             list.appendChild(item);
         });
 
-        // Save updated read status
+
         if (listUpdated) {
             localStorage.setItem('hemoReadEvents', JSON.stringify(readEvents));
         }
 
-        // Safety: If list is empty, force clear dashboard dot logic on next refresh
         if (count === 0) {
             list.innerHTML = `
                 <div style="text-align:center; padding:40px 20px; color:#888;">

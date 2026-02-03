@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
     authDomain: "hemosync-765c9.firebaseapp.com",
@@ -20,7 +19,6 @@ const db = getFirestore(app);
 
 let currentUserData = null;
 
-// 1. Auth Listener
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         try {
@@ -31,10 +29,8 @@ onAuthStateChanged(auth, async (user) => {
                 currentUserData = docSnap.data();
                 document.getElementById('welcomeName').textContent = "Hi, " + (currentUserData.fullname || "Donor");
                 
-                // Check Appointment (Secured with UserID)
                 checkAppointment(user.uid);
                 
-                // Check Alerts (Robust Logic)
                 checkNotifications(currentUserData.bloodType);
             }
         } catch (error) {
@@ -45,19 +41,16 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// 2. Check Appointment
 function checkAppointment(currentUid) {
     const card = document.getElementById('appointmentCard');
     const noCard = document.getElementById('noAppointmentCard');
     
-    // Parse stored data
     const appointment = JSON.parse(localStorage.getItem('hemoSyncAppointment'));
 
-    // LOGIC: Check if appointment exists AND belongs to the current user
     if (appointment && appointment.userId === currentUid) {
         if(card) {
             card.style.display = 'block';
-            // Safe rendering with fallbacks
+            
             document.getElementById('reminderTitle').textContent = appointment.eventName || "Blood Donation";
             document.getElementById('reminderLocation').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${appointment.location || "Location TBD"}`;
             document.getElementById('reminderTime').textContent = appointment.time || "--:--";
@@ -66,24 +59,22 @@ function checkAppointment(currentUid) {
         }
         if(noCard) noCard.style.display = 'none';
     } else {
-        // Mismatch or no appointment -> Show Empty State
+
         if(card) card.style.display = 'none';
         if(noCard) noCard.style.display = 'block';
         
-        // Cleanup: If there was data but it belonged to someone else, remove it
         if (appointment && appointment.userId !== currentUid) {
             localStorage.removeItem('hemoSyncAppointment');
         }
     }
 }
 
-// 3. Check Notifications (Robust & Crash-Proof)
 async function checkNotifications(userBloodType) {
     if (!userBloodType) return;
 
     try {
         const eventsRef = collection(db, "events");
-        // Get the 10 most recent events to check for alerts
+        
         const q = query(eventsRef, orderBy("createdAt", "desc"), limit(10));
         const querySnapshot = await getDocs(q);
         
@@ -95,41 +86,32 @@ async function checkNotifications(userBloodType) {
         querySnapshot.forEach((doc) => {
             const event = doc.data();
             
-            // --- ROBUST MATCHING (Matches donor_notifications.js) ---
-            // 1. Force strings and uppercase (prevents crashes on bad data)
+
             const pBlood = String(event.priorityBlood || "").trim().toUpperCase();
             const uBlood = String(userBloodType || "").trim().toUpperCase();
 
-            // 2. Status Check
             if (event.status !== "Published") return;
 
-            // 3. Exact Match Check
             if (pBlood !== uBlood) return; 
 
-            // 4. Ignore Ancient Events (> 7 Days Old)
             if (event.createdAt) {
                 const createdDate = event.createdAt.toDate();
                 const diffDays = (now - createdDate) / (1000 * 60 * 60 * 24);
                 if (diffDays > 7) return; 
             }
 
-            // 5. ALERT TRIGGER
-            // If we found a valid match that is NOT in the "read" list
             if (!readEvents.includes(doc.id)) {
                 hasUnread = true;
                 if (!newestUnreadEvent) newestUnreadEvent = { id: doc.id, ...event };
             }
         });
 
-        // --- UPDATE UI ---
         const badge = document.getElementById('notifBadge');
         if (badge) badge.style.display = hasUnread ? 'block' : 'none';
 
-        // Trigger Toast Popup
         if (newestUnreadEvent) {
             const lastToastId = localStorage.getItem('hemoLastToastId');
             
-            // Only popup if we haven't shown it for this specific Event ID yet
             if (lastToastId !== newestUnreadEvent.id) {
                 const toast = document.getElementById('alertToast');
                 if (toast) {
@@ -137,10 +119,9 @@ async function checkNotifications(userBloodType) {
                     toast.querySelector('p').textContent = `Immediate need for Type ${userBloodType} donors!`;
                     
                     toast.classList.add('show');
-                    // Show for 8 seconds
+                    
                     setTimeout(() => toast.classList.remove('show'), 8000);
                     
-                    // Mark as "Toast Shown" so it doesn't pop up again on refresh
                     localStorage.setItem('hemoLastToastId', newestUnreadEvent.id);
                 }
             }
@@ -151,7 +132,6 @@ async function checkNotifications(userBloodType) {
     }
 }
 
-// 4. Global Helper: Eligibility Check
 window.checkDonationEligibility = function() {
     if (!currentUserData) return alert("Loading profile...");
     
@@ -202,12 +182,10 @@ window.closeProfileCard = function() {
     document.getElementById('profileCardModal').classList.remove('active');
 };
 
-// 6. Logout (Clears Data)
 const logoutBtn = document.getElementById('logoutBtn');
 if(logoutBtn) {
     logoutBtn.addEventListener('click', () => {
         signOut(auth).then(() => {
-            // Remove user-specific data
             localStorage.removeItem('hemoSyncAppointment');
             localStorage.removeItem('hemoReadEvents');
             localStorage.removeItem('hemoLastToastId');
