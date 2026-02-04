@@ -1069,3 +1069,119 @@ tbody tr {
     font-size: 12px;
     color: #666;
 }
+
+/* =========================================
+   WEB APP OVERRIDES (Desktop Transformation)
+   ========================================= */
+
+/* 1. STRETCH THE MAIN CONTAINER */
+/* Changes from a thin mobile strip to a wide dashboard box */
+.app-container, .dashboard-container {
+    max-width: 1200px !important; /* Wide screen width */
+    width: 95% !important;        /* Fill 95% of the browser width */
+    margin: 40px auto;            /* Center it with vertical spacing */
+    padding: 40px;                /* More internal breathing room */
+    min-height: 85vh;             /* Take up most of the screen height */
+    
+    /* Center content logic for Login, but allow stretch for Dashboard */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 2. STRETCH THE MENU GRID */
+/* Instead of 2 columns, fill the screen with auto-fitting columns */
+.menu-grid {
+    display: grid !important;
+    /* Auto-fit creates as many columns as fit, min 250px wide */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 30px !important;
+    margin-top: 20px;
+}
+
+/* Make menu items square and responsive */
+.menu-item {
+    aspect-ratio: 1/1; /* Keeps them square */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px !important;
+}
+
+/* 3. STRETCH FORM INPUTS (The "Short Line" Fix) */
+/* Forces all inputs to fill the new wide container */
+.input-group, 
+.input-group input, 
+.input-group select, 
+.input-group textarea {
+    width: 100% !important;      /* Force full width */
+    box-sizing: border-box;      /* Include padding in calculation */
+    max-width: none !important;  /* Remove any mobile limits */
+}
+
+/* Specific fix for Time Slots in Create Event */
+.time-slot-row {
+    width: 100%;
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+}
+
+.time-slot-row input {
+    flex: 1; /* Grow to fill space */
+}
+
+/* 4. TRANSFORM LISTS TO ROWS */
+/* On desktop, events look better as horizontal rows, not stacked cards */
+.events-list .event-card, 
+.history-card, 
+.faq-item {
+    display: flex;
+    flex-direction: row;         /* Side-by-side layout */
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    gap: 20px;
+}
+
+/* Adjust the header inside the card to flow better */
+.event-header {
+    flex: 1; /* Take available space */
+    width: 100%;
+}
+
+/* 5. BIGGER FONTS FOR DESKTOP */
+h1, h2 {
+    font-size: 2.5rem !important;
+}
+
+.dashboard-header p {
+    font-size: 1.1rem;
+}
+
+/* 6. LOGOUT BUTTON & FOOTER */
+.btn-logout, .footer-links {
+    max-width: 400px; /* Keep these button sizes reasonable */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* If the user shrinks the browser back to phone size, revert to mobile view */
+@media (max-width: 768px) {
+    .app-container, .dashboard-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0;
+        border-radius: 0;
+        padding: 20px;
+    }
+
+    .events-list .event-card, 
+    .history-card {
+        flex-direction: column; 
+        align-items: flex-start;
+    }
+    
+    h1, h2 { font-size: 1.8rem !important; }
+}
