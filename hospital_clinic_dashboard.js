@@ -22,11 +22,11 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ===============================
-// LOAD BLOOD INVENTORY (FIREBASE)
+// LOAD BLOOD INVENTORY SUMMARY
 // ===============================
 async function loadInventory() {
-    const inventoryBody = document.getElementById('inventoryBody');
-    const stockStatus = document.getElementById('stockStatus');
+    const inventoryBody = document.getElementById("inventoryBody");
+    const stockStatus = document.getElementById("stockStatus");
 
     inventoryBody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
 
@@ -44,6 +44,7 @@ async function loadInventory() {
         if (snapshot.empty) {
             inventoryBody.innerHTML =
                 `<tr><td colspan="3">No inventory available</td></tr>`;
+            stockStatus.innerText = "No stock available";
             return;
         }
 
@@ -61,7 +62,7 @@ async function loadInventory() {
             `;
         });
 
-        // Update stock status text
+        // Status message
         if (isLowStock) {
             stockStatus.innerText = "CRITICAL: Low Blood Stock!";
             stockStatus.style.color = "#d32f2f";
@@ -71,7 +72,7 @@ async function loadInventory() {
         }
 
     } catch (error) {
-        console.error("Error loading inventory:", error);
+        console.error(error);
         inventoryBody.innerHTML =
             `<tr><td colspan="3">Error loading data</td></tr>`;
     }
