@@ -10,6 +10,11 @@
 
 <style>
 body{
+    .form-wrapper{
+    max-width:750px;   /* ⬅ controls input width */
+    margin:0 auto;     /* ⬅ center the form */
+}
+
     margin:0;
     background:#f0f2f5;
     font-family:'Poppins',sans-serif;
@@ -20,10 +25,10 @@ body{
 }
 .container{
     width:100%;
-    max-width:450px;
+    max-width:1150px;          /* ⬅ wider */
     background:#fff;
     border-radius:25px;
-    padding:30px;
+    padding:40px 50px;        /* ⬅ more breathing space */
     box-shadow:0 20px 60px rgba(0,0,0,0.1);
 }
 .header{
@@ -31,14 +36,14 @@ body{
     margin-bottom:25px;
 }
 .header i{
-    font-size:30px;
+    font-size:40px;
     color:#D32F2F;
 }
 .header h2{
     margin:10px 0 0;
 }
 .input-group{
-    margin-bottom:15px;
+    margin-bottom:22px;
 }
 label{
     font-size:12px;
@@ -47,11 +52,11 @@ label{
 }
 input, textarea{
     width:100%;
-    padding:12px;
+    padding:14px;
     border-radius:10px;
     border:1px solid #ddd;
-    margin-top:5px;
-    font-size:13px;
+    margin-top:6px;
+    font-size:14px;
 }
 input[readonly]{
     background-color:#e9ecef;
@@ -69,6 +74,8 @@ textarea{
     font-weight:600;
     color:white;
     cursor:pointer;
+    margin-top:10px;     /* ⬅ space above Save */
+    margin-bottom:14px;
 }
 .btn-save{ background:#388e3c; }
 .btn-back{ background:#D32F2F; margin-top:10px; }
@@ -82,9 +89,10 @@ textarea{
     <div class="header">
         <i class="fa-solid fa-user-gear"></i>
         <h2>My Profile</h2>
-        <p style="font-size:12px;color:#777;">Hospital / Clinic Information</p>
+        <p style="font-size:16px;color:#777;">Hospital / Clinic Information</p>
     </div>
 
+    <div class="form-wrapper">
     <form id="profileForm">
 
         <div class="input-group">
