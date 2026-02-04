@@ -20,6 +20,21 @@ const db = getFirestore(app);
 const signupForm = document.getElementById("signupForm");
 const errorMsg = document.getElementById("errorMessage");
 
+const togglePassword = document.getElementById("togglePassword");
+const passwordInput = document.getElementById("password");
+
+if (togglePassword && passwordInput) {
+  togglePassword.addEventListener("click", function () {
+    const type =
+      passwordInput.getAttribute("type") === "password" ? "text" : "password";
+    passwordInput.setAttribute("type", type);
+
+    this.classList.toggle("fa-eye-slash");
+    this.classList.toggle("fa-eye");
+  });
+}
+
+
 signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 

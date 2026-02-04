@@ -7,6 +7,8 @@
     <title>HemoSync - Create Account</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
 
 <body>
@@ -43,8 +45,14 @@
 
                 <div class="input-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Create a password" required>
+                    <div style="position: relative;">
+                        <input type="password" id="password" placeholder="Create a password" required
+                            style="width: 100%; padding-right: 40px; box-sizing: border-box;">
+                        <i class="fa-solid fa-eye" id="togglePassword"
+                            style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888;"></i>
+                    </div>
                 </div>
+
 
                 <p id="errorMessage" class="error-msg"></p>
 
