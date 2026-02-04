@@ -4,18 +4,14 @@ from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 async function loadSystemReport(){
 
-/* ================= BLOOD INVENTORY ================= */
+/* ================= HOSPITAL INVENTORY ================= */
 const hospitalDiv = document.getElementById("hospitalInventory");
-const clinicDiv = document.getElementById("clinicInventory");
+hospitalDiv.innerHTML = "";
 
-hospitalDiv.innerHTML = `<strong style="font-size:13px;">🏥 Hospital Inventory</strong>`;
-clinicDiv.innerHTML = `<strong style="font-size:13px;">🏥 Clinic Inventory</strong>`;
-
-/* 🏥 HOSPITAL INVENTORY */
 const hospitalSnap = await getDocs(collection(db,"bloodInventory"));
 
 if(hospitalSnap.empty){
-  hospitalDiv.innerHTML += `<div class="row">No hospital stock</div>`;
+  hospitalDiv.innerHTML = `<div class="row">No blood stock available</div>`;
 } else {
   hospitalSnap.forEach(doc=>{
     const d = doc.data();
@@ -24,27 +20,6 @@ if(hospitalSnap.empty){
     else if(d.Quantity <= 5) cls = "medium";
 
     hospitalDiv.innerHTML += `
-      <div class="row">
-        <span>${d.BloodType}</span>
-        <span class="${cls}">${d.Quantity} units</span>
-      </div>
-    `;
-  });
-}
-
-/* 🏥 CLINIC INVENTORY */
-const clinicSnap = await getDocs(collection(db,"bloodInventory Clinic"));
-
-if(clinicSnap.empty){
-  clinicDiv.innerHTML += `<div class="row">No clinic stock</div>`;
-} else {
-  clinicSnap.forEach(doc=>{
-    const d = doc.data();
-    let cls = "good";
-    if(d.Quantity <= 2) cls = "low";
-    else if(d.Quantity <= 5) cls = "medium";
-
-    clinicDiv.innerHTML += `
       <div class="row">
         <span>${d.BloodType}</span>
         <span class="${cls}">${d.Quantity} units</span>
@@ -74,7 +49,7 @@ alertDiv.innerHTML += `
   <div class="row"><span>Medium Alerts</span><span>${medium}</span></div>
 `;
 
-/* ================= DELIVERY VERIFICATION SUMMARY ================= */
+/* ================= DELIVERY SUMMARY ================= */
 const deliveryDiv = document.getElementById("deliverySection");
 deliveryDiv.innerHTML = `<h3><i class="fa-solid fa-truck-medical"></i> Delivery Verification Summary</h3>`;
 
