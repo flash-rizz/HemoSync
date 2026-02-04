@@ -21,6 +21,17 @@ const db = getFirestore(app);
 
 let timeSlots = []; 
 
+// 1. FIX: Block Past Dates on Page Load
+document.addEventListener('DOMContentLoaded', () => {
+    const dateInput = document.getElementById('eventDate');
+    if(dateInput) {
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date().toISOString().split('T')[0];
+        // Set the 'min' attribute so users can't click past dates
+        dateInput.setAttribute('min', today);
+    }
+});
+
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = "index.html";
@@ -86,7 +97,7 @@ function renderSlots() {
     let total = 0;
 
     if (timeSlots.length === 0) {
-        if(noSlotsMsg) slotsContainer.appendChild(noSlotsMsg);
+        if(noSlotsMsg) slotsContainer.appendChild(noSlotsMsg); // Fixed append logic
     } else {
         timeSlots.forEach((slot, index) => {
             total += slot.capacity;
@@ -120,13 +131,23 @@ function formatTime(timeStr) {
 document.getElementById('createEventForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // 2. FIX: Validate Date Logic (Double Check)
+    const dateInputVal = document.getElementById('eventDate').value;
+    const selectedDate = new Date(dateInputVal);
+    const today = new Date();
+    today.setHours(0,0,0,0); // Reset time to midnight to compare dates fairly
+
+    if (selectedDate < today) {
+        alert("Error: You cannot create an event in the past.");
+        return; // Stop function here
+    }
+
     if (timeSlots.length === 0) {
         alert("Please add at least one time slot.");
         return;
     }
 
     const venue = document.getElementById('venue').value;
-    const date = document.getElementById('eventDate').value;
     const totalCap = parseInt(document.getElementById('totalCapacity').value);
     
     // 1. Gather Checkbox Values (Array)
@@ -152,14 +173,14 @@ document.getElementById('createEventForm').addEventListener('submit', async (e) 
     try {
         await addDoc(collection(db, "events"), {
             venue: venue,
-            date: date,
+            date: dateInputVal,
             time: displayTime, 
             timeSlots: timeSlots, 
             totalSlots: totalCap,
             availableSlots: totalCap,
             assignedHospitalId: selectedHospitalId,
             assignedHospitalName: selectedHospitalName,
-            priorityBlood: priorityArray, // Saved as Array
+            priorityBlood: priorityArray, 
             status: "Published",
             organiserId: auth.currentUser.uid,
             createdAt: new Date()
