@@ -1,6 +1,12 @@
 import { db } from "./firebase.js";
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 
-    "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import {
+    collection,
+    addDoc,
+    getDocs,
+    doc,
+    updateDoc,
+    deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 // ======================
 // LOAD BLOOD INVENTORY
@@ -8,11 +14,13 @@ import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from
 async function loadStock() {
     const table = document.getElementById("stockTable");
     const statusCard = document.getElementById("statusCard");
+
     table.innerHTML = "";
     let lowStockExists = false;
 
     try {
         const snapshot = await getDocs(collection(db, "bloodInventory"));
+
         if (snapshot.empty) {
             table.innerHTML = `<tr><td colspan="4">No stock available</td></tr>`;
             statusCard.innerText = "No blood stock in inventory.";
@@ -22,23 +30,34 @@ async function loadStock() {
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
             const id = docSnap.id;
+
             const status = data.Quantity < 5 ? "Low" : "Available";
             if (status === "Low") lowStockExists = true;
 
             table.innerHTML += `
                 <tr>
                     <td>${data.BloodType}</td>
-                    <td class="quantity ${status === "Low" ? "low" : "good"}">${data.Quantity}</td>
+                    <td class="quantity ${status === "Low" ? "low" : "good"}">
+                        ${data.Quantity}
+                    </td>
                     <td>${status}</td>
                     <td>
-                        <button class="btn btn-use" onclick="useUnit('${id}', ${data.Quantity})">Use</button>
-                        <button class="btn btn-discard" onclick="discardUnit('${id}')">Discard</button>
+                        <button class="btn btn-use"
+                            onclick="useUnit('${id}', ${data.Quantity})">
+                            Use
+                        </button>
+                        <button class="btn btn-discard"
+                            onclick="discardUnit('${id}')">
+                            Discard
+                        </button>
                     </td>
                 </tr>
             `;
         });
 
-        statusCard.innerText = lowStockExists ? "Some blood types are low in stock!" : "All blood stocks are sufficient.";
+        statusCard.innerText = lowStockExists
+            ? "Some blood types are low in stock!"
+            : "All blood stocks are sufficient.";
 
     } catch (err) {
         console.error(err);
@@ -48,7 +67,7 @@ async function loadStock() {
 }
 
 // ======================
-// ADD BLOOD UNIT (FIXED)
+// ADD BLOOD STOCK
 // ======================
 window.addBloodUnit = async function () {
     const bloodType = document.getElementById("bloodType").value;
@@ -70,21 +89,19 @@ window.addBloodUnit = async function () {
             }
         });
 
-        // 🟢 IF BLOOD TYPE EXISTS → UPDATE QUANTITY
         if (existingDoc) {
             const newQty = existingDoc.Quantity + quantity;
 
             await updateDoc(doc(db, "bloodInventory", existingDoc.id), {
                 Quantity: newQty,
-                ExpiryDate: expiryDate, // overwrite with latest
+                ExpiryDate: expiryDate,
                 status: newQty < 5 ? "Low" : "Available",
                 updatedAt: new Date()
             });
 
-            alert(`${bloodType} stock updated. Total: ${newQty} units`);
-        }
-        // 🔵 IF BLOOD TYPE DOES NOT EXIST → ADD NEW
-        else {
+            alert(`${bloodType} stock updated (${newQty} units)`);
+
+        } else {
             await addDoc(collection(db, "bloodInventory"), {
                 BloodType: bloodType,
                 Quantity: quantity,
@@ -93,10 +110,9 @@ window.addBloodUnit = async function () {
                 updatedAt: new Date()
             });
 
-            alert(`${bloodType} stock added to inventory`);
+            alert(`${bloodType} stock added`);
         }
 
-        // reset form
         document.getElementById("bloodType").value = "";
         document.getElementById("quantity").value = "";
         document.getElementById("expiryDate").value = "";
@@ -105,47 +121,44 @@ window.addBloodUnit = async function () {
 
     } catch (error) {
         console.error(error);
-        alert("Failed to add stock!");
+        alert("Failed to add stock");
     }
 };
 
 // ======================
-// USE UNIT
+// USE BLOOD UNIT
 // ======================
 window.useUnit = async function (id, currentQty) {
-    if (currentQty <= 0) return alert("No units left to use!");
-
-    try {
-        const docRef = doc(db, "bloodInventory", id);
-        await updateDoc(docRef, {
-            Quantity: currentQty - 1,
-            status: currentQty - 1 < 5 ? "Low" : "Available",
-            updatedAt: new Date()
-        });
-        loadStock();
-    } catch (err) {
-        console.error(err);
+    if (currentQty <= 0) {
+        alert("No units left!");
+        return;
     }
+
+    await updateDoc(doc(db, "bloodInventory", id), {
+        Quantity: currentQty - 1,
+        status: currentQty - 1 < 5 ? "Low" : "Available",
+        updatedAt: new Date()
+    });
+
+    loadStock();
 };
 
 // ======================
-// DISCARD UNIT
+// DISCARD STOCK
 // ======================
 window.discardUnit = async function (id) {
-    if (!confirm("Are you sure you want to discard this stock?")) return;
-    try {
-        const docRef = doc(db, "bloodInventory", id);
-        await deleteDoc(docRef);
-        loadStock();
-    } catch (err) {
-        console.error(err);
-    }
+    if (!confirm("Discard this stock?")) return;
+
+    await deleteDoc(doc(db, "bloodInventory", id));
+    loadStock();
 };
 
 // ======================
-// BACK BUTTON
+// BACK TO DASHBOARD
 // ======================
-window.goBack = () => { window.location.href = "hospital_clinic_dashboard.html"; };
+window.goBack = () => {
+    window.location.href = "hospital_clinic_dashboard.html";
+};
 
 // ======================
 // INITIAL LOAD
