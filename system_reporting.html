@@ -20,7 +20,7 @@ body{
 }
 .container{
     width:100%;
-    max-width:500px;
+    max-width:1400px;
     background:#fff;
     border-radius:25px;
     padding:30px;
@@ -91,27 +91,15 @@ body{
 Loading system status...
 </div>
 
+<!-- ✅ HOSPITAL INVENTORY ONLY -->
 <div id="inventorySection" class="section">
   <h3><i class="fa-solid fa-boxes-stacked"></i> Blood Inventory Summary</h3>
-
-  <div id="hospitalInventory">
-    <strong style="font-size:13px;">🏥 Hospital Inventory</strong>
-  </div>
-
-  <hr style="border:none;border-top:1px solid #ddd;margin:10px 0;">
-
-  <div id="clinicInventory">
-    <strong style="font-size:13px;">🏥 Clinic Inventory</strong>
-  </div>
+  <div id="hospitalInventory"></div>
 </div>
 
-<div id="alertSection" class="section">
-<h3><i class="fa-solid fa-triangle-exclamation"></i> Red Alert Summary</h3>
-</div>
+<div id="alertSection" class="section"></div>
 
-<div id="deliverySection" class="section">
-<h3><i class="fa-solid fa-truck-medical"></i> Delivery Verification Summary</h3>
-</div>
+<div id="deliverySection" class="section"></div>
 
 <button class="back-btn" onclick="goBack()">
 <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
@@ -129,4 +117,3 @@ function goBack(){
 <script type="module" src="./system_reporting.js"></script>
 </body>
 </html>
-
