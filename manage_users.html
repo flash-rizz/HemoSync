@@ -10,12 +10,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 
   <style>
-    #desktopTableWrap { display: block; }
-    #mobileCardWrap { display: none; }
+    /* IMPORTANT:
+       These MUST use !important so they override any inline styles. */
+    #desktopTableWrap { display: block !important; }
+    #mobileCardWrap { display: none !important; }
 
     @media (max-width: 768px) {
-      #desktopTableWrap { display: none; }
-      #mobileCardWrap { display: block; }
+      #desktopTableWrap { display: none !important; }
+      #mobileCardWrap { display: block !important; }
     }
 
     .user-card {
@@ -69,14 +71,14 @@
 
     .user-card-actions .btn-login,
     .user-card-actions .btn-logout {
-      width: auto !important;          
-      flex: 1 1 calc(50% - 8px);       
-      padding: 10px 12px !important;   
+      width: auto !important;
+      flex: 1 1 calc(50% - 8px);
+      padding: 10px 12px !important;
       font-size: 12px !important;
     }
 
     .user-card-actions button {
-      margin-top: 0 !important;        
+      margin-top: 0 !important;
     }
 
     .status-pill {
@@ -94,7 +96,7 @@
 </head>
 
 <body>
-  <div class="app-container dashboard-container" style="max-width: 1200px; width: 95%; margin: auto;">
+  <div class="app-container dashboard-container">
     <div class="dashboard-header">
       <div class="user-info">
         <button
@@ -165,7 +167,8 @@
       </div>
     </div>
 
-    <div id="desktopTableWrap" class="status-card" style="display: block; overflow-x: auto; padding: 0;">
+    <!-- DESKTOP TABLE -->
+    <div id="desktopTableWrap" class="status-card" style="overflow-x: auto; padding: 0;">
       <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
         <thead style="background: #f8f9fa;">
           <tr style="text-align: left; border-bottom: 2px solid #eee;">
@@ -179,7 +182,8 @@
       </table>
     </div>
 
-    <div id="mobileCardWrap" class="status-card" style="display: block;">
+    <!-- MOBILE CARDS -->
+    <div id="mobileCardWrap" class="status-card">
       <div id="mobileUserCards" style="display: grid; gap: 12px;"></div>
     </div>
 
@@ -213,29 +217,35 @@
       style="max-width: 450px; width: 90%; background: white; padding: 30px; border-radius: 15px; border-top: 8px solid #e74c3c; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3);"
     >
       <div style="text-align: center;">
-        <h3 style="color: #e74c3c; margin-bottom: 10px; font-size: 22px;">
-          <i class="fa-solid fa-triangle-exclamation"></i> Suspend Account
-        </h3>
-        <p id="suspensionTargetText" style="font-size: 14px; color: #555; line-height: 1.5;"></p>
+        <h2 style="margin: 0; color: #e74c3c;">
+          <i class="fa-solid fa-triangle-exclamation"></i> Suspend User
+        </h2>
+        <p style="margin: 10px 0 0; font-size: 13px; color: #666;">
+          Enter a reason below. This will block the user from logging in.
+        </p>
       </div>
 
-      <div style="width: 100%;">
-        <label style="font-size: 11px; font-weight: 600; color: #999; letter-spacing: 1px; display: block; margin-bottom: 8px;">
-          REASON FOR SUSPENSION
-        </label>
-        <textarea
-          id="suspensionReason"
-          placeholder="Enter audit reason here..."
-          style="width: 100%; height: 100px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-family: 'Poppins'; resize: none; box-sizing: border-box;"
-        ></textarea>
-      </div>
+      <textarea
+        id="suspensionReasonInput"
+        placeholder="e.g. Fake profile, suspicious activity, policy violation..."
+        style="width: 100%; min-height: 100px; padding: 12px; border-radius: 10px; border: 1px solid #ddd; resize: none; outline: none;"
+      ></textarea>
 
-      <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
-        <button id="cancelModalBtn" class="btn-logout" style="flex: 1; background: #6c757d; color: white; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none;">
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button
+          id="cancelSuspendBtn"
+          class="btn-logout"
+          style="margin: 0; flex: 1; background: #6c757d; color: white;"
+        >
           Cancel
         </button>
-        <button id="confirmModalBtn" class="btn-login" style="flex: 1; background: #e74c3c; color: white; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none;">
-          Confirm
+
+        <button
+          id="confirmSuspendBtn"
+          class="btn-login"
+          style="margin: 0; flex: 1; background: #e74c3c;"
+        >
+          Confirm Suspend
         </button>
       </div>
     </div>

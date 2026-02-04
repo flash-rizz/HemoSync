@@ -23,19 +23,15 @@ body {
     border-radius: 25px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     text-align: center;
-    /* BASE ANIMATION: Slide Up on Load */
     animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-    
-    /* FIX: Ensure container is flex to handle spacing, but allow compact height for login */
     display: flex;
     flex-direction: column;
 }
 
-/* --- NEW: Dashboard Specific Container --- */
-/* Add this class to donor_home.html, donor_profile.html, etc. */
+/* --- Dashboard Specific Container --- */
 .dashboard-container {
-    min-height: 80vh; /* Keeps the app tall for dashboard pages */
-    justify-content: space-between; /* Spacing between header and footer */
+    min-height: 80vh;
+    justify-content: space-between;
 }
 
 /* Header Styling */
@@ -47,11 +43,11 @@ body {
     font-size: 50px;
     margin-bottom: 10px;
     display: inline-block;
-    animation: float 3s ease-in-out infinite; /* Floating Blood Drop */
+    animation: float 3s ease-in-out infinite;
 }
 
 .login-header h1 {
-    color: #D32F2F; /* Blood Red color from images */
+    color: #D32F2F;
     font-size: 28px;
     font-weight: 600;
 }
@@ -84,7 +80,7 @@ body {
     width: 100%;
     padding: 12px 15px;
     border: 1px solid #ddd;
-    border-radius: 12px; /* Soft rounded corners like the reference */
+    border-radius: 12px;
     font-size: 14px;
     background-color: #FAFAFA;
     outline: none;
@@ -97,7 +93,6 @@ body {
     background-color: #fff;
 }
 
-/* Read-only inputs (Like Name in Profile) */
 .input-group input[readonly] {
     background-color: #e9ecef;
     cursor: not-allowed;
@@ -108,10 +103,10 @@ body {
 .btn-login {
     width: 100%;
     padding: 15px;
-    background-color: #D32F2F; /* Primary Brand Color */
+    background-color: #D32F2F;
     color: white;
     border: none;
-    border-radius: 30px; /* Pill shape button */
+    border-radius: 30px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -261,12 +256,10 @@ select:focus {
     box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    /* Animation for items loading */
     opacity: 0;
     animation: fadeIn 0.5s ease forwards;
 }
 
-/* Stagger animation for menu items */
 .menu-item:nth-child(1) { animation-delay: 0.1s; }
 .menu-item:nth-child(2) { animation-delay: 0.2s; }
 .menu-item:nth-child(3) { animation-delay: 0.3s; }
@@ -361,7 +354,7 @@ select:focus {
   left: 4px;
   bottom: 4px;
   background-color: white;
-  transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Bouncy switch */
+  transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   border-radius: 50%;
 }
 
@@ -384,7 +377,7 @@ input:checked + .slider:before {
 
 @media (max-width: 480px) {
     .btn-back span {
-        display: none; 
+        display: none;
     }
     .btn-back {
         padding: 8px 12px !important;
@@ -393,12 +386,12 @@ input:checked + .slider:before {
 
 /* User Details Panel */
 #userDetailsContent div {
-    word-wrap: break-word; 
+    word-wrap: break-word;
 }
 
 /* Table Animation classes */
 tbody tr {
-    opacity: 0; /* Hidden by default, JS triggers animation */
+    opacity: 0;
     animation: fadeInUp 0.5s ease forwards;
 }
 
@@ -475,84 +468,102 @@ tbody tr {
     margin-top: 5px;
     font-size: 13px;
     font-weight: 600;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 5px;
 }
 
-#appointmentCard h4, #appointmentCard p, #appointmentCard span, #appointmentCard i { color: white !important; }
-#appointmentCard .white-date { background-color: white !important; color: #D32F2F !important; box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important; }
-#appointmentCard .white-date div { color: #D32F2F !important; }
-
-#appointmentCard .btn-cancel-sm {
-    background: rgba(0,0,0,0.2);
-    color: white;
-    border: 1px solid rgba(255,255,255,0.5);
-    padding: 6px 15px;
-    border-radius: 20px;
-    font-size: 12px;
-    cursor: pointer;
-    margin-top: 15px;
-    width: 100%;
-    transition: background 0.2s;
-}
-
-/* Date Badge */
-.event-date {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #ffebee;
-    color: #c62828;
-    min-width: 60px;
-    height: 60px;
-    padding: 5px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.1);
-}
-
-.event-date div:nth-child(1) { font-size: 1.4rem; font-weight: 700; line-height: 1; }
-.event-date div:nth-child(2) { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-top: 2px; }
-
-/* Slots Grid */
-.slots-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.time-slot {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+/* --- Blood Pressure UI --- */
+.bp-card {
     background: white;
-    font-size: 0.85rem;
-    cursor: pointer;
-    text-align: center;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.bp-card h3 {
+    margin-bottom: 10px;
+    color: #D32F2F;
+}
+
+.bp-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.bp-line:last-child {
+    border-bottom: none;
+}
+
+.bp-label {
+    font-weight: 600;
     color: #555;
 }
 
-.time-slot:hover { border-color: #D32F2F; color: #D32F2F; }
-.time-slot.selected { background-color: #D32F2F; color: white; border-color: #D32F2F; }
-.time-slot.disabled { background-color: #f5f5f5; color: #aaa; border-color: #eee; cursor: not-allowed; text-decoration: line-through; }
+.bp-value {
+    color: #333;
+}
 
-/* --- HISTORY CARD STYLES --- */
-.history-card { padding: 12px 15px; border-left: 4px solid transparent; transition: transform 0.2s; }
-.history-card:hover { transform: translateY(-3px); }
-.status-badge { font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; white-space: nowrap; }
-.status-done { background-color: #e0f2f1; color: #00695c; border: 1px solid #b2dfdb; }
-.status-upcoming { background-color: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
-.status-cancelled { background-color: #f5f5f5; color: #9e9e9e; border: 1px solid #eeeeee; text-decoration: line-through; }
-.history-card:has(.status-done) { border-left-color: #00695c; }
-.history-card:has(.status-upcoming) { border-left-color: #1565c0; }
-.history-card:has(.status-cancelled) { border-left-color: #9e9e9e; }
+/* --- Search Box Styling (for Manage Users, etc.) --- */
+.search-box input {
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.search-box input:focus {
+    border-color: #D32F2F !important;
+    box-shadow: 0 0 10px rgba(211, 47, 47, 0.15);
+}
+
+/* --- Cards list helper --- */
+.cards-list {
+    display: grid;
+    gap: 12px;
+}
+
+/* --- Toast (if used) --- */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 25px;
+    transform: translateX(-50%);
+    background: white;
+    padding: 14px 16px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    z-index: 9999;
+    display: none;
+    max-width: 92%;
+    width: 420px;
+}
+
+.toast.active {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    animation: slideUpFade 0.35s ease;
+}
+
+.toast i {
+    color: #D32F2F;
+    margin-top: 2px;
+}
+
+.toast-content h4 {
+    margin: 0;
+    font-size: 14px;
+    color: #222;
+}
+
+.toast-content p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #666;
+}
 
 /* ---------------- ANIMATION KEYFRAMES ---------------- */
 
-/* 1. Slide Up and Fade In (Container Entry) */
 @keyframes slideUpFade {
     0% {
         opacity: 0;
@@ -564,13 +575,11 @@ tbody tr {
     }
 }
 
-/* 2. Simple Fade In */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-/* 3. Fade In Up (For Table Rows) */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -582,490 +591,126 @@ tbody tr {
     }
 }
 
-/* 4. Floating Effect (Logo) */
 @keyframes float {
     0% { transform: translateY(0px); }
     50% { transform: translateY(-8px); }
     100% { transform: translateY(0px); }
 }
 
-/* 5. Modal Entrance (Zoom In) */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    backdrop-filter: blur(4px);
-    animation: fadeIn 0.3s ease-out;
-}
-.modal-overlay.active { display: flex; }
-
-.modal-content {
-    background: white;
-    width: 90%;
-    max-width: 380px;
-    border-radius: 25px;
-    padding: 25px;
-    text-align: left;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+/* ---------------- Desktop / Mobile Responsive Fine Tuning ---------------- */
+@media (max-width: 390px) {
+    .app-container { padding: 30px 20px; }
 }
 
-.modal-overlay .status-card {
-    animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+/* =========================================
+   Responsive Layout Overrides
+   ========================================= */
+
+@media (min-width: 992px) {
+    /* Login page only */
+    .app-container.login-page {
+        max-width: 1000px;
+        width: 95%;
+        padding: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        text-align: left;
+    }
+
+    .login-page .login-header {
+        margin-bottom: 0;
+        padding: 60px 50px;
+        border-radius: 25px 0 0 25px;
+        background: linear-gradient(135deg, #D32F2F, #b71c1c);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .login-page .login-header h1 {
+        color: #fff;
+    }
+
+    .login-page .login-header p {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .login-page .login-form-container {
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* Dashboards: allow wider layout on desktop */
+    .app-container.dashboard-container {
+        max-width: 1200px;
+        width: 95%;
+    }
 }
 
-@keyframes zoomIn {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-}
+/* ===============================
+   FIX: Dashboard header alignment
+   =============================== */
 
-/* Modal Internals (Updated for Booking Confirmation) */
-.modal-header { border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px; }
-.modal-header h3 { margin: 0; font-size: 1.2rem; color: #333; }
-.modal-header p { margin: 5px 0 0; font-size: 0.85rem; color: #888; }
-
-.info-row { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
-.icon-wrap, .icon-wrap-sm { background-color: #ffebee; color: #D32F2F; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.icon-wrap { width: 35px; height: 35px; font-size: 16px; }
-.icon-wrap-sm { width: 35px; height: 35px; background: white; color: #555; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
-.info-row .label { display: block; font-size: 0.75rem; color: #888; text-transform: uppercase; font-weight: 600; }
-.info-row .value { margin: 2px 0 0; font-size: 0.95rem; color: #333; font-weight: 600; }
-.warning-box { background-color: #f9f9f9; padding: 10px 15px; border-radius: 10px; display: flex; gap: 10px; align-items: center; margin-top: 15px; border: 1px solid #eee; }
-.warning-box i { color: #888; font-size: 14px; }
-.warning-box small { color: #666; font-size: 0.75rem; }
-
-.modal-actions { display: flex; gap: 12px; margin-top: 25px; }
-.btn-primary { background-color: #D32F2F; color: white; border: none; padding: 12px; border-radius: 12px; flex: 1; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
-.btn-secondary { background-color: white; color: #555; border: 1px solid #ddd; padding: 12px; border-radius: 12px; flex: 1; font-weight: 600; cursor: pointer; }
-
-/* 6. Dropdown Slide */
-#suspensionDropContent {
-    animation: slideDown 0.3s ease-out;
-    transform-origin: top;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px) scaleY(0.9); }
-    to { opacity: 1; transform: translateY(0) scaleY(1); }
-}
-
-#dropIcon {
-    display: inline-block;
-    transition: transform 0.3s ease;
-}
-
-.btn-reset {
-    width: 100%;
-    padding: 12px;
-    background-color: #6200ea; /* Deep Purple */
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.btn-reset:hover {
-    background-color: #3700b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(98, 0, 234, 0.3);
-}
-
-.btn-reset:active {
-    transform: scale(0.98);
-}
-
-/* Donor IF */
-/* Donor Profile */
-
-.grid-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.section-title {
-    text-align: left;
-    font-size: 16px;
-    color: #333;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-}
-
-.screening-question {
-    text-align: left;
-    background: #FAFAFA;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    border-left: 4px solid #ddd;
-}
-
-.screening-question p {
-    font-size: 13px;
-    color: #555;
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-
-.radio-group {
-    display: flex;
-    gap: 20px;
-}
-
-.radio-group label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.radio-group input[type="radio"] {
-    accent-color: #D32F2F;
-    width: 18px;
-    height: 18px;
-}
-
-.locked-banner {
-    background-color: #e8f5e9;
-    border: 1px solid #c8e6c9;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    color: #2e7d32;
-    text-align: left;
-}
-
-.locked-banner i { font-size: 24px; }
-.locked-banner p { font-size: 12px; margin: 3px 0 0 0; color: #4caf50; }
-
-/* --- PROFILE CONTACT CARD (NEW) --- */
-.profile-card-content {
-    max-width: 320px;
-    padding: 20px 25px;
-    border-radius: 30px;
-}
-
-.profile-header-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 25px;
-    margin-top: -10px;
-}
-
-.avatar-circle {
-    width: 80px;
-    height: 80px;
-    background-color: #ffebee;
-    color: #D32F2F;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 35px;
-    margin-bottom: 15px;
-    box-shadow: 0 5px 15px rgba(211, 47, 47, 0.15);
-}
-
-.profile-header-center h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #333;
-    text-align: center;
-}
-
-.blood-badge {
-    background-color: #D32F2F;
-    color: white;
-    font-size: 0.75rem;
-    padding: 2px 10px;
-    border-radius: 10px;
-    margin-top: 5px;
-    font-weight: 600;
-}
-
-.profile-details-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background: #f9f9f9;
-    padding: 10px 15px;
-    border-radius: 15px;
-}
-
-.detail-text {
-    text-align: left;
-}
-
-.detail-text small {
-    display: block;
-    font-size: 0.7rem;
-    color: #999;
-    text-transform: uppercase;
-    font-weight: 600;
-}
-
-.detail-text p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #333;
-    font-weight: 500;
-}
-
-#desktopTableWrap { display: block !important; }
-#mobileCardWrap { display: none !important; }
-
-@media (max-width: 768px) {
-  #desktopTableWrap { display: none !important; }
-  #mobileCardWrap { display: block !important; }
-}
-
-/* override */
 .dashboard-header {
-    text-align: left;
+    justify-content: flex-start; /* not space-between */
 }
 
+.dashboard-header .user-info {
+    text-align: left;            /* <-- KEY FIX */
+    align-items: flex-start;
+}
+
+/* Ensure title & subtitle are left-aligned */
 .dashboard-header h2,
 .dashboard-header p {
-    margin: 0;
-}
-
-/* --- FEEDBACK & REVIEW STYLES --- */
-.star-rating {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.star-rating i {
-    font-size: 2rem;
-    color: #ddd;
-    cursor: pointer;
-    transition: color 0.2s, transform 0.2s;
-}
-
-.star-rating i.active {
-    color: #FFD700; /* Gold for selected stars */
-}
-
-.star-rating i:hover {
-    transform: scale(1.2);
-    color: #FFD700;
-}
-
-.btn-rate {
-    background: white;
-    border: 1px solid #ddd;
-    color: #555;
-    padding: 6px 15px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    transition: all 0.2s;
-}
-
-.btn-rate:hover:not(:disabled) {
-    background: #f9f9f9;
-    color: #D32F2F;
-    border-color: #D32F2F;
-}
-
-.btn-rate.disabled {
-    background-color: #f1f1f1;
-    color: #888;
-    border-color: transparent;
-    cursor: default;
-}
-
-/* --- EMPTY STATE MATCHING APPOINTMENT CARD --- */
-.empty-state-card {
-    border: 1px solid #f0f0f0 !important;
-    background-color: white !important;
-    min-height: 145px; /* Adjust to match your specific reminder-card height */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.status-neutral {
-    background: #f0f0f0 !important;
-    color: #888 !important;
-}
-
-.empty-state-card .btn-logout:hover {
-    background-color: #D32F2F;
-    color: white;
-    border-color: #D32F2F;
-}
-
-/* --- FAQ PAGE STYLES --- */
-.faq-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    text-align: left;
-    margin-bottom: 20px;
-}
-
-.faq-item {
-    background: white;
-    border: 1px solid #eee;
-    border-radius: 15px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.faq-question {
-    width: 100%;
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
     text-align: left;
 }
 
-.faq-question:hover {
-    background-color: #f9f9f9;
+/* Keep logout aligned left with spacing */
+#adminLogoutBtn {
+    margin-bottom: 12px;
 }
 
-.faq-question i {
-    color: #D32F2F;
-    transition: transform 0.3s ease;
-}
+/* ===============================
+   Signup page: stretch on desktop
+   Mobile stays default (no change)
+   =============================== */
+@media (min-width: 992px) {
+  .app-container.signup-page {
+    max-width: 1000px;
+    width: 95%;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    text-align: left;
+  }
 
-.faq-answer {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-    background-color: #fafafa;
-}
+  .signup-page .login-header {
+    margin-bottom: 0;
+    padding: 60px 50px;
+    border-radius: 25px 0 0 25px;
+    background: linear-gradient(135deg, #D32F2F, #b71c1c);
+    color: #fff;
 
-.faq-answer p {
-    padding: 0 20px 20px 20px;
-    font-size: 13px;
-    color: #666;
-    margin: 0;
-    line-height: 1.6;
-}
-
-/* Active State for FAQ Accordion */
-.faq-item.active {
-    border-color: #D32F2F;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
-
-.faq-item.active .faq-question i {
-    transform: rotate(180deg);
-}
-
-.faq-item.active .faq-answer {
-    max-height: 300px; /* Allow enough space for text to show */
-}
-
-/* --- NOTIFICATION BELL --- */
-.notif-bell {
-    font-size: 24px;
-    color: #666;
-    cursor: pointer;
-    position: relative; /* For badge positioning */
-    padding: 5px;
-    transition: color 0.3s;
-}
-
-.notif-bell:hover {
-    color: #D32F2F;
-}
-
-.red-dot {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 8px;
-    height: 8px;
-    background-color: #D32F2F;
-    border-radius: 50%;
-    border: 1px solid white;
-}
-
-/* --- TOAST POPUP NOTIFICATION --- */
-.alert-toast {
-    position: fixed;
-    top: -100px; 
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    background: white;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    border-radius: 15px;
-    padding: 15px;
     display: flex;
-    align-items: center;
-    gap: 15px;
-    z-index: 2000;
-    border-left: 5px solid #D32F2F;
-    transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.alert-toast.show {
-    top: 20px; /* Slide down into view */
-}
-
-.toast-icon {
-    width: 40px;
-    height: 40px;
-    background: #ffebee;
-    color: #D32F2F;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-}
+    align-items: flex-start;
+    text-align: left;
+  }
 
-.toast-content h4 {
-    margin: 0;
-    font-size: 14px;
-    color: #333;
-}
+  .signup-page .login-header h1 { color: #fff; }
+  .signup-page .login-header p { color: rgba(255,255,255,0.85); }
 
-.toast-content p {
-    margin: 2px 0 0;
-    font-size: 12px;
-    color: #666;
+  .signup-page .login-form-container {
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 }
