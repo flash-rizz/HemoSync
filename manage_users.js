@@ -33,6 +33,7 @@ const mobileCards = document.getElementById("mobileUserCards");
 
 const detailPanel = document.getElementById("userDetailsPanel");
 const detailContent = document.getElementById("userDetailsContent");
+const detailActions = document.getElementById("userDetailsActions");
 
 const searchInput = document.getElementById("adminSearchInput");
 const statusFilterSelect = document.getElementById("statusFilter");
@@ -176,6 +177,7 @@ function renderUserRow(docSnap, index = 0) {
 
   const showRemind = status === "Pending";
   const showUnverify = status === "Active";
+  const showUnsuspend = status === "Suspended";
 
   const rowBg = status === "Pending" ? "background: #fffbe6;" : "";
   const delay = index * 0.1;
@@ -184,11 +186,11 @@ function renderUserRow(docSnap, index = 0) {
     <tr style="border-bottom: 1px solid #eee; animation-delay: ${delay}s; ${rowBg}">
       <td style="padding: 15px;">
         <div style="font-weight: 600; color: #222;">${user.fullname || "-"}</div>
-        <div style="font-size: 12px; color: #666;">${user.email || "-"}</div>
+        <div style="font-size: 12px; color: #777;">${user.email || "-"}</div>
       </td>
 
-      <td style="padding: 15px;">
-        <span class="role-badge">${user.role || "-"}</span>
+      <td style="padding: 15px; font-size: 13px; text-transform: capitalize;">
+        ${user.role || "-"}
       </td>
 
       <td style="padding: 15px;">
@@ -197,33 +199,42 @@ function renderUserRow(docSnap, index = 0) {
         </span>
       </td>
 
-      <td style="padding: 15px; text-align: center; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0;" onclick="viewUser('${docSnap.id}')">
-          <i class="fa-solid fa-eye"></i> View
-        </button>
+      <td style="padding: 15px; text-align: center;">
+        <div class="action-group">
+          <button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0;" onclick="viewUser('${docSnap.id}')">
+            <i class="fa-solid fa-eye"></i> View
+          </button>
 
-        ${
-          showRemind
-            ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #f39c12; color: white;"
-                 onclick="remindUser('${docSnap.id}', '${user.email || ""}')">
-                 <i class="fa-solid fa-envelope"></i> Remind
-               </button>`
-            : ``
-        }
+          ${
+            showRemind
+              ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #f39c12; color: white;"
+                   onclick="remindUser('${docSnap.id}', '${user.email || ""}')">
+                   <i class="fa-solid fa-envelope"></i> Remind
+                 </button>`
+              : ``
+          }
 
-        ${
-          showUnverify
-            ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #6c757d; color: white;"
-                 onclick="unverifyUser('${docSnap.id}', '${user.email || ""}')">
-                 <i class="fa-solid fa-rotate-left"></i> Reset
-               </button>`
-            : ``
-        }
+          ${
+            showUnverify
+              ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #6c757d; color: white;"
+                   onclick="unverifyUser('${docSnap.id}', '${user.email || ""}')">
+                   <i class="fa-solid fa-rotate-left"></i> Reset
+                 </button>`
+              : ``
+          }
 
-        <button class="btn-logout" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #e74c3c; color: white;"
-          onclick="confirmSuspension('${docSnap.id}', '${user.email || ""}')">
-          <i class="fa-solid fa-user-slash"></i> Suspend
-        </button>
+          ${
+            showUnsuspend
+              ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #2ecc71; color: white;"
+                   onclick="unsuspendUser('${docSnap.id}', '${user.email || ""}', ${user.isProfileComplete === true})">
+                   <i class="fa-solid fa-user-check"></i> Unsuspend
+                 </button>`
+              : `<button class="btn-logout" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #e74c3c; color: white;"
+                   onclick="confirmSuspension('${docSnap.id}', '${user.email || ""}')">
+                   <i class="fa-solid fa-user-slash"></i> Suspend
+                 </button>`
+          }
+        </div>
       </td>
     </tr>
   `;
@@ -237,6 +248,7 @@ function renderUserCard(docSnap) {
 
   const showRemind = status === "Pending";
   const showUnverify = status === "Active";
+  const showUnsuspend = status === "Suspended";
   const cardClass = status === "Pending" ? "user-card pending" : "user-card";
 
   return `
@@ -260,13 +272,13 @@ function renderUserCard(docSnap) {
       </div>
 
       <div class="user-card-actions">
-        <button class="btn-login" style="padding: 10px 12px; font-size: 12px; margin: 0;" onclick="viewUser('${docSnap.id}')">
+        <button class="btn-login" style="margin: 0;" onclick="viewUser('${docSnap.id}')">
           <i class="fa-solid fa-eye"></i> View
         </button>
 
         ${
           showRemind
-            ? `<button class="btn-login" style="padding: 10px 12px; font-size: 12px; margin: 0; background-color: #f39c12; color: white;"
+            ? `<button class="btn-login" style="margin: 0; background-color: #f39c12; color: white;"
                  onclick="remindUser('${docSnap.id}', '${user.email || ""}')">
                  <i class="fa-solid fa-envelope"></i> Remind
                </button>`
@@ -275,17 +287,24 @@ function renderUserCard(docSnap) {
 
         ${
           showUnverify
-            ? `<button class="btn-login" style="padding: 10px 12px; font-size: 12px; margin: 0; background-color: #6c757d; color: white;"
+            ? `<button class="btn-login" style="margin: 0; background-color: #6c757d; color: white;"
                  onclick="unverifyUser('${docSnap.id}', '${user.email || ""}')">
                  <i class="fa-solid fa-rotate-left"></i> Reset
                </button>`
             : ``
         }
 
-        <button class="btn-logout" style="padding: 10px 12px; font-size: 12px; margin: 0; background-color: #e74c3c; color: white;"
-          onclick="confirmSuspension('${docSnap.id}', '${user.email || ""}')">
-          <i class="fa-solid fa-user-slash"></i> Suspend
-        </button>
+        ${
+          showUnsuspend
+            ? `<button class="btn-login" style="margin: 0; background-color: #2ecc71; color: white;"
+                 onclick="unsuspendUser('${docSnap.id}', '${user.email || ""}', ${user.isProfileComplete === true})">
+                 <i class="fa-solid fa-user-check"></i> Unsuspend
+               </button>`
+            : `<button class="btn-logout" style="margin: 0; background-color: #e74c3c; color: white;"
+                 onclick="confirmSuspension('${docSnap.id}', '${user.email || ""}')">
+                 <i class="fa-solid fa-user-slash"></i> Suspend
+               </button>`
+        }
       </div>
     </div>
   `;
@@ -326,10 +345,10 @@ function renderCurrentPage() {
 
 async function loadUsers(searchTerm = null, statusFilter = "ALL") {
   if (tableBody) {
-    tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">Retrieving user directory...</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">Retrieving user directory.</td></tr>`;
   }
   if (mobileCards) {
-    mobileCards.innerHTML = `<div style="text-align:center; padding: 10px; color:#777;">Retrieving user directory...</div>`;
+    mobileCards.innerHTML = `<div style="text-align:center; padding: 10px; color:#777;">Retrieving user directory.</div>`;
   }
 
   try {
@@ -339,148 +358,111 @@ async function loadUsers(searchTerm = null, statusFilter = "ALL") {
     let docs = [];
     querySnapshot.forEach((d) => docs.push(d));
 
-    docs = docs.filter((d) => {
-      const role = (d.data().role || "").toLowerCase();
-      return role !== "admin";
-    });
+    docs = sortDocsPendingFirst(docs, statusFilter);
 
-    const pendingCount = docs.reduce(
-      (acc, d) => acc + (normalizeStatus(d.data()) === "Pending" ? 1 : 0),
-      0
-    );
-    setPendingCounter(pendingCount);
+    const term = (searchTerm || "").trim().toLowerCase();
+    let filtered = docs;
 
-    if (searchTerm) {
-      const lowerTerm = searchTerm.toLowerCase();
-      docs = docs.filter((d) => {
-        const data = d.data();
-        const name = (data.fullname || "").toLowerCase();
-        const email = (data.email || "").toLowerCase();
-        return name.includes(lowerTerm) || email.includes(lowerTerm);
+    if (term) {
+      filtered = filtered.filter((d) => {
+        const u = d.data();
+        const name = (u.fullname || "").toLowerCase();
+        const email = (u.email || "").toLowerCase();
+        return name.includes(term) || email.includes(term);
       });
     }
 
-    const selectedStatus = (statusFilter || "ALL").trim();
-    if (selectedStatus !== "ALL") {
-      docs = docs.filter((d) => normalizeStatus(d.data()) === selectedStatus);
+    if (statusFilter && statusFilter !== "ALL") {
+      filtered = filtered.filter((d) => normalizeStatus(d.data()) === statusFilter);
     }
 
-    docs = sortDocsPendingFirst(docs, selectedStatus);
+    cachedFilteredDocs = filtered;
 
-    cachedFilteredDocs = docs;
+    const pendingCount = docs.filter((d) => normalizeStatus(d.data()) === "Pending").length;
+    setPendingCounter(pendingCount);
+
+    updateHeadsUpVisibility();
+
+    currentPage = 1;
     renderCurrentPage();
-  } catch (error) {
-    console.error("Load Error:", error);
+  } catch (e) {
+    console.error("Load Users Error:", e);
     if (tableBody) {
-      tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">Error loading users.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color:red;">Failed to load users: ${e.message}</td></tr>`;
     }
     if (mobileCards) {
-      mobileCards.innerHTML = `<div style="text-align:center; padding: 10px; color:#777;">Error loading users.</div>`;
+      mobileCards.innerHTML = `<div style="text-align:center; padding: 10px; color:red;">Failed to load users: ${e.message}</div>`;
     }
   }
 }
 
 async function refreshWithCurrentInputs() {
-  updateHeadsUpVisibility();
-  await loadUsers(searchInput.value.trim(), statusFilterSelect.value);
+  const term = searchInput.value;
+  const status = statusFilterSelect.value || "ALL";
+  await loadUsers(term, status);
 }
-
-window.toggleSuspensionDrop = function () {
-  const content = document.getElementById("suspensionDropContent");
-  const icon = document.getElementById("dropIcon");
-  if (!content || !icon) return;
-
-  if (content.style.display === "none") {
-    content.style.display = "block";
-    icon.style.transform = "rotate(180deg)";
-  } else {
-    content.style.display = "none";
-    icon.style.transform = "rotate(0deg)";
-  }
-};
 
 window.viewUser = async function (userId) {
   try {
-    const docSnap = await getDoc(doc(db, "users", userId));
-    if (!docSnap.exists()) return;
+    const ref = doc(db, "users", userId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      alert("User not found.");
+      return;
+    }
 
-    const u = docSnap.data();
-    const status = normalizeStatus(u);
+    const u = snap.data();
 
-    let detailsHTML = `
-      <div><strong style="color:#888; font-size:12px;">FULL NAME</strong><br>${u.fullname || "-"}</div>
-      <div><strong style="color:#888; font-size:12px;">EMAIL ADDRESS</strong><br>${u.email || "-"}</div>
-      <div><strong style="color:#888; font-size:12px;">ACCOUNT ROLE</strong><br><span class="role-badge">${u.role || "-"}</span></div>
-      <div><strong style="color:#888; font-size:12px;">STATUS</strong><br>${status}</div>
-      <div><strong style="color:#888; font-size:12px;">ELIGIBILITY CHECK</strong><br>${u.isProfileComplete ? "Submitted" : "Not Submitted"}</div>
-
-      <div style="grid-column: 1 / -1; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
-        <button onclick="initiatePasswordReset('${u.email || ""}', '${userId}')" class="btn-reset">
-          <i class="fa-solid fa-key"></i> Send Password Reset Email
-        </button>
-        <p style="font-size: 11px; color: #999; margin-top: 5px;">
-          This will email a secure link to the user to set a new password.
-        </p>
-      </div>
+    detailContent.innerHTML = `
+      <div><strong>Full Name:</strong><br>${u.fullname || "-"}</div>
+      <div><strong>Email:</strong><br>${u.email || "-"}</div>
+      <div><strong>Role:</strong><br>${u.role || "-"}</div>
+      <div><strong>Status:</strong><br>${normalizeStatus(u)}</div>
+      <div><strong>Phone:</strong><br>${u.phone || "-"}</div>
+      <div><strong>IC / ID:</strong><br>${u.ic || "-"}</div>
+      <div><strong>Gender:</strong><br>${u.gender || "-"}</div>
+      <div><strong>Address:</strong><br>${u.address || "-"}</div>
+      <div><strong>Blood Type:</strong><br>${u.bloodType || "-"}</div>
+      <div><strong>Last Updated:</strong><br>${u.updatedAt || "-"}</div>
     `;
 
-    if (status === "Suspended") {
-      detailsHTML += `
-        <div style="grid-column: 1 / -1; margin-top: 10px; border: 1px solid #ffa39e; border-radius: 8px; overflow: hidden;">
-          <div onclick="toggleSuspensionDrop()" style="background: #fff1f0; padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-            <strong style="color:#cf1322; font-size:12px;">VIEW SUSPENSION REASON</strong>
-            <i id="dropIcon" class="fa-solid fa-chevron-down" style="transition: 0.3s; color:#cf1322;"></i>
-          </div>
-          <div id="suspensionDropContent" style="display: none; padding: 15px; background: white; border-top: 1px solid #ffa39e;">
-            <p style="margin: 0 0 10px 0; color: #333; font-size: 14px;">
-              <strong>Reason:</strong> ${u.suspensionReason || "No reason provided"}
-            </p>
-            <p style="margin: 0; color: #777; font-size: 12px;">
-              <strong>Timestamp:</strong> ${
-                u.suspendedAt ? new Date(u.suspendedAt).toLocaleString() : "N/A"
-              }
-            </p>
-          </div>
-        </div>
+    if (detailActions) {
+      detailActions.innerHTML = `
+        <button class="btn-login" style="background: #D32F2F;" onclick="resetPasswordForUser('${u.email || ""}')">
+          <i class="fa-solid fa-key"></i> Reset Password Email
+        </button>
       `;
     }
 
-    detailContent.innerHTML = detailsHTML;
     detailPanel.style.display = "block";
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    detailPanel.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (e) {
-    console.error("View Error:", e);
+    console.error("View User Error:", e);
+    alert("Error loading user details: " + e.message);
   }
 };
 
 window.closeDetails = function () {
   detailPanel.style.display = "none";
+  if (detailActions) detailActions.innerHTML = "";
 };
 
-window.initiatePasswordReset = async function (email, userId) {
-  const confirmed = confirm(
-    `Are you sure you want to send a password reset link to ${email}?`
-  );
-  if (!confirmed) return;
+window.resetPasswordForUser = async function (userEmail) {
+  if (!userEmail) {
+    alert("No email available for this user.");
+    return;
+  }
+
+  const ok = confirm(`Send password reset email to ${userEmail}?`);
+  if (!ok) return;
 
   try {
-    await sendPasswordResetEmail(auth, email);
-
-    await updateDoc(doc(db, "users", userId), {
-      lastAdminResetDate: new Date().toISOString(),
-      lastAdminResetAction: "Password Reset Link Sent"
-    });
-
-    await logAdminAction("PASSWORD_RESET_SENT", { userId, email });
-
-    alert("Success! Password reset instructions sent to email.");
-  } catch (error) {
-    console.error("Reset Error:", error);
-    if (error.code === "auth/user-not-found") {
-      alert("This email is not registered in the authentication system.");
-    } else {
-      alert("Error sending reset email: " + error.message);
-    }
+    await sendPasswordResetEmail(auth, userEmail);
+    await logAdminAction("RESET_PASSWORD", { userEmail });
+    alert("Password reset email sent.");
+  } catch (e) {
+    console.error("Reset Password Error:", e);
+    alert("Failed to send reset email: " + e.message);
   }
 };
 
@@ -488,77 +470,111 @@ window.confirmSuspension = function (userId, userEmail) {
   targetUserIdForSuspension = userId;
 
   const modal = document.getElementById("suspensionModal");
-  const targetText = document.getElementById("suspensionTargetText");
+  const reasonInput = document.getElementById("suspensionReasonInput");
 
-  targetText.innerText = `You are about to suspend access for ${userEmail}. The entity will no longer be able to log in.`;
-  modal.style.display = "flex";
+  if (reasonInput) reasonInput.value = "";
+  if (modal) modal.style.display = "flex";
 };
 
-window.closeSuspensionModal = function () {
-  document.getElementById("suspensionModal").style.display = "none";
-  document.getElementById("suspensionReason").value = "";
-};
+async function suspendUser(userId, reason) {
+  try {
+    await updateDoc(doc(db, "users", userId), {
+      status: "Suspended",
+      suspensionReason: reason || "Violation of terms",
+      suspendedAt: new Date().toISOString(),
+      suspendedBy: "admin"
+    });
 
-document.getElementById("confirmModalBtn").addEventListener("click", async () => {
-  const reason = document.getElementById("suspensionReason").value.trim();
-  if (!reason) return alert("You must provide a reason for the audit log.");
+    await logAdminAction("SUSPEND_USER", { userId, reason });
+
+    alert("User suspended successfully.");
+    await refreshWithCurrentInputs();
+  } catch (e) {
+    console.error("Suspend Error:", e);
+    alert("Failed to suspend user: " + e.message);
+  }
+}
+
+window.unsuspendUser = async function (userId, userEmail, isProfileComplete) {
+  const ok = confirm(`Unsuspend ${userEmail}?`);
+  if (!ok) return;
+
+  const nextStatus = isProfileComplete ? "Active" : "Pending";
 
   try {
-    await updateDoc(doc(db, "users", targetUserIdForSuspension), {
-      status: "Suspended",
-      suspensionReason: reason,
-      suspendedAt: new Date().toISOString()
+    await updateDoc(doc(db, "users", userId), {
+      status: nextStatus,
+      suspensionReason: null,
+      suspendedAt: null,
+      suspendedBy: null,
+      unsuspendedAt: new Date().toISOString(),
+      unsuspendedBy: "admin"
     });
 
-    await logAdminAction("SUSPEND_USER", {
-      userId: targetUserIdForSuspension,
-      reason
-    });
+    await logAdminAction("UNSUSPEND_USER", { userId, userEmail, nextStatus });
 
-    alert("Entity has been successfully suspended.");
-    closeSuspensionModal();
+    alert("User unsuspended successfully.");
     await refreshWithCurrentInputs();
-  } catch (error) {
-    console.error("Suspension Error:", error);
+  } catch (e) {
+    console.error("Unsuspend Error:", e);
+    alert("Failed to unsuspend user: " + e.message);
+  }
+};
+
+document.getElementById("confirmSuspendBtn")?.addEventListener("click", async () => {
+  const reason = document.getElementById("suspensionReasonInput")?.value?.trim();
+  const modal = document.getElementById("suspensionModal");
+
+  if (!targetUserIdForSuspension) return;
+
+  await suspendUser(targetUserIdForSuspension, reason);
+
+  if (modal) modal.style.display = "none";
+  targetUserIdForSuspension = null;
+});
+
+document.getElementById("cancelSuspendBtn")?.addEventListener("click", () => {
+  const modal = document.getElementById("suspensionModal");
+  if (modal) modal.style.display = "none";
+  targetUserIdForSuspension = null;
+});
+
+document.getElementById("execSearchBtn")?.addEventListener("click", async () => {
+  await refreshWithCurrentInputs();
+});
+
+searchInput?.addEventListener("keydown", async (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    await refreshWithCurrentInputs();
   }
 });
 
-document
-  .getElementById("cancelModalBtn")
-  .addEventListener("click", closeSuspensionModal);
-
-document.getElementById("execSearchBtn").addEventListener("click", async () => {
-  currentPage = 1;
-  await refreshWithCurrentInputs();
-});
-
-document.getElementById("clearSearchBtn").addEventListener("click", async () => {
+document.getElementById("clearSearchBtn")?.addEventListener("click", async () => {
   searchInput.value = "";
-  statusFilterSelect.value = "Pending";
+  statusFilterSelect.value = "ALL";
+  await refreshWithCurrentInputs();
+});
+
+statusFilterSelect?.addEventListener("change", async () => {
+  await refreshWithCurrentInputs();
   updateHeadsUpVisibility();
-  currentPage = 1;
-  await refreshWithCurrentInputs();
 });
 
-statusFilterSelect.addEventListener("change", async () => {
-  currentPage = 1;
-  await refreshWithCurrentInputs();
-});
-
-pageSizeSelect.addEventListener("change", () => {
+pageSizeSelect?.addEventListener("change", async () => {
   pageSize = parseInt(pageSizeSelect.value, 10) || 20;
   currentPage = 1;
   renderCurrentPage();
 });
 
-prevPageBtn.addEventListener("click", () => {
+prevPageBtn?.addEventListener("click", () => {
   if (currentPage > 1) {
     currentPage--;
     renderCurrentPage();
   }
 });
 
-nextPageBtn.addEventListener("click", () => {
+nextPageBtn?.addEventListener("click", () => {
   const totalPages = Math.max(1, Math.ceil(cachedFilteredDocs.length / pageSize));
   if (currentPage < totalPages) {
     currentPage++;
@@ -566,6 +582,4 @@ nextPageBtn.addEventListener("click", () => {
   }
 });
 
-statusFilterSelect.value = "Pending";
-updateHeadsUpVisibility();
 refreshWithCurrentInputs();
