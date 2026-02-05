@@ -28,6 +28,17 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+const EMAILJS_PUBLIC_KEY = "vZW8Hg3ZCZuvRGuSz";
+const EMAILJS_SERVICE_ID = "service_031so9a";
+const EMAILJS_TEMPLATE_ID = "template_9b76jio";
+const APP_BASE_URL = "https://flash-rizz.github.io/HemoSync";
+
+if (window.emailjs && EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
+  window.emailjs.init(EMAILJS_PUBLIC_KEY);
+} else if (!window.emailjs) {
+  console.warn("EmailJS SDK not loaded. Reminder emails will fail.");
+}
+
 const tableBody = document.getElementById("userTableBody");
 const mobileCards = document.getElementById("mobileUserCards");
 
@@ -149,6 +160,17 @@ window.remindUser = async function (userId, userEmail) {
   if (!ok) return;
 
   try {
+    if (!window.emailjs) {
+      throw new Error("EmailJS SDK not loaded.");
+    }
+    if (
+      EMAILJS_PUBLIC_KEY === "YOUR_EMAILJS_PUBLIC_KEY" ||
+      EMAILJS_SERVICE_ID === "YOUR_EMAILJS_SERVICE_ID" ||
+      EMAILJS_TEMPLATE_ID === "YOUR_EMAILJS_TEMPLATE_ID"
+    ) {
+      throw new Error("EmailJS keys not configured.");
+    }
+
     await updateDoc(doc(db, "users", userId), {
       lastReminderAt: new Date().toISOString(),
       lastReminderBy: "admin"
@@ -156,16 +178,14 @@ window.remindUser = async function (userId, userEmail) {
 
     await logAdminAction("REMIND_USER", { userId, userEmail });
 
-    const resp = await fetch("/api/remind", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ to: userEmail })
+    const screeningUrl = `${APP_BASE_URL}/donor_profile.html?tab=screening`;
+    const title = "Action Required";
+    await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: userEmail,
+      subject: "HemoSync: Complete Your Screening",
+      screening_url: screeningUrl,
+      title
     });
-
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok) {
-      throw new Error(data.error || "Failed to send reminder email.");
-    }
 
     await refreshWithCurrentInputs();
   } catch (e) {

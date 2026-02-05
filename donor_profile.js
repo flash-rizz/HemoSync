@@ -19,6 +19,14 @@ const db = getFirestore(app);
 
 let currentUser = null;
 
+document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = (params.get("tab") || "").toLowerCase();
+    if (tab === "screening" && typeof window.switchTab === "function") {
+        window.switchTab("screening");
+    }
+});
+
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
