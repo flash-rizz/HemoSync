@@ -309,6 +309,19 @@ select:focus {
     font-size: 14px;
 }
 
+/* Donor home: 2x2 grid and shorter tiles on mobile */
+@media (max-width: 600px) {
+    .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .menu-item {
+        padding: 12px;
+        border-radius: 16px;
+    }
+}
+
 /* Logout Button */
 .btn-logout {
     width: 100%;
@@ -1153,6 +1166,21 @@ tbody tr {
 /* 5. BIGGER FONTS FOR DESKTOP */
 h1, h2 {
     font-size: 2.5rem !important;
+}
+
+/* Mobile fix: keep donor menu compact (override desktop web app rules) */
+@media (max-width: 600px) {
+    .menu-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        margin-top: 10px;
+    }
+
+    .menu-item {
+        aspect-ratio: auto !important;
+        padding: 10px !important;
+        min-height: 120px;
+    }
 }
 
 .dashboard-header p {
