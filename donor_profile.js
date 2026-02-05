@@ -135,8 +135,7 @@ document.getElementById('screeningForm').addEventListener('submit', async (e) =>
     let rejectionReason = "";
     let status = "Eligible";
 
-    if (weight < 45) { isEligible = false; rejectionReason = "Weight < 45kg"; }
-    else if (disease === 'yes' || meds === 'yes') { isEligible = false; rejectionReason = "Medical History"; }
+    if (disease === 'yes' || meds === 'yes') { isEligible = false; rejectionReason = "Medical History"; }
     else if (tattoo === 'yes' || pregnancy === 'yes') { isEligible = false; status = "Deferred"; rejectionReason = "Temporary Deferral"; }
     else if (drugs === 'yes' || sexBehavior === 'yes') { isEligible = false; status = "Ineligible"; rejectionReason = "High Risk Behavior"; }
 
