@@ -148,8 +148,24 @@ window.checkDonationEligibility = function() {
     }
 
     if (currentUserData.lastDonationDate) {
-        let lastDate = currentUserData.lastDonationDate.toDate ? currentUserData.lastDonationDate.toDate() : new Date(currentUserData.lastDonationDate);
+        let lastDate = currentUserData.lastDonationDate.toDate
+            ? currentUserData.lastDonationDate.toDate()
+            : new Date(currentUserData.lastDonationDate);
+
+        if (Number.isNaN(lastDate.getTime())) {
+            alert("We couldn't read your last donation date. Please update it in your profile.");
+            return;
+        }
+
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        lastDate.setHours(0, 0, 0, 0);
+
+        if (lastDate > today) {
+            alert("Your last donation date appears to be in the future. Please update it in your profile before booking.");
+            return;
+        }
+
         const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
         if (diffDays < 56) {
             alert(`Recovery Period Active. Please wait ${56 - diffDays} more days.`);

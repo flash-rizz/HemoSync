@@ -38,6 +38,11 @@ body {
     justify-content: space-between; /* Spacing between header and footer */
 }
 
+/* Use when a dashboard page should stack content near the header */
+.dashboard-top {
+    justify-content: flex-start;
+}
+
 /* Header Styling */
 .login-header {
     margin-bottom: 40px;
@@ -1147,8 +1152,7 @@ tbody tr {
 /* 4. TRANSFORM LISTS TO ROWS */
 /* On desktop, events look better as horizontal rows, not stacked cards */
 .events-list .event-card, 
-.history-card, 
-.faq-item {
+.history-card {
     display: flex;
     flex-direction: row;         /* Side-by-side layout */
     justify-content: space-between;
@@ -1212,4 +1216,22 @@ h1, h2 {
     }
     
     h1, h2 { font-size: 1.8rem !important; }
+}
+
+/* FAQ: keep question layout consistent across desktop & mobile */
+.faq-question {
+    gap: 12px;
+}
+
+.faq-question i {
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .faq-question {
+        align-items: center;
+    }
 }

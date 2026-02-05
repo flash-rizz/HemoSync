@@ -25,6 +25,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tab === "screening" && typeof window.switchTab === "function") {
         window.switchTab("screening");
     }
+
+    const dobInput = document.getElementById("dob");
+    if (dobInput) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const maxDob = new Date(today);
+        maxDob.setFullYear(maxDob.getFullYear() - 18);
+
+        const minDob = new Date(today);
+        minDob.setFullYear(minDob.getFullYear() - 65);
+
+        const formatDate = (d) => d.toISOString().split("T")[0];
+
+        dobInput.max = formatDate(maxDob);
+        dobInput.min = formatDate(minDob);
+    }
 });
 
 onAuthStateChanged(auth, async (user) => {
@@ -110,6 +127,14 @@ document.getElementById('screeningForm').addEventListener('submit', async (e) =>
     const dob = new Date(dobValue);
     
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    dob.setHours(0, 0, 0, 0);
+
+    if (dob > today) {
+        alert("Your date of birth is set in the future. Please enter a valid date before continuing.");
+        return;
+    }
+
     let age = today.getFullYear() - dob.getFullYear();
     if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) {
         age--;
