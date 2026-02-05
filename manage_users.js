@@ -33,6 +33,7 @@ const mobileCards = document.getElementById("mobileUserCards");
 
 const detailPanel = document.getElementById("userDetailsPanel");
 const detailContent = document.getElementById("userDetailsContent");
+const detailActions = document.getElementById("userDetailsActions");
 
 const searchInput = document.getElementById("adminSearchInput");
 const statusFilterSelect = document.getElementById("statusFilter");
@@ -176,6 +177,7 @@ function renderUserRow(docSnap, index = 0) {
 
   const showRemind = status === "Pending";
   const showUnverify = status === "Active";
+  const showUnsuspend = status === "Suspended";
 
   const rowBg = status === "Pending" ? "background: #fffbe6;" : "";
   const delay = index * 0.1;
@@ -197,33 +199,42 @@ function renderUserRow(docSnap, index = 0) {
         </span>
       </td>
 
-      <td style="padding: 15px; text-align: center; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0;" onclick="viewUser('${docSnap.id}')">
-          <i class="fa-solid fa-eye"></i> View
-        </button>
+      <td style="padding: 15px; text-align: center;">
+        <div class="action-group">
+          <button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0;" onclick="viewUser('${docSnap.id}')">
+            <i class="fa-solid fa-eye"></i> View
+          </button>
 
-        ${
-          showRemind
-            ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #f39c12; color: white;"
-                 onclick="remindUser('${docSnap.id}', '${user.email || ""}')">
-                 <i class="fa-solid fa-envelope"></i> Remind
-               </button>`
-            : ``
-        }
+          ${
+            showRemind
+              ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #f39c12; color: white;"
+                   onclick="remindUser('${docSnap.id}', '${user.email || ""}')">
+                   <i class="fa-solid fa-envelope"></i> Remind
+                 </button>`
+              : ``
+          }
 
-        ${
-          showUnverify
-            ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #6c757d; color: white;"
-                 onclick="unverifyUser('${docSnap.id}', '${user.email || ""}')">
-                 <i class="fa-solid fa-rotate-left"></i> Reset
-               </button>`
-            : ``
-        }
+          ${
+            showUnverify
+              ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #6c757d; color: white;"
+                   onclick="unverifyUser('${docSnap.id}', '${user.email || ""}')">
+                   <i class="fa-solid fa-rotate-left"></i> Reset
+                 </button>`
+              : ``
+          }
 
-        <button class="btn-logout" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #e74c3c; color: white;"
-          onclick="confirmSuspension('${docSnap.id}', '${user.email || ""}')">
-          <i class="fa-solid fa-user-slash"></i> Suspend
-        </button>
+          ${
+            showUnsuspend
+              ? `<button class="btn-login" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #2ecc71; color: white;"
+                   onclick="unsuspendUser('${docSnap.id}', '${user.email || ""}', ${user.isProfileComplete === true})">
+                   <i class="fa-solid fa-user-check"></i> Unsuspend
+                 </button>`
+              : `<button class="btn-logout" style="padding: 6px 12px; font-size: 11px; margin: 0; background-color: #e74c3c; color: white;"
+                   onclick="confirmSuspension('${docSnap.id}', '${user.email || ""}')">
+                   <i class="fa-solid fa-user-slash"></i> Suspend
+                 </button>`
+          }
+        </div>
       </td>
     </tr>
   `;
@@ -237,6 +248,7 @@ function renderUserCard(docSnap) {
 
   const showRemind = status === "Pending";
   const showUnverify = status === "Active";
+  const showUnsuspend = status === "Suspended";
   const cardClass = status === "Pending" ? "user-card pending" : "user-card";
 
   return `
@@ -282,10 +294,17 @@ function renderUserCard(docSnap) {
             : ``
         }
 
-        <button class="btn-logout" style="margin: 0; background-color: #e74c3c; color: white;"
-          onclick="confirmSuspension('${docSnap.id}', '${user.email || ""}')">
-          <i class="fa-solid fa-user-slash"></i> Suspend
-        </button>
+        ${
+          showUnsuspend
+            ? `<button class="btn-login" style="margin: 0; background-color: #2ecc71; color: white;"
+                 onclick="unsuspendUser('${docSnap.id}', '${user.email || ""}', ${user.isProfileComplete === true})">
+                 <i class="fa-solid fa-user-check"></i> Unsuspend
+               </button>`
+            : `<button class="btn-logout" style="margin: 0; background-color: #e74c3c; color: white;"
+                 onclick="confirmSuspension('${docSnap.id}', '${user.email || ""}')">
+                 <i class="fa-solid fa-user-slash"></i> Suspend
+               </button>`
+        }
       </div>
     </div>
   `;
@@ -407,6 +426,14 @@ window.viewUser = async function (userId) {
       <div><strong>Last Updated:</strong><br>${u.updatedAt || "-"}</div>
     `;
 
+    if (detailActions) {
+      detailActions.innerHTML = `
+        <button class="btn-login" style="background: #D32F2F;" onclick="resetPasswordForUser('${u.email || ""}')">
+          <i class="fa-solid fa-key"></i> Reset Password Email
+        </button>
+      `;
+    }
+
     detailPanel.style.display = "block";
     detailPanel.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (e) {
@@ -417,6 +444,26 @@ window.viewUser = async function (userId) {
 
 window.closeDetails = function () {
   detailPanel.style.display = "none";
+  if (detailActions) detailActions.innerHTML = "";
+};
+
+window.resetPasswordForUser = async function (userEmail) {
+  if (!userEmail) {
+    alert("No email available for this user.");
+    return;
+  }
+
+  const ok = confirm(`Send password reset email to ${userEmail}?`);
+  if (!ok) return;
+
+  try {
+    await sendPasswordResetEmail(auth, userEmail);
+    await logAdminAction("RESET_PASSWORD", { userEmail });
+    alert("Password reset email sent.");
+  } catch (e) {
+    console.error("Reset Password Error:", e);
+    alert("Failed to send reset email: " + e.message);
+  }
 };
 
 window.confirmSuspension = function (userId, userEmail) {
@@ -448,6 +495,32 @@ async function suspendUser(userId, reason) {
   }
 }
 
+window.unsuspendUser = async function (userId, userEmail, isProfileComplete) {
+  const ok = confirm(`Unsuspend ${userEmail}?`);
+  if (!ok) return;
+
+  const nextStatus = isProfileComplete ? "Active" : "Pending";
+
+  try {
+    await updateDoc(doc(db, "users", userId), {
+      status: nextStatus,
+      suspensionReason: null,
+      suspendedAt: null,
+      suspendedBy: null,
+      unsuspendedAt: new Date().toISOString(),
+      unsuspendedBy: "admin"
+    });
+
+    await logAdminAction("UNSUSPEND_USER", { userId, userEmail, nextStatus });
+
+    alert("User unsuspended successfully.");
+    await refreshWithCurrentInputs();
+  } catch (e) {
+    console.error("Unsuspend Error:", e);
+    alert("Failed to unsuspend user: " + e.message);
+  }
+};
+
 document.getElementById("confirmSuspendBtn")?.addEventListener("click", async () => {
   const reason = document.getElementById("suspensionReasonInput")?.value?.trim();
   const modal = document.getElementById("suspensionModal");
@@ -468,6 +541,13 @@ document.getElementById("cancelSuspendBtn")?.addEventListener("click", () => {
 
 document.getElementById("execSearchBtn")?.addEventListener("click", async () => {
   await refreshWithCurrentInputs();
+});
+
+searchInput?.addEventListener("keydown", async (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    await refreshWithCurrentInputs();
+  }
 });
 
 document.getElementById("clearSearchBtn")?.addEventListener("click", async () => {
