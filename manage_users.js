@@ -144,7 +144,7 @@ window.unverifyUser = async function (userId, userEmail) {
 
 window.remindUser = async function (userId, userEmail) {
   const ok = confirm(
-    `Send reminder to ${userEmail}? (Temporary: opens email client)`
+    `Send reminder email to ${userEmail}?`
   );
   if (!ok) return;
 
@@ -156,11 +156,16 @@ window.remindUser = async function (userId, userEmail) {
 
     await logAdminAction("REMIND_USER", { userId, userEmail });
 
-    const subject = encodeURIComponent("HemoSync: Action Required");
-    const body = encodeURIComponent(
-      "Hi, please complete your eligibility screening in the app so your account can be activated."
-    );
-    window.location.href = `mailto:${userEmail}?subject=${subject}&body=${body}`;
+    const resp = await fetch("/api/remind", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to: userEmail })
+    });
+
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      throw new Error(data.error || "Failed to send reminder email.");
+    }
 
     await refreshWithCurrentInputs();
   } catch (e) {
