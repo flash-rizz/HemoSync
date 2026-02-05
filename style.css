@@ -31,6 +31,21 @@ body {
     flex-direction: column;
 }
 
+/* Login page: keep content vertically balanced */
+.login-container {
+    min-height: 80vh;
+    justify-content: center;
+    gap: 16px;
+}
+
+.login-container .login-header {
+    margin-bottom: 20px;
+}
+
+.login-container .login-form-container {
+    margin-top: 0;
+}
+
 /* --- NEW: Dashboard Specific Container --- */
 /* Add this class to donor_home.html, donor_profile.html, etc. */
 .dashboard-container {
