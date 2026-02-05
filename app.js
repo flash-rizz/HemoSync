@@ -195,9 +195,12 @@ if (loginForm) {
 
       errorMsg.style.color = "red";
       if (error.code === "auth/user-not-found") {
-        errorMsg.textContent = "Account not found. Please Sign Up.";
-      } else if (error.code === "auth/wrong-password") {
-        errorMsg.textContent = "Incorrect password.";
+        errorMsg.textContent = "Account not found. Please sign up first.";
+      } else if (
+        error.code === "auth/wrong-password" ||
+        error.code === "auth/invalid-login-credentials"
+      ) {
+        errorMsg.textContent = "Invalid email or password.";
       } else if (error.code === "auth/too-many-requests") {
         errorMsg.textContent = "Too many failed attempts. Try again later.";
       } else {
