@@ -254,7 +254,7 @@ function renderUserCard(docSnap) {
   return `
     <div class="${cardClass}">
       <div class="user-card-row">
-        <div style="flex: 1;">
+        <div style="flex: 1; text-align: left;">
           <div class="label">Full name</div>
           <div class="value">${user.fullname || "-"}</div>
           <div class="subvalue">${user.email || "-"}</div>
@@ -414,16 +414,16 @@ window.viewUser = async function (userId) {
     const u = snap.data();
 
     detailContent.innerHTML = `
-      <div><strong>Full Name:</strong><br>${u.fullname || "-"}</div>
-      <div><strong>Email:</strong><br>${u.email || "-"}</div>
-      <div><strong>Role:</strong><br>${u.role || "-"}</div>
-      <div><strong>Status:</strong><br>${normalizeStatus(u)}</div>
-      <div><strong>Phone:</strong><br>${u.phone || "-"}</div>
-      <div><strong>IC / ID:</strong><br>${u.ic || "-"}</div>
-      <div><strong>Gender:</strong><br>${u.gender || "-"}</div>
-      <div><strong>Address:</strong><br>${u.address || "-"}</div>
-      <div><strong>Blood Type:</strong><br>${u.bloodType || "-"}</div>
-      <div><strong>Last Updated:</strong><br>${u.updatedAt || "-"}</div>
+      <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${u.fullname || "-"}</span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${u.email || "-"}</span></div>
+      <div class="detail-row"><span class="detail-label">Role</span><span class="detail-value">${u.role || "-"}</span></div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${normalizeStatus(u)}</span></div>
+      <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${u.phone || "-"}</span></div>
+      <div class="detail-row"><span class="detail-label">IC / ID</span><span class="detail-value">${u.ic || "-"}</span></div>
+      <div class="detail-row"><span class="detail-label">Gender</span><span class="detail-value">${u.gender || "-"}</span></div>
+      <div class="detail-row"><span class="detail-label">Address</span><span class="detail-value">${u.address || "-"}</span></div>
+      <div class="detail-row"><span class="detail-label">Blood Type</span><span class="detail-value">${u.bloodType || "-"}</span></div>
+      <div class="detail-row"><span class="detail-label">Last Updated</span><span class="detail-value">${u.updatedAt || "-"}</span></div>
     `;
 
     if (detailActions) {
