@@ -296,7 +296,7 @@ function renderUserRow(docSnap, index = 0) {
   `;
 }
 
-function renderUserCard(docSnap) {
+function renderUserCard(docSnap, index = 0) {
   const user = docSnap.data();
 
   const status = normalizeStatus(user);
@@ -307,8 +307,10 @@ function renderUserCard(docSnap) {
   const showUnsuspend = status === "Suspended";
   const cardClass = status === "Pending" ? "user-card pending" : "user-card";
 
+  const delay = index * 0.08;
+
   return `
-    <div class="${cardClass}">
+    <div class="${cardClass}" style="animation-delay: ${delay}s;">
       <div class="user-card-row">
         <div style="flex: 1; text-align: left;">
           <div class="label">Full name</div>
@@ -389,7 +391,7 @@ function renderCurrentPage() {
     let index = 0;
     pageDocs.forEach((docSnap) => {
       if (tableBody) tableBody.innerHTML += renderUserRow(docSnap, index);
-      if (mobileCards) mobileCards.innerHTML += renderUserCard(docSnap);
+      if (mobileCards) mobileCards.innerHTML += renderUserCard(docSnap, index);
       index++;
     });
   }

@@ -435,6 +435,7 @@ tbody tr {
     animation: fadeInUp 0.5s ease forwards;
 }
 
+
 /* --- TABS (For Profile) --- */
 .profile-tabs {
     display: flex;
