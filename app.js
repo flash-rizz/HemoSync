@@ -166,12 +166,15 @@ if (loginForm) {
         }
 
         const role = userData.role;
+        const redirectParam = new URLSearchParams(window.location.search).get("redirect");
 
         errorMsg.style.color = "green";
         errorMsg.textContent = "Login successful! Redirecting...";
 
         setTimeout(() => {
-          if (role === "donor") {
+          if (role === "donor" && redirectParam) {
+            window.location.href = decodeURIComponent(redirectParam);
+          } else if (role === "donor") {
             window.location.href = "donor_home.html";
           } else if (role === "organiser") {
             window.location.href = "organiser_dashboard.html";

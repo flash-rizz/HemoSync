@@ -36,7 +36,8 @@ onAuthStateChanged(auth, async (user) => {
             populateForms(docSnap.data());
         }
     } else {
-        window.location.href = "index.html";
+        const redirectTarget = window.location.pathname + window.location.search + window.location.hash;
+        window.location.href = `index.html?redirect=${encodeURIComponent(redirectTarget)}`;
     }
 });
 
