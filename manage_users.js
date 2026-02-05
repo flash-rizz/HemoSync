@@ -75,6 +75,7 @@ let currentPage = 1;
 let pageSize = parseInt(pageSizeSelect.value, 10) || 20;
 
 let cachedFilteredDocs = [];
+let searchDebounceId = null;
 
 function normalizeStatus(user) {
   if (user.status === "Suspended") return "Suspended";
@@ -89,6 +90,27 @@ function statusToColor(status) {
   return "#95a5a6";
 }
 
+if (searchInput) {
+  searchInput.addEventListener("input", handleAutoSearch);
+}
+
+function formatDate(value) {
+  if (!value) return "-";
+  if (typeof value.toDate === "function") {
+    return value.toDate().toLocaleString();
+  }
+  if (value instanceof Date) {
+    return value.toLocaleString();
+  }
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleString();
+    }
+  }
+  return "-";
+}
+
 function updateHeadsUpVisibility() {
   pendingHeadsUp.style.display =
     statusFilterSelect.value === "Pending" ? "block" : "none";
@@ -98,6 +120,13 @@ function setPendingCounter(count) {
   if (!pendingCounter) return;
   const span = pendingCounter.querySelector("span");
   if (span) span.innerText = `Pending: ${count}`;
+}
+
+function handleAutoSearch() {
+  if (searchDebounceId) clearTimeout(searchDebounceId);
+  searchDebounceId = setTimeout(() => {
+    refreshWithCurrentInputs();
+  }, 300);
 }
 
 async function logAdminAction(actionType, payload) {
@@ -140,7 +169,8 @@ window.unverifyUser = async function (userId, userEmail) {
       isProfileComplete: false,
       status: "Pending",
       unverifiedAt: new Date().toISOString(),
-      unverifiedBy: "admin"
+      unverifiedBy: "admin",
+      updatedAt: new Date().toISOString()
     });
 
     await logAdminAction("UNVERIFY_USER", { userId, userEmail });
@@ -173,7 +203,8 @@ window.remindUser = async function (userId, userEmail) {
 
     await updateDoc(doc(db, "users", userId), {
       lastReminderAt: new Date().toISOString(),
-      lastReminderBy: "admin"
+      lastReminderBy: "admin",
+      updatedAt: new Date().toISOString()
     });
 
     await logAdminAction("REMIND_USER", { userId, userEmail });
@@ -444,11 +475,10 @@ window.viewUser = async function (userId) {
       <div class="detail-row"><span class="detail-label">Role</span><span class="detail-value">${u.role || "-"}</span></div>
       <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${normalizeStatus(u)}</span></div>
       <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${u.phone || "-"}</span></div>
-      <div class="detail-row"><span class="detail-label">IC / ID</span><span class="detail-value">${u.ic || "-"}</span></div>
       <div class="detail-row"><span class="detail-label">Gender</span><span class="detail-value">${u.gender || "-"}</span></div>
       <div class="detail-row"><span class="detail-label">Address</span><span class="detail-value">${u.address || "-"}</span></div>
       <div class="detail-row"><span class="detail-label">Blood Type</span><span class="detail-value">${u.bloodType || "-"}</span></div>
-      <div class="detail-row"><span class="detail-label">Last Updated</span><span class="detail-value">${u.updatedAt || "-"}</span></div>
+      <div class="detail-row"><span class="detail-label">Last Updated</span><span class="detail-value">${formatDate(u.updatedAt)}</span></div>
     `;
 
     if (detailActions) {
@@ -507,7 +537,8 @@ async function suspendUser(userId, reason) {
       status: "Suspended",
       suspensionReason: reason || "Violation of terms",
       suspendedAt: new Date().toISOString(),
-      suspendedBy: "admin"
+      suspendedBy: "admin",
+      updatedAt: new Date().toISOString()
     });
 
     await logAdminAction("SUSPEND_USER", { userId, reason });
@@ -533,7 +564,8 @@ window.unsuspendUser = async function (userId, userEmail, isProfileComplete) {
       suspendedAt: null,
       suspendedBy: null,
       unsuspendedAt: new Date().toISOString(),
-      unsuspendedBy: "admin"
+      unsuspendedBy: "admin",
+      updatedAt: new Date().toISOString()
     });
 
     await logAdminAction("UNSUSPEND_USER", { userId, userEmail, nextStatus });

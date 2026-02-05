@@ -88,7 +88,8 @@ document.getElementById('personalForm').addEventListener('submit', async (e) => 
     
     const updateData = {
         phone: document.getElementById('phone').value,
-        address: document.getElementById('address').value
+        address: document.getElementById('address').value,
+        updatedAt: new Date().toISOString()
     };
 
     try {
@@ -156,7 +157,8 @@ document.getElementById('screeningForm').addEventListener('submit', async (e) =>
         isProfileComplete: true, 
         eligibilityStatus: status,
         rejectionReason: rejectionReason,
-        lastScreeningDate: new Date()
+        lastScreeningDate: new Date(),
+        updatedAt: new Date().toISOString()
     };
 
     try {
