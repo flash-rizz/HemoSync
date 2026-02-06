@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, query, orderBy, limit, getDocs, where } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDmmZr7FuJV39cK_9WqabqS26doV04USgE",
@@ -29,7 +29,7 @@ onAuthStateChanged(auth, async (user) => {
                 currentUserData = docSnap.data();
                 document.getElementById('welcomeName').textContent = "Hi, " + (currentUserData.fullname || "Donor");
                 
-                checkAppointment(user.uid);
+                await checkAppointment(user.uid);
                 
                 checkNotifications(currentUserData.bloodType);
             }
@@ -41,31 +41,102 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-function checkAppointment(currentUid) {
+function renderAppointmentCard(appointment) {
     const card = document.getElementById('appointmentCard');
     const noCard = document.getElementById('noAppointmentCard');
-    
+    if (!appointment) {
+        if (card) card.style.display = 'none';
+        if (noCard) noCard.style.display = 'block';
+        return;
+    }
+
+    if (card) {
+        card.style.display = 'block';
+        document.getElementById('reminderTitle').textContent = appointment.eventName || "Blood Donation";
+        document.getElementById('reminderLocation').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${appointment.location || "Location TBD"}`;
+        document.getElementById('reminderTime').textContent = appointment.time || "--:--";
+        document.getElementById('reminderDay').textContent = appointment.day || "--";
+        document.getElementById('reminderMonth').textContent = appointment.month || "--";
+    }
+    if (noCard) noCard.style.display = 'none';
+}
+
+function toDateOnly(value) {
+    if (!value) return null;
+    if (value.toDate) return value.toDate();
+    return new Date(value);
+}
+
+function pickLatestBookedAppointment(records) {
+    const bookedOnly = records.filter(r => r.status === "Booked");
+    if (bookedOnly.length === 0) return null;
+    bookedOnly.sort((a, b) => {
+        const aCreated = toDateOnly(a.createdAt)?.getTime() || 0;
+        const bCreated = toDateOnly(b.createdAt)?.getTime() || 0;
+        return bCreated - aCreated;
+    });
+    return bookedOnly[0];
+}
+
+async function getBookedAppointmentFromDb(currentUid) {
+    const q = query(collection(db, "appointments"), where("donorId", "==", currentUid));
+    const snap = await getDocs(q);
+    const all = [];
+    snap.forEach((docSnap) => all.push({ id: docSnap.id, ...docSnap.data() }));
+    return pickLatestBookedAppointment(all);
+}
+
+function buildCardData(currentUid, appt) {
+    const eventDate = toDateOnly(appt.eventDate);
+    return {
+        userId: currentUid,
+        eventId: appt.eventId || "",
+        eventName: appt.eventName || "Blood Donation",
+        location: appt.location || appt.eventName || "Location TBD",
+        time: appt.slotTime || "--:--",
+        day: eventDate ? eventDate.getDate() : "--",
+        month: eventDate ? eventDate.toLocaleString('default', { month: 'short' }).toUpperCase() : "--"
+    };
+}
+
+async function checkAppointment(currentUid) {
+    const localAppointment = JSON.parse(localStorage.getItem('hemoSyncAppointment'));
+
+    if (localAppointment && localAppointment.userId === currentUid) {
+        renderAppointmentCard(localAppointment);
+        return;
+    }
+
+    if (localAppointment && localAppointment.userId !== currentUid) {
+        localStorage.removeItem('hemoSyncAppointment');
+    }
+
+    try {
+        const dbAppt = await getBookedAppointmentFromDb(currentUid);
+        if (!dbAppt) {
+            renderAppointmentCard(null);
+            return;
+        }
+        const cardData = buildCardData(currentUid, dbAppt);
+        localStorage.setItem('hemoSyncAppointment', JSON.stringify(cardData));
+        renderAppointmentCard(cardData);
+    } catch (error) {
+        console.error("Error loading appointment card:", error);
+        renderAppointmentCard(null);
+    }
+}
+
+async function hasActiveBooking(currentUid) {
+    if (!currentUid) return false;
     const appointment = JSON.parse(localStorage.getItem('hemoSyncAppointment'));
+    if (appointment && appointment.userId === currentUid) return true;
 
-    if (appointment && appointment.userId === currentUid) {
-        if(card) {
-            card.style.display = 'block';
-            
-            document.getElementById('reminderTitle').textContent = appointment.eventName || "Blood Donation";
-            document.getElementById('reminderLocation').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${appointment.location || "Location TBD"}`;
-            document.getElementById('reminderTime').textContent = appointment.time || "--:--";
-            document.getElementById('reminderDay').textContent = appointment.day || "--";
-            document.getElementById('reminderMonth').textContent = appointment.month || "--";
-        }
-        if(noCard) noCard.style.display = 'none';
-    } else {
-
-        if(card) card.style.display = 'none';
-        if(noCard) noCard.style.display = 'block';
-        
-        if (appointment && appointment.userId !== currentUid) {
-            localStorage.removeItem('hemoSyncAppointment');
-        }
+    try {
+        const dbAppt = await getBookedAppointmentFromDb(currentUid);
+        return !!dbAppt;
+    } catch (error) {
+        console.error("Error checking active booking:", error);
+        return false;
     }
 }
 
@@ -132,7 +203,7 @@ async function checkNotifications(userBloodType) {
     }
 }
 
-window.checkDonationEligibility = function() {
+window.checkDonationEligibility = async function() {
     if (!currentUserData) return alert("Loading profile...");
     
     if (!currentUserData.isProfileComplete) {
@@ -173,7 +244,7 @@ window.checkDonationEligibility = function() {
         }
     }
 
-    if (localStorage.getItem('hemoSyncAppointment')) {
+    if (await hasActiveBooking(auth.currentUser?.uid)) {
         alert("You already have a booking! Please visit History.");
         return;
     }

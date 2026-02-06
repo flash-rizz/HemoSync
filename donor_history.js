@@ -51,6 +51,14 @@ async function loadHistory(userId) {
             status: "Completed",
             slotTime: "02:30 PM",
             location: "MMU Cyberjaya"
+        },
+        {
+            id: "demo_3",
+            eventName: "Blood Donation Campaign",
+            eventDate: "2025-11-28",
+            status: "Completed",
+            slotTime: "05:00 PM",
+            location: "Tamarind Square"
         }
     ];
 
@@ -64,6 +72,20 @@ async function loadHistory(userId) {
         let allRecords = [...fakeHistory]; 
         querySnapshot.forEach((docSnap) => {
             allRecords.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        allRecords.sort((a, b) => {
+            if (a.status === 'Booked' && b.status !== 'Booked') return -1;
+            if (a.status !== 'Booked' && b.status === 'Booked') return 1;
+
+            if (a.status === 'Completed' && b.status === 'Completed') {
+                const isRatedA = localStorage.getItem(`rated_${a.id}`) || a.rating;
+                const isRatedB = localStorage.getItem(`rated_${b.id}`) || b.rating;
+                if (!isRatedA && isRatedB) return -1;
+                if (isRatedA && !isRatedB) return 1;
+            }
+            
+            return 0;
         });
 
         allRecords.sort((a, b) => {
