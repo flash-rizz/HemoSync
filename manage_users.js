@@ -83,6 +83,10 @@ function normalizeStatus(user) {
   return "Pending";
 }
 
+function isAdminRole(user) {
+  return (user.role || "").toLowerCase() === "admin";
+}
+
 function statusToColor(status) {
   if (status === "Suspended") return "#e74c3c";
   if (status === "Pending") return "#f39c12";
@@ -415,6 +419,9 @@ async function loadUsers(searchTerm = null, statusFilter = "ALL") {
 
     let docs = [];
     querySnapshot.forEach((d) => docs.push(d));
+
+    // Hide admin accounts from the user management list.
+    docs = docs.filter((d) => !isAdminRole(d.data()));
 
     docs = sortDocsPendingFirst(docs, statusFilter);
 
